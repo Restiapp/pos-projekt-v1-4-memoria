@@ -6,8 +6,10 @@ Ez a service layer felelős a rendelések üzleti logikájáért, beleértve:
 - CRUD műveletek (Create, Read, Update, Delete)
 - NTAK-kompatibilis ÁFA váltás (27% -> 5%)
 - Státusz validáció és átmenetek
+- Rendelés lezárás fizetettségi ellenőrzéssel
 
 Fázis 4.3 & 4.4: Order Service és NTAK ÁFA logika
+Fázis 4.7: close_order metódus hozzáadva
 """
 
 from decimal import Decimal
@@ -23,6 +25,11 @@ from backend.service_orders.schemas.order import (
     OrderResponse,
     OrderStatusEnum
 )
+
+# Circular import elkerülése: TYPE_CHECKING használata
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from backend.service_orders.services.payment_service import PaymentService
 
 
 class OrderService:
@@ -354,3 +361,78 @@ class OrderService:
             query = query.filter(Order.table_id == table_id)
 
         return query.count()
+
+    @staticmethod
+    def close_order(db: Session, order_id: int) -> Order:
+        """
+        Rendelés lezárása.
+
+        Ez a funkció lezárja a rendelést, de előtte ellenőrzi,
+        hogy a rendelés teljesen ki van-e fizetve. Csak teljesen
+        kifizetett rendelések zárhatók le.
+
+        FONTOS: A rendelés lezárása triggerel további műveleteket:
+        - NTAK adatszolgáltatás küldése
+        - Készlet levonás (inventory deduction)
+
+        Args:
+            db: SQLAlchemy session
+            order_id: A lezárandó rendelés azonosítója
+
+        Returns:
+            Order: A lezárt rendelés
+
+        Raises:
+            HTTPException 404: Ha a rendelés nem található
+            HTTPException 400: Ha a rendelés nincs teljesen kifizetve
+            HTTPException 400: Ha a rendelés lezárása sikertelen
+
+        Example:
+            >>> closed_order = OrderService.close_order(db, order_id=42)
+            >>> print(closed_order.status)
+            'LEZART'
+
+        Fázis 4.7: close_order metódus implementálva
+        """
+        # Rendelés lekérdezése
+        order = OrderService.get_order(db, order_id)
+
+        # Circular import elkerülése: lokális import
+        from backend.service_orders.services.payment_service import PaymentService
+
+        # Ellenőrizzük, hogy a rendelés teljesen ki van-e fizetve
+        if not PaymentService.is_order_fully_paid(db, order_id):
+            total_paid = PaymentService.calculate_total_paid(db, order_id)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"A rendelés nem zárható le, mert nincs teljesen kifizetve. "
+                       f"Rendelés összege: {order.total_amount} HUF, "
+                       f"Befizetett összeg: {total_paid} HUF"
+            )
+
+        try:
+            # Státusz átállítása LEZART-ra
+            order.status = OrderStatusEnum.LEZART.value
+
+            db.commit()
+            db.refresh(order)
+
+            # TODO: Trigger NTAK adatszolgáltatás küldése
+            # A NTAK modul integrációja itt fog történni (később bővítjük)
+            # Példa: ntak_service.send_order_data(order)
+
+            # TODO: Trigger inventory deduction (készlet levonás)
+            # A készlet modul integrációja itt fog történni (később bővítjük)
+            # Példa: inventory_service.deduct_items(order.order_items)
+
+            return order
+
+        except HTTPException:
+            # HTTPException-öket tovább dobni
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Hiba a rendelés lezárása során: {str(e)}"
+            )
