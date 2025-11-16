@@ -6,11 +6,14 @@ Ez a fő alkalmazás fájl a Menu Service mikroszolgáltatáshoz.
 Regisztrálja az összes routert és konfigurálja a middleware-eket.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import database initialization
 from backend.service_menu.database import init_db
+
+# Import RBAC dependencies
+from backend.service_admin.dependencies import require_permission
 
 # Import all routers
 from backend.service_menu.routers import (
@@ -68,35 +71,40 @@ async def health_check():
     }
 
 
-# Register API Routers with /api/v1 prefix
+# Register API Routers with /api/v1 prefix and RBAC protection
 app.include_router(
     categories_router,
     prefix="/api/v1",
-    tags=["Categories"]
+    tags=["Categories"],
+    dependencies=[Depends(require_permission("menu:view"))]
 )
 
 app.include_router(
     products_router,
     prefix="/api/v1",
-    tags=["Products"]
+    tags=["Products"],
+    dependencies=[Depends(require_permission("menu:view"))]
 )
 
 app.include_router(
     modifier_groups_router,
     prefix="/api/v1",
-    tags=["Modifier Groups"]
+    tags=["Modifier Groups"],
+    dependencies=[Depends(require_permission("menu:view"))]
 )
 
 app.include_router(
     images_router,
     prefix="/api/v1",
-    tags=["Images"]
+    tags=["Images"],
+    dependencies=[Depends(require_permission("menu:view"))]
 )
 
 app.include_router(
     channels_router,
     prefix="/api/v1",
-    tags=["Channels"]
+    tags=["Channels"],
+    dependencies=[Depends(require_permission("menu:view"))]
 )
 
 

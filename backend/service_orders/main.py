@@ -6,10 +6,14 @@ Ez a fő alkalmazás fájl a Orders Service mikroszolgáltatáshoz.
 Kezeli a rendeléseket, konyhai megjelenítést és a rendelési folyamatot.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_orders.config import settings
+
+# Import RBAC dependencies
+from backend.service_admin.dependencies import require_permission
+
 from backend.service_orders.routers import (
     tables_router,
     seats_router,
@@ -35,11 +39,31 @@ app.add_middleware(
     allow_headers=["*"],  # Minden header engedélyezése
 )
 
-# Register routers
-app.include_router(tables_router, prefix="/api/v1", tags=["Tables"])
-app.include_router(seats_router, prefix="/api/v1", tags=["Seats"])
-app.include_router(orders_router, prefix="/api/v1", tags=["Orders"])
-app.include_router(order_items_router, prefix="/api/v1", tags=["Order Items"])
+# Register routers with RBAC protection
+app.include_router(
+    tables_router,
+    prefix="/api/v1",
+    tags=["Tables"],
+    dependencies=[Depends(require_permission("orders:manage"))]
+)
+app.include_router(
+    seats_router,
+    prefix="/api/v1",
+    tags=["Seats"],
+    dependencies=[Depends(require_permission("orders:manage"))]
+)
+app.include_router(
+    orders_router,
+    prefix="/api/v1",
+    tags=["Orders"],
+    dependencies=[Depends(require_permission("orders:manage"))]
+)
+app.include_router(
+    order_items_router,
+    prefix="/api/v1",
+    tags=["Order Items"],
+    dependencies=[Depends(require_permission("orders:manage"))]
+)
 
 
 # Startup Event

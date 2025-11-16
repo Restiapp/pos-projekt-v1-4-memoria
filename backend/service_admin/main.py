@@ -150,15 +150,41 @@ async def service_status():
 # ============================================
 
 # Import routers
-from backend.service_admin.routers import internal_router
+from backend.service_admin.routers import (
+    internal_router,
+    employees_router,
+    roles_router,
+    permissions_router,
+    auth_router
+)
 
 # Register internal API router (V. Fázis - NTAK és Audit)
 app.include_router(internal_router)
 
-# Future router registration:
-# - Admin dashboard router
-# - System configuration router
-# app.include_router(admin_router, prefix="/admin", tags=["Admin"])
+# Register Module 6 (RBAC) routers with /api/v1 prefix
+app.include_router(
+    auth_router,
+    prefix="/api/v1",
+    tags=["Authentication"]
+)
+
+app.include_router(
+    employees_router,
+    prefix="/api/v1",
+    tags=["Employees"]
+)
+
+app.include_router(
+    roles_router,
+    prefix="/api/v1",
+    tags=["Roles"]
+)
+
+app.include_router(
+    permissions_router,
+    prefix="/api/v1",
+    tags=["Permissions"]
+)
 
 
 if __name__ == "__main__":
