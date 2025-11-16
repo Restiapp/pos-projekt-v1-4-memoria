@@ -1,10 +1,21 @@
 """
 Routers Package - FastAPI Router Exports
-Module 5: KÈszletkezelÈs
+Module 5: K√©szletkezel√©s √©s AI OCR
 
-Ez a modul export·lja az ˆsszes API routert a service_inventory mikroszolg·ltat·shoz.
+Ez a modul export√°lja az √∂sszes API routert a service_inventory mikroszolg√°ltat√°shoz.
+
+This package contains all API endpoints for the Inventory Service including:
+- Inventory Items management
+- Invoice/Receipt OCR upload
 """
 
 from backend.service_inventory.routers.inventory_items import router as inventory_items_router
+from backend.service_inventory.routers.invoices import router as invoice_router
 
-__all__ = ["inventory_items_router"]
+__all__ = [
+    # Inventory Items Router (Phase 5.1)
+    "inventory_items_router",
+
+    # Invoice/OCR Router (Phase 5.3)
+    "invoice_router",
+]
