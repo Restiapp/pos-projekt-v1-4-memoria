@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from backend.service_orders.models.database import get_db
 from backend.service_orders.services.order_service import OrderService
+from backend.service_orders.services.payment_service import PaymentService
 from backend.service_orders.schemas.order import (
     OrderCreate,
     OrderUpdate,
@@ -22,6 +23,11 @@ from backend.service_orders.schemas.order import (
     OrderListResponse,
     OrderStatusEnum,
     OrderTypeEnum
+)
+from backend.service_orders.schemas.payment import (
+    PaymentCreate,
+    PaymentResponse,
+    SplitCheckResponse
 )
 
 # Router létrehozása
@@ -305,4 +311,209 @@ def set_vat_to_local(
     """
     # Call the service layer which handles all business logic and validation
     order = OrderService.set_vat_to_local(db, order_id)
+    return OrderResponse.model_validate(order)
+
+
+# ============================================================================
+# PAYMENT ENDPOINTS (Module 4, Phase 5.7)
+# ============================================================================
+
+@orders_router.post(
+    "/{order_id}/payments",
+    response_model=PaymentResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Record a payment for an order",
+    description="""
+    Record a new payment for a specific order.
+
+    This endpoint allows recording payments with various payment methods:
+    - Készpénz (Cash)
+    - Bankkártya (Credit Card)
+    - OTP SZÉP, K&H SZÉP, MKB SZÉP (SZÉP card variants)
+
+    The payment is automatically marked as 'SIKERES' (successful).
+    """
+)
+def record_payment(
+    order_id: int,
+    payment_data: PaymentCreate,
+    db: Session = Depends(get_db)
+) -> PaymentResponse:
+    """
+    Record a new payment for an order.
+
+    Args:
+        order_id: The unique order identifier
+        payment_data: Payment creation data (payment_method, amount)
+        db: Database session (injected)
+
+    Returns:
+        PaymentResponse: The newly recorded payment
+
+    Raises:
+        HTTPException 404: If order is not found
+        HTTPException 400: If payment recording fails
+
+    Example request body:
+        {
+            "order_id": 42,
+            "payment_method": "Készpénz",
+            "amount": 5000.00
+        }
+    """
+    payment = PaymentService.record_payment(db, payment_data)
+    return PaymentResponse.model_validate(payment)
+
+
+@orders_router.get(
+    "/{order_id}/payments",
+    response_model=List[PaymentResponse],
+    summary="Get all payments for an order",
+    description="""
+    Retrieve all successful payments associated with a specific order.
+
+    Returns a list of all payments that have been recorded for the order,
+    including payment methods and amounts.
+    """
+)
+def get_payments(
+    order_id: int,
+    db: Session = Depends(get_db)
+) -> List[PaymentResponse]:
+    """
+    Get all payments for a specific order.
+
+    Args:
+        order_id: The unique order identifier
+        db: Database session (injected)
+
+    Returns:
+        List[PaymentResponse]: List of all payments for the order
+
+    Raises:
+        HTTPException 404: If order is not found
+
+    Example:
+        GET /orders/42/payments
+    """
+    payments = PaymentService.get_payments_for_order(db, order_id)
+    return [PaymentResponse.model_validate(payment) for payment in payments]
+
+
+@orders_router.get(
+    "/{order_id}/split-check",
+    response_model=SplitCheckResponse,
+    summary="Calculate split-check for an order",
+    description="""
+    Calculate how much each person (seat) owes when splitting the bill.
+
+    This endpoint groups order items by seat_id and calculates the amount
+    owed by each person at the table. Useful for splitting bills among
+    multiple diners.
+
+    The response includes:
+    - Breakdown per seat (seat_id, amount, item count)
+    - Total order amount
+    """
+)
+def get_split_check(
+    order_id: int,
+    db: Session = Depends(get_db)
+) -> SplitCheckResponse:
+    """
+    Calculate split-check for an order based on seat assignments.
+
+    Args:
+        order_id: The unique order identifier
+        db: Database session (injected)
+
+    Returns:
+        SplitCheckResponse: Breakdown of amounts owed per seat
+
+    Raises:
+        HTTPException 404: If order is not found
+
+    Example:
+        GET /orders/42/split-check
+
+    Example response:
+        {
+            "order_id": 42,
+            "items": [
+                {
+                    "seat_id": 1,
+                    "seat_number": 1,
+                    "person_amount": 2500.00,
+                    "item_count": 3
+                },
+                {
+                    "seat_id": 2,
+                    "seat_number": 2,
+                    "person_amount": 3200.00,
+                    "item_count": 2
+                }
+            ],
+            "total_amount": 5700.00
+        }
+    """
+    return PaymentService.calculate_split_check(db, order_id)
+
+
+@orders_router.post(
+    "/{order_id}/status/close",
+    response_model=OrderResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Close an order",
+    description="""
+    Close an order after verifying it has been fully paid.
+
+    This endpoint performs several critical operations:
+    1. Verifies the order is fully paid
+    2. Updates order status to 'LEZART' (Closed)
+    3. Triggers NTAK data submission
+    4. Triggers inventory deduction
+
+    **Important constraints:**
+    - Order must be fully paid (total payments >= total amount)
+    - Cannot close an already closed order
+    - Cannot close a cancelled order
+    """
+)
+def close_order(
+    order_id: int,
+    db: Session = Depends(get_db)
+) -> OrderResponse:
+    """
+    Close an order after payment verification.
+
+    Args:
+        order_id: The unique order identifier
+        db: Database session (injected)
+
+    Returns:
+        OrderResponse: The closed order
+
+    Raises:
+        HTTPException 404: If order is not found
+        HTTPException 400: If order is not fully paid or cannot be closed
+
+    Example:
+        POST /orders/42/status/close
+
+    Example success response:
+        {
+            "id": 42,
+            "status": "LEZART",
+            "total_amount": 5000.00,
+            ...
+        }
+
+    Example error response (not fully paid):
+        {
+            "detail": "A rendelés nem zárható le, mert nincs teljesen kifizetve. Rendelés összege: 5000.00 HUF, Befizetett összeg: 3000.00 HUF"
+        }
+    """
+    # The service layer will raise HTTPException(400) if the order is not fully paid
+    # We let this exception propagate naturally to the client
+    order = OrderService.close_order(db, order_id)
     return OrderResponse.model_validate(order)
