@@ -1,17 +1,19 @@
 """
 Routers Package - API Endpoints
-Module 1: Rendeléskezelés és Asztalok
+Module 1: RendelÃ©skezelÃ©s Ã©s Asztalok
 
-API Routers for Service Orders (Module 1: Rendeléskezelés és Asztalok).
+API Routers for Service Orders (Module 1: RendelÃ©skezelÃ©s Ã©s Asztalok).
 
 This package contains all FastAPI routers for the POS Orders Service.
-Ez a csomag tartalmazza a FastAPI router-eket az API végpontokhoz.
+Ez a csomag tartalmazza a FastAPI router-eket az API vÃ©gpontokhoz.
 """
 
 from .tables import router as tables_router
 from .seats import router as seats_router
+from backend.service_orders.routers.orders import orders_router
 
 __all__ = [
     "tables_router",
     "seats_router",
+    "orders_router",
 ]
