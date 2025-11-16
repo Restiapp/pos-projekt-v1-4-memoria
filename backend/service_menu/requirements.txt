@@ -1,0 +1,41 @@
+# FastAPI and ASGI Server
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.35
+psycopg2-binary==2.9.9
+alembic==1.13.3
+
+# Pydantic for Settings and Validation
+pydantic==2.9.0
+pydantic-settings==2.5.0
+
+# Google Cloud Storage (for image uploads)
+google-cloud-storage==2.13.0
+
+# Google Cloud Vertex AI Translation
+google-cloud-translate==3.12.1
+
+# Image Processing
+Pillow==10.4.0
+
+# HTTP Client for inter-service communication
+httpx==0.27.0
+
+# Environment Variables
+python-dotenv==1.0.1
+
+# Date and Time utilities
+python-dateutil==2.9.0
+
+# Development and Testing
+pytest==8.3.3
+pytest-asyncio==0.24.0
+pytest-cov==4.1.0
+
+# Code Quality
+black==24.8.0
+flake8==7.1.1
+mypy==1.11.2
