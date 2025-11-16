@@ -10,7 +10,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_orders.config import settings
-from backend.service_orders.routers import orders_router
+from backend.service_orders.routers import (
+    tables_router,
+    seats_router,
+    orders_router,
+    order_items_router
+)
 
 # Create FastAPI application
 app = FastAPI(
@@ -31,7 +36,10 @@ app.add_middleware(
 )
 
 # Register routers
-app.include_router(orders_router)
+app.include_router(tables_router, prefix="/api/v1", tags=["Tables"])
+app.include_router(seats_router, prefix="/api/v1", tags=["Seats"])
+app.include_router(orders_router, prefix="/api/v1", tags=["Orders"])
+app.include_router(order_items_router, prefix="/api/v1", tags=["Order Items"])
 
 
 # Startup Event
