@@ -3,7 +3,7 @@ Services module for Admin Service (Module 6 & 8).
 
 This module provides business logic services for the Admin Service,
 including NTAK data submission, reporting functionality, audit logging,
-employee management, and RBAC (Role-Based Access Control).
+employee management, authentication/authorization, and RBAC (Role-Based Access Control).
 
 This module exports all service classes for business logic operations.
 """
@@ -13,6 +13,7 @@ from backend.service_admin.services.audit_log_service import AuditLogService
 from backend.service_admin.services.employee_service import EmployeeService
 from backend.service_admin.services.role_service import RoleService
 from backend.service_admin.services.permission_service import PermissionService
+from backend.service_admin.services.auth_service import AuthService, get_auth_service
 
 __all__ = [
     # NTAK Service (Module 8 - Phase 4.1)
@@ -24,6 +25,10 @@ __all__ = [
 
     # Employee Service (Module 6 - Phase 3.1)
     "EmployeeService",
+
+    # Auth Service (Module 6 - Phase 3.2)
+    "AuthService",
+    "get_auth_service",
 
     # RBAC Services (Module 6 - Phase 3.3, 3.4)
     "RoleService",
