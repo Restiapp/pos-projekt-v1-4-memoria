@@ -146,13 +146,18 @@ async def service_status():
 
 
 # ============================================
-# Future Router Registration
+# Router Registration
 # ============================================
-# Routers will be added here as they are developed:
-# - NTAK reporting router
+
+# Import routers
+from backend.service_admin.routers import internal_router
+
+# Register internal API router (V. Fázis - NTAK és Audit)
+app.include_router(internal_router)
+
+# Future router registration:
 # - Admin dashboard router
 # - System configuration router
-# app.include_router(ntak_router, prefix="/ntak", tags=["NTAK"])
 # app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 
 
