@@ -62,7 +62,7 @@ class Settings(BaseSettings):
 
     # Service Configuration
     port: int = Field(
-        default=8002,
+        default=8003,
         description="Port on which the Inventory service will run",
         ge=1024,
         le=65535
