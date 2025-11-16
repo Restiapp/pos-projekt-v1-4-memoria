@@ -109,9 +109,9 @@ def create_product(
 
         # 2. AI fordítás háttérfolyamatként (Alfeladat 7.2)
         # A fordítás aszinkron módon történik, nem blokkolja a választ
+        # FONTOS: A background task saját DB sessiont hoz létre
         background_tasks.add_task(
             service.update_product_translations,
-            db=db,
             product_id=product.id,
             translation_service=translation_service
         )
@@ -322,11 +322,11 @@ def update_product(
 
         # 2. AI fordítás újragenerálása, ha a név vagy leírás változott (Alfeladat 7.2)
         # Csak akkor fordítunk újra, ha a név vagy leírás módosult
+        # FONTOS: A background task saját DB sessiont hoz létre
         update_dict = product_data.model_dump(exclude_unset=True)
         if 'name' in update_dict or 'description' in update_dict:
             background_tasks.add_task(
                 service.update_product_translations,
-                db=db,
                 product_id=product.id,
                 translation_service=translation_service
             )

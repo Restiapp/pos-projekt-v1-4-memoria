@@ -284,7 +284,6 @@ class ProductService:
 
     @staticmethod
     def update_product_translations(
-        db: Session,
         product_id: int,
         translation_service: Optional[TranslationService] = None
     ) -> Optional[Product]:
@@ -294,8 +293,10 @@ class ProductService:
         Ez a metódus háttérfolyamatként (BackgroundTask) használható
         a termék automatikus fordításához a TranslationService-szel.
 
+        FONTOS: Ez a metódus saját adatbázis sessiont hoz létre, mert
+        háttérfolyamatként fut, amikor a request-scoped session már bezárult.
+
         Args:
-            db: SQLAlchemy database session
             product_id: Termék ID, amelynek a fordításait frissítjük
             translation_service: TranslationService instance (opcionális)
 
@@ -306,20 +307,27 @@ class ProductService:
             >>> # FastAPI háttérfolyamatból hívva:
             >>> background_tasks.add_task(
             ...     ProductService.update_product_translations,
-            ...     db, product_id, translation_service
+            ...     product_id=product_id
             ... )
         """
-        db_product = ProductService.get_product_by_id(db, product_id)
+        # Importáljuk a get_db_connection függvényt
+        from backend.service_menu.database import get_db_connection
 
-        if not db_product:
-            logger.warning(f"Product {product_id} not found for translation update")
-            return None
-
-        # TranslationService inicializálása, ha nincs megadva
-        if translation_service is None:
-            translation_service = TranslationService()
+        # Saját adatbázis session létrehozása a háttérfolyamathoz
+        db_generator = get_db_connection()
+        db = next(db_generator)
 
         try:
+            db_product = ProductService.get_product_by_id(db, product_id)
+
+            if not db_product:
+                logger.warning(f"Product {product_id} not found for translation update")
+                return None
+
+            # TranslationService inicializálása, ha nincs megadva
+            if translation_service is None:
+                translation_service = TranslationService()
+
             # Fordítások generálása
             logger.info(f"Generating translations for product {product_id}: '{db_product.name}'")
 
@@ -348,4 +356,8 @@ class ProductService:
             db.rollback()
             # Ne dobjunk exception-t, csak logoljuk a hibát
             # A termék így is használható marad fordítások nélkül
-            return db_product
+            return None
+
+        finally:
+            # Session lezárása
+            db.close()
