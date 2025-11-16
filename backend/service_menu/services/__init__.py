@@ -21,6 +21,7 @@ from backend.service_menu.services.modifier_service import (
     ModifierNotFoundError,
     ProductNotFoundError,
 )
+from backend.service_menu.services.gcs_service import GCSService
 
 __all__ = [
     'CategoryService',
@@ -30,4 +31,5 @@ __all__ = [
     'ModifierGroupNotFoundError',
     'ModifierNotFoundError',
     'ProductNotFoundError',
+    'GCSService',
 ]
