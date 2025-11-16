@@ -39,6 +39,7 @@ class Order(Base):
     # Relationships
     table = relationship('Table', back_populates='orders')
     order_items = relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
+    payments = relationship('Payment', back_populates='order', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"<Order(id={self.id}, type='{self.order_type}', status='{self.status}', total={self.total_amount})>"
