@@ -9,6 +9,7 @@ from backend.service_admin.routers.internal import internal_router
 from backend.service_admin.routers.employees import employees_router
 from backend.service_admin.routers.roles import roles_router
 from backend.service_admin.routers.permissions import permissions_router
+from backend.service_admin.routers.auth import auth_router
 
 __all__ = [
     # Internal Router (Module 8 - NTAK)
@@ -22,4 +23,7 @@ __all__ = [
 
     # Permission Router (Module 6 - Phase 4.3)
     "permissions_router",
+
+    # Auth Router (Module 6 - Phase 4.4)
+    "auth_router",
 ]
