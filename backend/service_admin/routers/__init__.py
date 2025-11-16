@@ -8,6 +8,7 @@ Includes both Module 8 (NTAK/Internal) and Module 6 (RBAC) routers.
 from backend.service_admin.routers.internal import internal_router
 from backend.service_admin.routers.employees import employees_router
 from backend.service_admin.routers.roles import roles_router
+from backend.service_admin.routers.permissions import permissions_router
 
 __all__ = [
     # Internal Router (Module 8 - NTAK)
@@ -18,4 +19,7 @@ __all__ = [
 
     # Role Router (Module 6 - Phase 4.2)
     "roles_router",
+
+    # Permission Router (Module 6 - Phase 4.3)
+    "permissions_router",
 ]
