@@ -2,7 +2,7 @@
 Pydantic schemas for the Service Orders module (Module 1).
 
 This package contains all request/response schemas for the POS Service Orders,
-including tables, seats, orders, and order items.
+including tables, seats, orders, order items, and payments.
 
 Usage:
     from backend.service_orders.schemas import (
@@ -13,7 +13,10 @@ Usage:
         OrderCreate,
         OrderResponse,
         OrderItemCreate,
-        OrderItemResponse
+        OrderItemResponse,
+        PaymentCreate,
+        PaymentResponse,
+        SplitCheckResponse
     )
 """
 
@@ -60,6 +63,15 @@ from .order_item import (
     OrderItemListResponse,
 )
 
+# Payment schemas
+from .payment import (
+    PaymentBase,
+    PaymentCreate,
+    PaymentResponse,
+    SplitCheckItemSchema,
+    SplitCheckResponse,
+)
+
 __all__ = [
     # Table
     "TableBase",
@@ -92,4 +104,10 @@ __all__ = [
     "OrderItemInDB",
     "OrderItemResponse",
     "OrderItemListResponse",
+    # Payment
+    "PaymentBase",
+    "PaymentCreate",
+    "PaymentResponse",
+    "SplitCheckItemSchema",
+    "SplitCheckResponse",
 ]
