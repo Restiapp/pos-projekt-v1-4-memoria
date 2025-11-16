@@ -10,11 +10,13 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_inventory.config import settings
-from backend.service_inventory.routers import inventory_items_router, invoice_router
 
 # Import all routers
 from backend.service_inventory.routers import (
+    inventory_items_router,
+    invoice_router,
     recipes_router,
+    daily_inventory_router,
 )
 
 # Create FastAPI application
@@ -85,6 +87,12 @@ app.include_router(
     recipes_router,
     prefix="/api/v1/inventory",
     tags=["Recipes"]
+)
+
+app.include_router(
+    daily_inventory_router,
+    prefix="/api/v1/inventory",
+    tags=["Daily Inventory"]
 )
 
 
