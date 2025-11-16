@@ -12,6 +12,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.service_inventory.config import settings
 from backend.service_inventory.routers import inventory_items_router, invoice_router
 
+# Import all routers
+from backend.service_inventory.routers import (
+    recipes_router,
+)
+
 # Create FastAPI application
 app = FastAPI(
     title="Module 5: Inventory Service",
@@ -73,6 +78,14 @@ async def health_check():
             "perpetual_inventory": "pending"
         }
     }
+
+
+# Register API Routers with /api/v1 prefix
+app.include_router(
+    recipes_router,
+    prefix="/api/v1/inventory",
+    tags=["Recipes"]
+)
 
 
 # Root endpoint
