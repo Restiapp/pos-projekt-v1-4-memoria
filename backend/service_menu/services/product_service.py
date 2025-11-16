@@ -5,14 +5,21 @@ Module 0: Terméktörzs és Menü
 Ez a service kezeli a Product entitáshoz kapcsolódó üzleti logikát.
 Tartalmazza az alapvető CRUD műveleteket és a termékekhez kapcsolódó
 speciális lekérdezéseket.
+
+Alfeladat 7.2: AI fordítás integráció - A create_product és update_product
+metódusok támogatják az automatikus fordítást a TranslationService használatával.
 """
 
+import logging
 from typing import Optional, List
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from backend.service_menu.models.product import Product
 from backend.service_menu.schemas.product import ProductCreate, ProductUpdate
+from backend.service_menu.services.translation_service import TranslationService
+
+logger = logging.getLogger(__name__)
 
 
 class ProductService:
@@ -272,3 +279,73 @@ class ProductService:
         db.commit()
         db.refresh(db_product)
         return db_product
+
+    # --- AI Translation Methods (Alfeladat 7.2) ---
+
+    @staticmethod
+    def update_product_translations(
+        db: Session,
+        product_id: int,
+        translation_service: Optional[TranslationService] = None
+    ) -> Optional[Product]:
+        """
+        Termék fordításainak frissítése AI segítségével.
+
+        Ez a metódus háttérfolyamatként (BackgroundTask) használható
+        a termék automatikus fordításához a TranslationService-szel.
+
+        Args:
+            db: SQLAlchemy database session
+            product_id: Termék ID, amelynek a fordításait frissítjük
+            translation_service: TranslationService instance (opcionális)
+
+        Returns:
+            Optional[Product]: A frissített termék vagy None, ha nem található
+
+        Example:
+            >>> # FastAPI háttérfolyamatból hívva:
+            >>> background_tasks.add_task(
+            ...     ProductService.update_product_translations,
+            ...     db, product_id, translation_service
+            ... )
+        """
+        db_product = ProductService.get_product_by_id(db, product_id)
+
+        if not db_product:
+            logger.warning(f"Product {product_id} not found for translation update")
+            return None
+
+        # TranslationService inicializálása, ha nincs megadva
+        if translation_service is None:
+            translation_service = TranslationService()
+
+        try:
+            # Fordítások generálása
+            logger.info(f"Generating translations for product {product_id}: '{db_product.name}'")
+
+            translations = translation_service.translate_product_text(
+                name=db_product.name,
+                description=db_product.description
+            )
+
+            # Fordítások mentése az adatbázisba
+            db_product.translations = translations
+            db.commit()
+            db.refresh(db_product)
+
+            logger.info(
+                f"Translations updated successfully for product {product_id}. "
+                f"Languages: {list(translations.keys())}"
+            )
+
+            return db_product
+
+        except Exception as e:
+            logger.error(
+                f"Error updating translations for product {product_id}: {str(e)}",
+                exc_info=True
+            )
+            db.rollback()
+            # Ne dobjunk exception-t, csak logoljuk a hibát
+            # A termék így is használható marad fordítások nélkül
+            return db_product

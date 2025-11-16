@@ -4,14 +4,18 @@ Module 0: Terméktörzs és Menü
 
 Ez a modul tartalmazza a Product entitáshoz kapcsolódó FastAPI végpontokat.
 Implementálja a teljes CRUD műveletsort és támogatja a lapozást és szűrést.
+
+Alfeladat 7.2: AI fordítás integráció - A POST és PUT végpontok
+automatikusan lefordítják a termékeket háttérfolyamatként.
 """
 
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from backend.service_menu.database import get_db_connection
 from backend.service_menu.services.product_service import ProductService
+from backend.service_menu.services.translation_service import TranslationService
 from backend.service_menu.schemas.product import (
     ProductCreate,
     ProductUpdate,
@@ -37,6 +41,16 @@ def get_product_service() -> ProductService:
     return ProductService()
 
 
+def get_translation_service() -> TranslationService:
+    """
+    Dependency function a TranslationService injektálásához.
+
+    Returns:
+        TranslationService: Translation service instance
+    """
+    return TranslationService()
+
+
 @router.post(
     "",
     response_model=ProductResponse,
@@ -47,6 +61,11 @@ def get_product_service() -> ProductService:
 
     This endpoint allows you to create a new product with all necessary details
     including name, description, base price, category association, SKU, and active status.
+
+    **AI Translation (Alfeladat 7.2):**
+    - Automatically translates product name and description to multiple languages
+    - Translation happens in the background (asynchronous)
+    - Supported languages: English, German, French, Italian, Spanish
 
     **Requirements:**
     - Product name is required (1-255 characters)
@@ -60,16 +79,23 @@ def get_product_service() -> ProductService:
 )
 def create_product(
     product_data: ProductCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db_connection),
-    service: ProductService = Depends(get_product_service)
+    service: ProductService = Depends(get_product_service),
+    translation_service: TranslationService = Depends(get_translation_service)
 ):
     """
-    Új termék létrehozása.
+    Új termék létrehozása AI fordítással.
+
+    A termék létrehozása után automatikusan elindít egy háttérfolyamatot,
+    amely lefordítja a termék nevét és leírását több nyelvre.
 
     Args:
         product_data: ProductCreate schema with product details
+        background_tasks: FastAPI background tasks (injected)
         db: Database session (injected)
         service: ProductService instance (injected)
+        translation_service: TranslationService instance (injected)
 
     Returns:
         ProductResponse: Created product details
@@ -78,7 +104,18 @@ def create_product(
         HTTPException 400: If SKU already exists or validation fails
     """
     try:
+        # 1. Termék létrehozása
         product = service.create_product(db, product_data)
+
+        # 2. AI fordítás háttérfolyamatként (Alfeladat 7.2)
+        # A fordítás aszinkron módon történik, nem blokkolja a választ
+        background_tasks.add_task(
+            service.update_product_translations,
+            db=db,
+            product_id=product.id,
+            translation_service=translation_service
+        )
+
         return product
     except ValueError as e:
         raise HTTPException(
@@ -227,6 +264,11 @@ def get_product(
     This endpoint allows partial updates - you only need to provide the fields
     you want to change. All other fields will remain unchanged.
 
+    **AI Translation (Alfeladat 7.2):**
+    - If name or description is updated, automatically re-translates to all languages
+    - Translation happens in the background (asynchronous)
+    - Existing translations are updated with new values
+
     **Path Parameters:**
     - `product_id`: Unique product identifier (integer)
 
@@ -242,17 +284,24 @@ def get_product(
 def update_product(
     product_id: int,
     product_data: ProductUpdate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db_connection),
-    service: ProductService = Depends(get_product_service)
+    service: ProductService = Depends(get_product_service),
+    translation_service: TranslationService = Depends(get_translation_service)
 ):
     """
-    Termék frissítése.
+    Termék frissítése AI fordítással.
+
+    Ha a termék neve vagy leírása megváltozik, automatikusan újrafordítja
+    a terméket minden támogatott nyelvre háttérfolyamatként.
 
     Args:
         product_id: Product unique identifier
         product_data: ProductUpdate schema with fields to update
+        background_tasks: FastAPI background tasks (injected)
         db: Database session (injected)
         service: ProductService instance (injected)
+        translation_service: TranslationService instance (injected)
 
     Returns:
         ProductResponse: Updated product details
@@ -262,12 +311,24 @@ def update_product(
         HTTPException 400: If validation fails or SKU already exists
     """
     try:
+        # 1. Termék frissítése
         product = service.update_product(db, product_id, product_data)
 
         if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Product with ID {product_id} not found"
+            )
+
+        # 2. AI fordítás újragenerálása, ha a név vagy leírás változott (Alfeladat 7.2)
+        # Csak akkor fordítunk újra, ha a név vagy leírás módosult
+        update_dict = product_data.model_dump(exclude_unset=True)
+        if 'name' in update_dict or 'description' in update_dict:
+            background_tasks.add_task(
+                service.update_product_translations,
+                db=db,
+                product_id=product.id,
+                translation_service=translation_service
             )
 
         return product
