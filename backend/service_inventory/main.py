@@ -6,10 +6,13 @@ Ez a fő alkalmazás fájl az Inventory Service mikroszolgáltatáshoz.
 Kezeli a készletkezelést, receptúrákat, és Document AI OCR integrációt.
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_inventory.config import settings
+
+# Import RBAC dependencies
+from backend.service_admin.dependencies import require_permission
 
 # Import all routers
 from backend.service_inventory.routers import (
@@ -37,13 +40,17 @@ app.add_middleware(
     allow_headers=["*"],  # Minden header engedélyezése
 )
 
-# Register API Routers
-app.include_router(inventory_items_router)
+# Register API Routers with RBAC protection
+app.include_router(
+    inventory_items_router,
+    dependencies=[Depends(require_permission("inventory:manage"))]
+)
 
 app.include_router(
     invoice_router,
     prefix="/inventory",
-    tags=["inventory"]
+    tags=["inventory"],
+    dependencies=[Depends(require_permission("inventory:manage"))]
 )
 
 
@@ -82,17 +89,19 @@ async def health_check():
     }
 
 
-# Register API Routers with /api/v1 prefix
+# Register API Routers with /api/v1 prefix and RBAC protection
 app.include_router(
     recipes_router,
     prefix="/api/v1/inventory",
-    tags=["Recipes"]
+    tags=["Recipes"],
+    dependencies=[Depends(require_permission("inventory:manage"))]
 )
 
 app.include_router(
     daily_inventory_router,
     prefix="/api/v1/inventory",
-    tags=["Daily Inventory"]
+    tags=["Daily Inventory"],
+    dependencies=[Depends(require_permission("inventory:manage"))]
 )
 
 
