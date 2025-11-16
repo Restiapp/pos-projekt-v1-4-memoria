@@ -8,11 +8,13 @@ This package contains all API endpoints for the Inventory Service including:
 - Inventory Items management
 - Invoice/Receipt OCR upload
 - Recipes management
+- Daily Inventory sheets
 """
 
 from backend.service_inventory.routers.inventory_items import router as inventory_items_router
 from backend.service_inventory.routers.invoices import router as invoice_router
 from .recipes import router as recipes_router
+from .daily_inventory import daily_inventory_router
 
 __all__ = [
     # Inventory Items Router (Phase 5.1)
@@ -23,4 +25,7 @@ __all__ = [
 
     # Invoice/OCR Router (Phase 5.3)
     "invoice_router",
+
+    # Daily Inventory Router (Phase 5.4)
+    "daily_inventory_router",
 ]
