@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_inventory.config import settings
+from backend.service_inventory.routers import invoice_router
 
 # Create FastAPI application
 app = FastAPI(
@@ -27,6 +28,13 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # Minden HTTP metódus engedélyezése
     allow_headers=["*"],  # Minden header engedélyezése
+)
+
+# Register API Routers
+app.include_router(
+    invoice_router,
+    prefix="/inventory",
+    tags=["inventory"]
 )
 
 
