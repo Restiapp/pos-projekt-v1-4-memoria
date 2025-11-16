@@ -12,5 +12,6 @@ Ez a csomag tartalmazza a FastAPI router-eket az API végpontokhoz.
 from .categories import router as categories_router
 from .products import router as products_router
 from .modifier_groups import router as modifier_groups_router
+from .channels import router as channels_router
 
-__all__ = ["categories_router", "products_router", "modifier_groups_router"]
+__all__ = ["categories_router", "products_router", "modifier_groups_router", "channels_router"]
