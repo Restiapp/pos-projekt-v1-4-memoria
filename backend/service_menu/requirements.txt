@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic
+psycopg2-binary
+sqlalchemy
+python-dotenv
+google-cloud-storage
+google-cloud-aiplatform
+pillow
