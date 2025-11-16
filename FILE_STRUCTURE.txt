@@ -1,0 +1,45 @@
+/
+├── .claude/
+│   └── skills/
+│       ├── skill-module-0-menu.md
+│       ├── skill-module-1-orders.md
+│       ├── skill-module-2-tables.md
+│       ├── skill-module-3-kds.md
+│       ├── skill-module-4-billing.md
+│       ├── skill-module-5-inventory.md
+│       ├── skill-module-6-employees.md
+│       ├── skill-module-7-crm.md
+│       └── skill-module-8-ntak.md
+├── docs/
+│   ├── DOCS_ARCHITECTURE.md
+│   ├── DOCS_DATABASE.md
+│   ├── DOCS_LIBRARIES.md
+│   └── DOCS_MODULES.md
+├── backend/
+│   ├── service_menu/         # Modul 0
+│   ├── service_orders/       # Modul 1, 2
+│   ├── service_kds/          # Modul 3
+│   ├── service_billing/      # Modul 4
+│   ├── service_inventory/    # Modul 5
+│   ├── service_employees/    # Modul 6
+│   ├── service_crm/          # Modul 7
+│   ├── service_admin/        # Modul 8
+│   └── api_gateway/          # Konfiguráció
+├── frontend/
+│   ├── public/
+│   └── src/
+│       ├── components/
+│       ├── views/
+│       │   ├── ViewKDS.jsx
+│       │   ├── ViewTableMap.jsx
+│       │   └── ViewDelivery.jsx
+│       └── services/
+├── scripts/
+│   └── db_migrations/
+├── .gitignore
+├── ARCHITECTURE.md
+├── DATABASE_SCHEMA.md
+├── API_SPECS.md
+├── SPRINT_PLAN.md
+├── TECH_STACK.md
+└── README.md
