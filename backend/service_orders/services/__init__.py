@@ -1,13 +1,17 @@
 """
 Service Layer - Business Logic
-Module 1: RendelÈskezelÈs Ès Asztalok
+Module 1: Rendel√©skezel√©s √©s Asztalok
 
-Ez a modul export·lja az ˆsszes service oszt·lyt Ès pÈld·nyt.
-A service rÈteg felelQs az ¸zleti logika vÈgrehajt·s·Èrt Ès a modell rÈteg feletti absztrakciÛÈrt.
+Ez a modul export√°lja az √∂sszes service oszt√°lyt √©s p√©ld√°nyt.
+A service r√©teg felel≈ës az √ºzleti logika v√©grehajt√°s√°√©rt √©s a modell r√©teg feletti absztrakci√≥√©rt.
+
+Import√°l√°s:
+    from backend.service_orders.services import TableService, SeatService, OrderService, table_service, seat_service
 """
 
 from backend.service_orders.services.table_service import TableService, table_service
 from backend.service_orders.services.seat_service import SeatService, seat_service
+from backend.service_orders.services.order_service import OrderService
 
 __all__ = [
     # Table Service
@@ -17,4 +21,7 @@ __all__ = [
     # Seat Service
     'SeatService',
     'seat_service',
+
+    # Order Service
+    'OrderService',
 ]
