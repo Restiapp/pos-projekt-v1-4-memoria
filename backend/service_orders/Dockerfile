@@ -1,52 +1,46 @@
-# Dockerfile for Service Orders (Modul 1)
-# Multi-stage build for production-ready Python FastAPI microservice
+# Multi-stage Dockerfile for Service Orders (Module 1)
+# Optimized for production deployment with PostgreSQL integration
 
-# Stage 1: Builder
-FROM python:3.12-slim as builder
+# Stage 1: Base Python image with system dependencies
+FROM python:3.11-slim as base
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies for PostgreSQL
 RUN apt-get update && apt-get install -y \
     gcc \
     postgresql-client \
+    libpq-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Stage 2: Dependencies installation
+FROM base as dependencies
+
+# Copy requirements file
 COPY backend/service_orders/requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Stage 2: Runtime
-FROM python:3.12-slim
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Set working directory
-WORKDIR /app
+# Stage 3: Application
+FROM dependencies as application
 
-# Install runtime dependencies
-RUN apt-get update && apt-get install -y \
-    postgresql-client \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy Python dependencies from builder
-COPY --from=builder /root/.local /root/.local
-
-# Copy application code
-COPY backend/service_orders /app/backend/service_orders
-
-# Make sure scripts in .local are usable
-ENV PATH=/root/.local/bin:$PATH
+# Copy the entire backend directory (shared models/schemas)
+COPY backend/ /app/backend/
 
 # Set environment variables
+ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
 
-# Expose the service port (default: 8002)
-EXPOSE 8002
+# Expose port 8001 (Orders Service)
+EXPOSE 8001
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8002/health')"
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8001/health || exit 1
 
 # Run the application
-CMD ["uvicorn", "backend.service_orders.main:app", "--host", "0.0.0.0", "--port", "8002"]
+CMD ["uvicorn", "backend.service_orders.main:app", "--host", "0.0.0.0", "--port", "8001"]
