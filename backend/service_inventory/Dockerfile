@@ -38,12 +38,12 @@ RUN mkdir -p /app/credentials
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# Expose port 8002 (Inventory Service)
-EXPOSE 8002
+# Expose port 8003 (Inventory Service)
+EXPOSE 8003
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8002/health || exit 1
+    CMD curl -f http://localhost:8003/health || exit 1
 
 # Run the application
-CMD ["uvicorn", "backend.service_inventory.main:app", "--host", "0.0.0.0", "--port", "8002"]
+CMD ["uvicorn", "backend.service_inventory.main:app", "--host", "0.0.0.0", "--port", "8003"]
