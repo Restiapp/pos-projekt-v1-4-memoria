@@ -39,6 +39,18 @@ class Settings(BaseSettings):
         description="URL of the Menu Service for fetching product information"
     )
 
+    # Admin Service URL (for NTAK reporting)
+    admin_service_url: str = Field(
+        default="http://localhost:8008",
+        description="URL of the Admin Service for NTAK data reporting"
+    )
+
+    # Inventory Service URL (for stock deduction)
+    inventory_service_url: str = Field(
+        default="http://localhost:8003",
+        description="URL of the Inventory Service for stock deduction"
+    )
+
     # Order Configuration
     max_order_items: int = Field(
         default=50,

@@ -17,6 +17,8 @@ from typing import Optional, List, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from fastapi import HTTPException, status
+import httpx
+import logging
 
 from backend.service_orders.models.order import Order
 from backend.service_orders.schemas.order import (
@@ -25,6 +27,9 @@ from backend.service_orders.schemas.order import (
     OrderResponse,
     OrderStatusEnum
 )
+from backend.service_orders.config import settings
+
+logger = logging.getLogger(__name__)
 
 # Circular import elkerülése: TYPE_CHECKING használata
 from typing import TYPE_CHECKING
@@ -417,13 +422,26 @@ class OrderService:
             db.commit()
             db.refresh(order)
 
-            # TODO: Trigger NTAK adatszolgáltatás küldése
-            # A NTAK modul integrációja itt fog történni (később bővítjük)
-            # Példa: ntak_service.send_order_data(order)
+            # Trigger NTAK adatszolgáltatás küldése (graceful failure)
+            try:
+                with httpx.Client() as client:
+                    ntak_url = f"{settings.admin_service_url}/internal/report-order/{order_id}"
+                    client.post(ntak_url, timeout=5.0)
+                    logger.info(f"NTAK trigger sent for order {order_id}")
+            except httpx.HTTPError as e:
+                # Graceful failure: log but don't block order closure
+                logger.warning(f"Failed to trigger NTAK for order {order_id}: {str(e)}")
 
-            # TODO: Trigger inventory deduction (készlet levonás)
-            # A készlet modul integrációja itt fog történni (később bővítjük)
-            # Példa: inventory_service.deduct_items(order.order_items)
+            # Trigger inventory deduction (graceful failure)
+            try:
+                with httpx.Client() as client:
+                    inventory_url = f"{settings.inventory_service_url}/internal/deduct-stock"
+                    payload = {"order_id": order_id}
+                    client.post(inventory_url, json=payload, timeout=5.0)
+                    logger.info(f"Inventory deduction triggered for order {order_id}")
+            except httpx.HTTPError as e:
+                # Graceful failure: log but don't block order closure
+                logger.warning(f"Failed to trigger inventory deduction for order {order_id}: {str(e)}")
 
             return order
 
