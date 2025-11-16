@@ -100,6 +100,40 @@ class Settings(BaseSettings):
         le=128
     )
 
+    # JWT Authentication Configuration (Module 6 - RBAC)
+    jwt_secret_key: str = Field(
+        ...,
+        description="Secret key for JWT token signing (use strong random string)",
+        min_length=32
+    )
+
+    jwt_algorithm: str = Field(
+        default="HS256",
+        description="JWT signing algorithm (HS256, HS384, HS512)"
+    )
+
+    jwt_access_token_expire_minutes: int = Field(
+        default=60,
+        description="JWT access token expiration time in minutes",
+        ge=5,
+        le=1440
+    )
+
+    # PIN Code Configuration (Module 6 - RBAC)
+    pin_code_min_length: int = Field(
+        default=4,
+        description="Minimum PIN code length for employee authentication",
+        ge=4,
+        le=8
+    )
+
+    pin_code_max_length: int = Field(
+        default=6,
+        description="Maximum PIN code length for employee authentication",
+        ge=4,
+        le=8
+    )
+
     # Logging Configuration
     log_level: str = Field(
         default="INFO",
