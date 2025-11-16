@@ -32,13 +32,14 @@ RUN apt-get update && apt-get install -y \
 # Copy Python dependencies from builder
 COPY --from=builder /root/.local /root/.local
 
-# Copy application code
-COPY backend/service_admin /app/backend/service_admin
+# Copy the entire backend directory (shared models/schemas)
+COPY backend/ /app/backend/
 
 # Make sure scripts in .local are usable
 ENV PATH=/root/.local/bin:$PATH
 
 # Set environment variables
+ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
