@@ -9,6 +9,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { TableMapPage } from '@/pages/TableMapPage';
 import { KdsPage } from '@/pages/KdsPage';
+import { PaymentPage } from '@/pages/PaymentPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 function App() {
@@ -51,6 +52,16 @@ function App() {
           element={
             <ProtectedRoute>
               <KdsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ÚJ ROUTE: Fizetési Képernyő */}
+        <Route
+          path="/orders/:orderId/pay"
+          element={
+            <ProtectedRoute>
+              <PaymentPage />
             </ProtectedRoute>
           }
         />
