@@ -13,11 +13,91 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/api': {
+      // ========================================
+      // Admin Service (Port 8008)
+      // ========================================
+      '/api/auth': {
         target: 'http://localhost:8008',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api/v1')
-      }
+        rewrite: (path) => path.replace(/^\/api\/auth/, '/api/v1/auth')
+      },
+      '/api/employees': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/employees/, '/api/v1/employees')
+      },
+      '/api/roles': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/roles/, '/api/v1/roles')
+      },
+      '/api/permissions': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/permissions/, '/api/v1/permissions')
+      },
+
+      // ========================================
+      // Orders Service (Port 8002)
+      // ========================================
+      '/api/tables': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/tables/, '/api/v1/tables')
+      },
+      '/api/seats': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/seats/, '/api/v1/seats')
+      },
+      '/api/orders': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/orders/, '/api/v1/orders')
+      },
+      '/api/order_items': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/order_items/, '/api/v1/order_items')
+      },
+
+      // ========================================
+      // Menu Service (Port 8001)
+      // ========================================
+      '/api/categories': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/categories/, '/api/v1/categories')
+      },
+      '/api/products': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/products/, '/api/v1/products')
+      },
+      '/api/modifier_groups': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/modifier_groups/, '/api/v1/modifier_groups')
+      },
+      '/api/images': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/images/, '/api/v1/images')
+      },
+      '/api/channels': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/channels/, '/api/v1/channels')
+      },
+
+      // ========================================
+      // Inventory Service (Port 8003)
+      // ========================================
+      '/api/inventory': {
+        target: 'http://localhost:8003',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/inventory/, '/api/v1/inventory')
+      },
     }
   }
 })

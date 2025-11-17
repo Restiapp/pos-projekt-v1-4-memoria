@@ -1,6 +1,13 @@
 /**
  * Table Service - Asztalok és ülések API hívások
- * Használja az apiClient-et (automatikus JWT token injection)
+ *
+ * Backend endpoints (service_orders:8002):
+ *   - GET /api/v1/tables
+ *   - GET /api/v1/seats/by-table/{table_id}
+ *
+ * Frontend hívások:
+ *   - GET /api/tables → Vite proxy → http://localhost:8002/api/v1/tables
+ *   - GET /api/seats/by-table/{id} → Vite proxy → http://localhost:8002/api/v1/seats/by-table/{id}
  */
 
 import apiClient from './api';
@@ -15,11 +22,11 @@ interface TableListResponse {
 
 /**
  * Összes asztal lekérése
- * Backend: GET /api/v1/tables?page=1&page_size=100
+ * Proxy Target: http://localhost:8002/api/v1/tables?page=1&page_size=100
  */
 export const getTables = async (): Promise<Table[]> => {
   try {
-    const response = await apiClient.get<TableListResponse>('/v1/tables', {
+    const response = await apiClient.get<TableListResponse>('/api/tables', {
       params: {
         page: 1,
         page_size: 100, // Jelenleg az összes asztal egy kérésben
@@ -34,11 +41,11 @@ export const getTables = async (): Promise<Table[]> => {
 
 /**
  * Adott asztalhoz tartozó ülések lekérése
- * Backend: GET /api/v1/seats/by-table/{table_id}
+ * Proxy Target: http://localhost:8002/api/v1/seats/by-table/{table_id}
  */
 export const getSeatsByTable = async (tableId: number): Promise<Seat[]> => {
   try {
-    const response = await apiClient.get<Seat[]>(`/v1/seats/by-table/${tableId}`);
+    const response = await apiClient.get<Seat[]>(`/api/seats/by-table/${tableId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching seats for table ${tableId}:`, error);
