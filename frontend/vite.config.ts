@@ -60,6 +60,16 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/order_items/, '/api/v1/order_items')
       },
+      '/api/kds': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/kds/, '/api/v1/kds')
+      },
+      '/api/items': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/items/, '/api/v1/items')
+      },
 
       // ========================================
       // Menu Service (Port 8001)
