@@ -11,6 +11,7 @@ import { KdsPage } from '@/pages/KdsPage';
 import { PaymentPage } from '@/pages/PaymentPage';
 import { AdminPage } from '@/pages/AdminPage';
 import { ProductList } from '@/components/admin/ProductList';
+import { TableList } from '@/components/admin/TableList';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 function App() {
@@ -70,6 +71,12 @@ function App() {
           <Route
             path="products"
             element={<ProductList />}
+          />
+
+          {/* ÚJ: Nested Route: /admin/tables */}
+          <Route
+            path="tables"
+            element={<TableList />}
           />
 
           {/* TODO: További admin modulok (kategóriák, munkavállalók, stb.) */}
