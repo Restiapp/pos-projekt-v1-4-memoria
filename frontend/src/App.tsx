@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { TableMapPage } from '@/pages/TableMapPage';
+import { KdsPage } from '@/pages/KdsPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 function App() {
@@ -40,6 +41,16 @@ function App() {
           element={
             <ProtectedRoute>
               <TableMapPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ÚJ ROUTE: Konyhai Kijelző (KDS) */}
+        <Route
+          path="/kds"
+          element={
+            <ProtectedRoute>
+              <KdsPage />
             </ProtectedRoute>
           }
         />

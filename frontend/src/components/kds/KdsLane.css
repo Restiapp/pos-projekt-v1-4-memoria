@@ -1,0 +1,92 @@
+/**
+ * KdsLane stílusok
+ */
+
+.kds-lane {
+  display: flex;
+  flex-direction: column;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 350px;
+  max-width: 400px;
+  height: calc(100vh - 200px);
+  overflow: hidden;
+}
+
+/* Fejléc */
+.kds-lane-header {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #ddd;
+}
+
+.kds-lane-header h2 {
+  font-size: 24px;
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.lane-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.stat {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: white;
+}
+
+.stat.pending {
+  color: #ff9800;
+  border: 1px solid #ff9800;
+}
+
+.stat.preparing {
+  color: #2196f3;
+  border: 1px solid #2196f3;
+}
+
+.stat.ready {
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+/* Tartalom (scrollozható terület) */
+.kds-lane-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.kds-lane-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.kds-lane-content::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 4px;
+}
+
+.kds-lane-content::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.kds-lane-content::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Üres állapot */
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #999;
+  font-size: 16px;
+  font-style: italic;
+}
