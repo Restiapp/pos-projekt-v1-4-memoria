@@ -25,7 +25,7 @@ class Recipe(Base):
     __tablename__ = 'recipes'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
+    product_id = Column(Integer, nullable=False, index=True)
     inventory_item_id = Column(Integer, ForeignKey('inventory_items.id'), nullable=False)
     quantity_used = Column(Numeric(10, 3), nullable=False)
 
