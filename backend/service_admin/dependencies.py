@@ -183,8 +183,14 @@ async def get_current_user(
         payload = decode_access_token(token)
 
         # Employee ID kinyerése a token-ből
-        employee_id: int = payload.get("employee_id")
-        if employee_id is None:
+        employee_id_str = payload.get("sub")
+        if employee_id_str is None:
+            raise credentials_exception
+
+        # Convert to int (sub field is a string in JWT standard)
+        try:
+            employee_id = int(employee_id_str)
+        except (ValueError, TypeError):
             raise credentials_exception
 
     except JWTError:
