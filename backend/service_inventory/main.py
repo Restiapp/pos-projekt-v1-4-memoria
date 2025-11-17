@@ -11,6 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_inventory.config import settings
 
+# Import database initialization
+from backend.service_inventory.models.database import init_db
+
 # Import RBAC dependencies
 from backend.service_admin.dependencies import require_permission
 
@@ -62,6 +65,8 @@ async def startup_event():
     Inicializálja az adatbázis kapcsolatot és egyéb erőforrásokat.
     """
     print("🚀 Starting Inventory Service...")
+    print("📊 Initializing database tables...")
+    init_db()
     print(f"📊 Database URL: {str(settings.database_url).split('@')[1]}")
     print(f"🤖 Document AI Processor: {settings.documentai_processor_id}")
     print(f"☁️  GCS Bucket: {settings.gcs_bucket_name}")
