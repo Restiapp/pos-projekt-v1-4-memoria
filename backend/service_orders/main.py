@@ -11,6 +11,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.service_orders.config import settings
 
+# Import database initialization
+from backend.service_orders.models.database import init_db
+
 # Import RBAC dependencies
 from backend.service_admin.dependencies import require_permission
 
@@ -74,6 +77,8 @@ async def startup_event():
     Inicializálja az adatbázis kapcsolatot és egyéb erőforrásokat.
     """
     print("🚀 Starting Orders Service...")
+    print("📊 Initializing database tables...")
+    init_db()
     print(f"📊 Database URL: {str(settings.database_url).split('@')[1]}")
     print(f"🔗 Menu Service URL: {settings.menu_service_url}")
     print("✅ Orders Service initialized successfully!")
