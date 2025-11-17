@@ -30,6 +30,12 @@ python-dotenv==1.0.1
 # Date and Time utilities
 python-dateutil==2.9.0
 
+# Security and Authentication (needed for admin dependencies)
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.0
+PyJWT==2.9.0
+
 # Development and Testing
 pytest==8.3.3
 pytest-asyncio==0.24.0
