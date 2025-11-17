@@ -10,6 +10,7 @@ from typing import Optional
 from decimal import Decimal
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel, Field
 
 from backend.service_inventory.models.database import get_db
 from backend.service_inventory.services.inventory_service import InventoryService

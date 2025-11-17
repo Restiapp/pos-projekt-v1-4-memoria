@@ -9,8 +9,8 @@ psycopg2-binary==2.9.9
 alembic==1.12.1
 
 # Pydantic for Settings and Validation
-pydantic==2.5.0
-pydantic-settings==2.1.0
+pydantic==2.9.0
+pydantic-settings==2.5.0
 
 # Google Cloud AI - Document AI for OCR
 google-cloud-documentai==2.24.0
@@ -26,6 +26,12 @@ python-dotenv==1.0.0
 
 # Date and Time utilities
 python-dateutil==2.8.2
+
+# Security and Authentication (needed for admin dependencies)
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.0
+PyJWT==2.9.0
 
 # Development and Testing
 pytest==7.4.3

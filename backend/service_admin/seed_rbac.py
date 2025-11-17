@@ -365,8 +365,7 @@ def seed_default_admin(db: Session, roles_map: Dict[str, Role]) -> Optional[Empl
         username=DEFAULT_ADMIN["username"],
         pin_code_hash=pin_hash,
         email=DEFAULT_ADMIN["email"],
-        is_active=DEFAULT_ADMIN["is_active"],
-        is_admin=DEFAULT_ADMIN["is_admin"]
+        is_active=DEFAULT_ADMIN["is_active"]
     )
 
     # Admin szerepkör hozzárendelése
@@ -418,7 +417,6 @@ def verify_seeding(db: Session):
     admin_emp = db.query(Employee).filter(Employee.username == "admin").first()
     if admin_emp:
         logger.info(f"  Admin employee roles: {len(admin_emp.roles)} db")
-        logger.info(f"  Admin is_admin flag: {admin_emp.is_admin}")
 
     logger.info("✅ Seeding ellenőrzés befejezve")
 
