@@ -14,6 +14,7 @@ import { ProductList } from '@/components/admin/ProductList';
 import { TableList } from '@/components/admin/TableList';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { EmployeeList } from '@/components/admin/EmployeeList';
+import { RoleList } from '@/components/admin/RoleList';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -84,6 +85,12 @@ function App() {
           <Route
             path="employees"
             element={<EmployeeList />}
+          />
+
+          {/* ÚJ: Nested Route: /admin/roles */}
+          <Route
+            path="roles"
+            element={<RoleList />}
           />
 
           {/* TODO: További admin modulok (kategóriák, stb.) */}
