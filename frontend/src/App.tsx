@@ -6,7 +6,6 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginPage } from '@/pages/LoginPage';
-import { DashboardPage } from '@/pages/DashboardPage';
 import { TableMapPage } from '@/pages/TableMapPage';
 import { KdsPage } from '@/pages/KdsPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
@@ -24,16 +23,6 @@ function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
-
-        {/* Protected Routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
 
         {/* ÚJ ROUTE: Asztaltérkép */}
         <Route

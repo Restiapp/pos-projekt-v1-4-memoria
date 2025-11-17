@@ -19,7 +19,7 @@ export const LoginPage = () => {
 
     try {
       await login({ username, password: pin });
-      navigate('/dashboard');
+      navigate('/tables');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Hibás felhasználónév vagy PIN kód');
     }
