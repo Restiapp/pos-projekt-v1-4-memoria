@@ -64,33 +64,49 @@ function App() {
         <Route
           path="/admin"
           element={
-            <ProtectedRoute requiredPermission="menu:manage">
+            <ProtectedRoute>
               <AdminPage />
             </ProtectedRoute>
           }
         >
-          {/* Nested Route: /admin/products */}
+          {/* Nested Route: /admin/products - RBAC Protected */}
           <Route
             path="products"
-            element={<ProductList />}
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <ProductList />
+              </ProtectedRoute>
+            }
           />
 
-          {/* ÚJ: Nested Route: /admin/tables */}
+          {/* ÚJ: Nested Route: /admin/tables - RBAC Protected */}
           <Route
             path="tables"
-            element={<TableList />}
+            element={
+              <ProtectedRoute requiredPermission="tables:manage">
+                <TableList />
+              </ProtectedRoute>
+            }
           />
 
-          {/* ÚJ: Nested Route: /admin/employees */}
+          {/* ÚJ: Nested Route: /admin/employees - RBAC Protected */}
           <Route
             path="employees"
-            element={<EmployeeList />}
+            element={
+              <ProtectedRoute requiredPermission="employees:manage">
+                <EmployeeList />
+              </ProtectedRoute>
+            }
           />
 
-          {/* ÚJ: Nested Route: /admin/roles */}
+          {/* ÚJ: Nested Route: /admin/roles - RBAC Protected */}
           <Route
             path="roles"
-            element={<RoleList />}
+            element={
+              <ProtectedRoute requiredPermission="roles:manage">
+                <RoleList />
+              </ProtectedRoute>
+            }
           />
 
           {/* TODO: További admin modulok (kategóriák, stb.) */}

@@ -70,7 +70,7 @@ class Settings(BaseSettings):
 
     # Menu Service URL (for product reference validation)
     menu_service_url: str = Field(
-        default="http://localhost:8000",
+        default="http://localhost:8001",
         description="URL of the Menu Service for inter-service communication"
     )
 
