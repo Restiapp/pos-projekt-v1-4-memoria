@@ -1,14 +1,16 @@
 /**
  * Axios instance - Központi HTTP kliens
  * Automatikus Authorization header hozzáadás (JWT Bearer token)
+ *
+ * FONTOS: A baseURL eltávolításra került, mivel a Vite proxy
+ * resource-alapú routing-ot használ (/api/auth, /api/tables, stb.)
  */
 
 import axios from 'axios';
 import { storage } from '@/utils/storage';
 
-// Axios instance létrehozása
+// Axios instance létrehozása (baseURL nélkül - Vite proxy kezeli a routing-ot)
 const apiClient = axios.create({
-  baseURL: '/api', // Vite proxy átirányítja http://localhost:8008-ra
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
