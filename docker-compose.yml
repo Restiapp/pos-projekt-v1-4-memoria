@@ -1,0 +1,241 @@
+# Docker Compose Configuration for POS System
+# ============================================
+# Complete microservices architecture with PostgreSQL database
+#
+# Services:
+# - postgres: PostgreSQL 15 database
+# - service_menu: Module 0 - Menu Service (Port 8001)
+# - service_orders: Module 1 - Orders Service (Port 8002)
+# - service_inventory: Module 5 - Inventory Service (Port 8003)
+# - service_admin: Module 6 & 8 - Admin/RBAC/NTAK Service (Port 8008)
+#
+# Usage:
+#   docker-compose up -d              # Start all services in background
+#   docker-compose logs -f            # View logs
+#   docker-compose down               # Stop all services
+#   docker-compose ps                 # Check service status
+
+version: '3.8'
+
+services:
+  # ============================================================================
+  # PostgreSQL Database
+  # ============================================================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: pos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: pos_db
+      POSTGRES_USER: pos_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pos_password_dev}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.UTF-8"
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persistent data storage
+      - postgres_data:/var/lib/postgresql/data
+      # Optional: Custom initialization scripts
+      # - ./init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pos_user -d pos_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - pos-network
+
+  # ============================================================================
+  # Module 0 - Menu Service (Terméktörzs)
+  # ============================================================================
+  service_menu:
+    build:
+      context: .
+      dockerfile: backend/service_menu/Dockerfile
+    container_name: pos-service-menu
+    restart: unless-stopped
+    ports:
+      - "8001:8000"  # Host:Container - Menu runs on 8000 internally
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://pos_user:${POSTGRES_PASSWORD:-pos_password_dev}@postgres:5432/pos_db
+
+      # Service configuration
+      PORT: 8000
+
+      # Google Cloud Storage (Images)
+      GCS_BUCKET_NAME: ${GCS_BUCKET_NAME:-pos-images-dev}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/app/credentials/gcp-key.json}
+
+      # Google Cloud Project
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID:-your-project-id}
+
+      # Vertex AI Translation
+      VERTEX_AI_LOCATION: ${VERTEX_AI_LOCATION:-us-central1}
+
+      # Inter-service URLs (internal Docker network)
+      ADMIN_SERVICE_URL: http://service_admin:8008
+    volumes:
+      # Mount Google Cloud credentials (optional, for local development)
+      - ${GOOGLE_CREDENTIALS_PATH:-./credentials}:/app/credentials:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pos-network
+
+  # ============================================================================
+  # Module 1 - Orders Service (Rendelések)
+  # ============================================================================
+  service_orders:
+    build:
+      context: .
+      dockerfile: backend/service_orders/Dockerfile
+    container_name: pos-service-orders
+    restart: unless-stopped
+    ports:
+      - "8002:8001"  # Host:Container - Orders runs on 8001 internally
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://pos_user:${POSTGRES_PASSWORD:-pos_password_dev}@postgres:5432/pos_db
+
+      # Service configuration
+      PORT: 8001
+      MAX_ORDER_ITEMS: 50
+      KITCHEN_DISPLAY_REFRESH_INTERVAL: 5
+
+      # Inter-service URLs (internal Docker network)
+      MENU_SERVICE_URL: http://service_menu:8000
+      ADMIN_SERVICE_URL: http://service_admin:8008
+      INVENTORY_SERVICE_URL: http://service_inventory:8003
+    depends_on:
+      postgres:
+        condition: service_healthy
+      service_menu:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pos-network
+
+  # ============================================================================
+  # Module 5 - Inventory Service (Készletkezelés)
+  # ============================================================================
+  service_inventory:
+    build:
+      context: .
+      dockerfile: backend/service_inventory/Dockerfile
+    container_name: pos-service-inventory
+    restart: unless-stopped
+    ports:
+      - "8003:8003"  # Host:Container - Inventory runs on 8003 internally
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://pos_user:${POSTGRES_PASSWORD:-pos_password_dev}@postgres:5432/pos_db
+
+      # Service configuration
+      PORT: 8003
+
+      # Google Cloud Storage (Invoice images)
+      GCS_BUCKET_NAME: ${GCS_BUCKET_NAME:-pos-images-dev}
+      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS:-/app/credentials/gcp-key.json}
+
+      # Google Cloud Project
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID:-your-project-id}
+
+      # Document AI (OCR)
+      DOCUMENTAI_PROJECT_ID: ${DOCUMENTAI_PROJECT_ID:-your-project-id}
+      DOCUMENTAI_LOCATION: ${DOCUMENTAI_LOCATION:-us}
+      DOCUMENTAI_PROCESSOR_ID: ${DOCUMENTAI_PROCESSOR_ID:-your-processor-id}
+
+      # Inter-service URLs
+      MENU_SERVICE_URL: http://service_menu:8000
+      ORDERS_SERVICE_URL: http://service_orders:8001
+    volumes:
+      # Mount Google Cloud credentials
+      - ${GOOGLE_CREDENTIALS_PATH:-./credentials}:/app/credentials:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pos-network
+
+  # ============================================================================
+  # Module 6 & 8 - Admin Service (RBAC, NTAK)
+  # ============================================================================
+  service_admin:
+    build:
+      context: .
+      dockerfile: backend/service_admin/Dockerfile
+    container_name: pos-service-admin
+    restart: unless-stopped
+    ports:
+      - "8008:8008"  # Host:Container - Admin runs on 8008 internally
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://pos_user:${POSTGRES_PASSWORD:-pos_password_dev}@postgres:5432/pos_db
+
+      # Service configuration
+      PORT: 8008
+
+      # JWT Authentication
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+
+      # NTAK Integration
+      NTAK_API_URL: ${NTAK_API_URL:-https://ntak-test.nav.gov.hu}
+      NTAK_API_KEY: ${NTAK_API_KEY:-your-ntak-api-key}
+      NTAK_MERCHANT_ID: ${NTAK_MERCHANT_ID:-your-merchant-id}
+      NTAK_TAX_NUMBER: ${NTAK_TAX_NUMBER:-12345678-1-23}
+      NTAK_REPORT_INTERVAL: 3600
+
+      # Inter-service URLs
+      MENU_SERVICE_URL: http://service_menu:8000
+      ORDERS_SERVICE_URL: http://service_orders:8001
+      INVENTORY_SERVICE_URL: http://service_inventory:8003
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8008/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pos-network
+
+# ============================================================================
+# Volumes
+# ============================================================================
+volumes:
+  postgres_data:
+    name: pos-postgres-data
+    driver: local
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  pos-network:
+    name: pos-network
+    driver: bridge

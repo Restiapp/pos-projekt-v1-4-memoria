@@ -385,5 +385,36 @@ class OcrService:
             return None
 
 
-# Create singleton instance
-ocr_service = OcrService()
+# Lazy singleton instance - only initialized when first accessed
+_ocr_service_instance: Optional[OcrService] = None
+
+
+def get_ocr_service() -> OcrService:
+    """
+    Get or create the singleton OcrService instance.
+
+    This lazy initialization allows the service to start even if GCP
+    credentials are not available. The error will only occur when
+    actually trying to use OCR functionality.
+
+    Returns:
+        OcrService: The singleton OCR service instance
+
+    Raises:
+        Exception: If GCP credentials are invalid or missing when first accessed
+    """
+    global _ocr_service_instance
+    if _ocr_service_instance is None:
+        _ocr_service_instance = OcrService()
+    return _ocr_service_instance
+
+
+# For backwards compatibility, provide ocr_service that initializes on access
+class _OcrServiceProxy:
+    """Proxy object that lazily initializes the OCR service."""
+
+    def __getattr__(self, name):
+        return getattr(get_ocr_service(), name)
+
+
+ocr_service = _OcrServiceProxy()

@@ -9,7 +9,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
-from backend.service_admin.database import get_db
+from backend.service_admin.models.database import get_db
 from backend.service_admin.services.permission_service import PermissionService
 from backend.service_admin.schemas.permission import (
     PermissionCreate,
