@@ -13,6 +13,7 @@ import { AdminPage } from '@/pages/AdminPage';
 import { ProductList } from '@/components/admin/ProductList';
 import { TableList } from '@/components/admin/TableList';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { EmployeeList } from '@/components/admin/EmployeeList';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -79,9 +80,14 @@ function App() {
             element={<TableList />}
           />
 
-          {/* TODO: További admin modulok (kategóriák, munkavállalók, stb.) */}
+          {/* ÚJ: Nested Route: /admin/employees */}
+          <Route
+            path="employees"
+            element={<EmployeeList />}
+          />
+
+          {/* TODO: További admin modulok (kategóriák, stb.) */}
           {/* <Route path="categories" element={<CategoryList />} /> */}
-          {/* <Route path="employees" element={<EmployeeList />} /> */}
         </Route>
 
         {/* Default redirect: Asztaltérképre */}
