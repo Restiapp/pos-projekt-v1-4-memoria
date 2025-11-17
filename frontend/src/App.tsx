@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginPage } from '@/pages/LoginPage';
 import { DashboardPage } from '@/pages/DashboardPage';
+import { TableMapPage } from '@/pages/TableMapPage';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 function App() {
@@ -33,8 +34,18 @@ function App() {
           }
         />
 
-        {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* ÚJ ROUTE: Asztaltérkép */}
+        <Route
+          path="/tables"
+          element={
+            <ProtectedRoute>
+              <TableMapPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Default redirect: Asztaltérképre */}
+        <Route path="/" element={<Navigate to="/tables" replace />} />
 
         {/* 404 - Not Found */}
         <Route path="*" element={<Navigate to="/login" replace />} />

@@ -1,0 +1,51 @@
+/**
+ * TableIcon stílusok
+ */
+
+.table-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.table-icon.available {
+  background-color: #4caf50; /* Zöld */
+  color: white;
+}
+
+.table-icon.occupied {
+  background-color: #f44336; /* Piros */
+  color: white;
+}
+
+.table-number {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.table-info {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.table-status {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.capacity {
+  display: inline-block;
+}
