@@ -11,7 +11,7 @@
  */
 
 import apiClient from './api';
-import type { Table, Seat } from '@/types/table';
+import type { Table, Seat, TableCreate, TableUpdate } from '@/types/table';
 
 interface TableListResponse {
   items: Table[];
@@ -49,6 +49,57 @@ export const getSeatsByTable = async (tableId: number): Promise<Seat[]> => {
     return response.data;
   } catch (error) {
     console.error(`Error fetching seats for table ${tableId}:`, error);
+    throw error;
+  }
+};
+
+// =====================================================
+// ÚJ: ADMIN CRUD MŰVELETEK
+// =====================================================
+
+/**
+ * Új asztal létrehozása
+ * POST /api/tables
+ * Proxy Target: http://localhost:8002/api/v1/tables
+ */
+export const createTable = async (tableData: TableCreate): Promise<Table> => {
+  try {
+    const response = await apiClient.post<Table>('/api/tables', tableData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating table:', error);
+    throw error;
+  }
+};
+
+/**
+ * Asztal frissítése
+ * PUT /api/tables/{id}
+ * Proxy Target: http://localhost:8002/api/v1/tables/{id}
+ */
+export const updateTable = async (
+  id: number,
+  tableData: TableUpdate
+): Promise<Table> => {
+  try {
+    const response = await apiClient.put<Table>(`/api/tables/${id}`, tableData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating table ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Asztal törlése
+ * DELETE /api/tables/{id}
+ * Proxy Target: http://localhost:8002/api/v1/tables/{id}
+ */
+export const deleteTable = async (id: number): Promise<void> => {
+  try {
+    await apiClient.delete(`/api/tables/${id}`);
+  } catch (error) {
+    console.error(`Error deleting table ${id}:`, error);
     throw error;
   }
 };
