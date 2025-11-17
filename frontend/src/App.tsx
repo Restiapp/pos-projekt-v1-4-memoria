@@ -9,6 +9,8 @@ import { LoginPage } from '@/pages/LoginPage';
 import { TableMapPage } from '@/pages/TableMapPage';
 import { KdsPage } from '@/pages/KdsPage';
 import { PaymentPage } from '@/pages/PaymentPage';
+import { AdminPage } from '@/pages/AdminPage';
+import { ProductList } from '@/components/admin/ProductList';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 function App() {
@@ -54,6 +56,26 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* ÚJ ROUTE: Admin Dashboard (Nested Routes) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute requiredPermission="menu:manage">
+              <AdminPage />
+            </ProtectedRoute>
+          }
+        >
+          {/* Nested Route: /admin/products */}
+          <Route
+            path="products"
+            element={<ProductList />}
+          />
+
+          {/* TODO: További admin modulok (kategóriák, munkavállalók, stb.) */}
+          {/* <Route path="categories" element={<CategoryList />} /> */}
+          {/* <Route path="employees" element={<EmployeeList />} /> */}
+        </Route>
 
         {/* Default redirect: Asztaltérképre */}
         <Route path="/" element={<Navigate to="/tables" replace />} />

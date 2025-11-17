@@ -1,0 +1,126 @@
+/**
+ * AdminPage - Adminisztrációs Dashboard
+ *
+ * Layout:
+ *   - Bal oldal: Sidebar (navigációs menü)
+ *   - Jobb oldal: Tartalom (gyermek komponens renderelése)
+ *
+ * Jogosultság: menu:manage (ProtectedRoute-ban ellenőrzött)
+ */
+
+import { useState } from 'react';
+import { useNavigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import './AdminPage.css';
+
+interface MenuItem {
+  id: string;
+  label: string;
+  icon: string;
+  path: string;
+  permission?: string; // Opcionális jogosultság-ellenőrzés
+}
+
+const MENU_ITEMS: MenuItem[] = [
+  {
+    id: 'products',
+    label: 'Termékek',
+    icon: '📦',
+    path: '/admin/products',
+    permission: 'menu:manage',
+  },
+  {
+    id: 'categories',
+    label: 'Kategóriák',
+    icon: '📁',
+    path: '/admin/categories',
+    permission: 'menu:manage',
+  },
+  {
+    id: 'employees',
+    label: 'Munkavállalók',
+    icon: '👥',
+    path: '/admin/employees',
+    permission: 'employees:manage',
+  },
+  {
+    id: 'roles',
+    label: 'Szerepkörök',
+    icon: '🔐',
+    path: '/admin/roles',
+    permission: 'roles:manage',
+  },
+];
+
+export const AdminPage = () => {
+  const { user, logout, hasPermission } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Menüpont kattintás
+  const handleMenuClick = (item: MenuItem) => {
+    // Jogosultság ellenőrzés (opcionális, a route is védett)
+    if (item.permission && !hasPermission(item.permission)) {
+      alert('Nincs jogosultságod ehhez a funkcióhoz!');
+      return;
+    }
+    navigate(item.path);
+  };
+
+  // Aktív menüpont meghatározása (jelenlegi URL alapján)
+  const isActiveMenuItem = (path: string): boolean => {
+    return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
+  return (
+    <div className="admin-page">
+      {/* Oldalsáv (Sidebar) */}
+      <aside className="admin-sidebar">
+        <div className="sidebar-header">
+          <h2>⚙️ Admin</h2>
+          <div className="user-badge">
+            <span className="user-name">{user?.name}</span>
+            <span className="user-role">
+              {user?.roles.map((r) => r.name).join(', ')}
+            </span>
+          </div>
+        </div>
+
+        {/* Navigációs menü */}
+        <nav className="sidebar-menu">
+          {MENU_ITEMS.map((item) => {
+            // Rejtett menüpont, ha nincs jogosultság
+            if (item.permission && !hasPermission(item.permission)) {
+              return null;
+            }
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleMenuClick(item)}
+                className={`menu-item ${
+                  isActiveMenuItem(item.path) ? 'active' : ''
+                }`}
+              >
+                <span className="menu-icon">{item.icon}</span>
+                <span className="menu-label">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Kijelentkezés gomb */}
+        <div className="sidebar-footer">
+          <button onClick={logout} className="logout-btn">
+            🚪 Kijelentkezés
+          </button>
+        </div>
+      </aside>
+
+      {/* Főtartalom (Route-ok renderelése) */}
+      <main className="admin-content">
+        <Outlet />
+      </main>
+    </div>
+  );
+};

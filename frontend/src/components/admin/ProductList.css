@@ -1,0 +1,258 @@
+/**
+ * ProductList stílusok
+ */
+
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1400px;
+}
+
+/* =====================================================
+   FEJLÉC
+   ===================================================== */
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.list-header h1 {
+  font-size: 28px;
+  margin: 0;
+  color: #333;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.filter-checkbox input[type='checkbox'] {
+  cursor: pointer;
+}
+
+.refresh-btn {
+  padding: 10px 16px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #1976d2;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-btn {
+  padding: 10px 20px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.create-btn:hover {
+  background: #388e3c;
+}
+
+/* =====================================================
+   TÁBLÁZAT
+   ===================================================== */
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.products-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.products-table thead {
+  background: #667eea;
+  color: white;
+}
+
+.products-table th {
+  padding: 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.products-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background 0.2s ease;
+}
+
+.products-table tbody tr:hover {
+  background: #f5f5f5;
+}
+
+.products-table td {
+  padding: 16px;
+  font-size: 14px;
+  color: #333;
+}
+
+.product-description {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.status-badge.active {
+  background: #c8e6c9;
+  color: #2e7d32;
+}
+
+.status-badge.inactive {
+  background: #ffcdd2;
+  color: #c62828;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-style: italic;
+}
+
+/* Műveletek oszlop */
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-btn {
+  background: #fff3e0;
+}
+
+.edit-btn:hover {
+  background: #ffb74d;
+}
+
+.delete-btn {
+  background: #ffebee;
+}
+
+.delete-btn:hover {
+  background: #ef5350;
+  color: white;
+}
+
+/* =====================================================
+   LÁBLÉC (Lapozás)
+   ===================================================== */
+
+.list-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-btn {
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #5568d3;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-number {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* =====================================================
+   TÖLTÉS ÁLLAPOT
+   ===================================================== */
+
+.loading-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px;
+  font-size: 20px;
+  color: #666;
+}
