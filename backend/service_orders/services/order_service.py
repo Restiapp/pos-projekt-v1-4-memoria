@@ -272,6 +272,7 @@ class OrderService:
         amennyiben a rendelés "helyben" kerül elfogyasztásra.
 
         FONTOS: Az ÁFA váltás csak NYITOTT státuszú rendeléseknél engedélyezett!
+        IDEMPOTENS: Ha már 5%-ra van állítva, nem végzi el újra a műveletet.
 
         Args:
             db: SQLAlchemy session
@@ -305,7 +306,15 @@ class OrderService:
                        f"Jelenlegi státusz: {order.status}"
             )
 
+        # IDEMPOTENCIA ELLENŐRZÉS: Ha már 5%-ra van állítva, nincs tennivaló
+        if order.final_vat_rate == Decimal("5.00"):
+            logger.info(f"Order {order_id} VAT already set to 5% - idempotent operation")
+            return order
+
         try:
+            # Előző ÁFA kulcs mentése (dinamikusan, nem hard-kódolva)
+            previous_vat = str(order.final_vat_rate) if order.final_vat_rate else "27.00"
+
             # ÁFA kulcs átállítása 5%-ra (NTAK helyi felhasználás)
             order.final_vat_rate = Decimal("5.00")
 
@@ -314,7 +323,7 @@ class OrderService:
                 order.ntak_data = {}
 
             order.ntak_data["vat_change_reason"] = "Helyi felhasználás (NTAK)"
-            order.ntak_data["previous_vat_rate"] = "27.00"
+            order.ntak_data["previous_vat_rate"] = previous_vat
             order.ntak_data["new_vat_rate"] = "5.00"
 
             db.commit()

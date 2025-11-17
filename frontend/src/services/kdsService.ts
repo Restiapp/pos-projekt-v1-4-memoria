@@ -5,9 +5,9 @@
  *   - GET /api/v1/kds/stations/{station}/items
  *   - PATCH /api/v1/items/{item_id}/kds-status
  *
- * Frontend hívások (Vite proxy):
- *   - GET /api/kds/stations/{station}/items → http://localhost:8002/api/v1/kds/stations/{station}/items
- *   - PATCH /api/items/{item_id}/kds-status → http://localhost:8002/api/v1/items/{item_id}/kds-status
+ * Frontend hívások (Vite proxy) - JAVÍTOTT:
+ *   - GET /api/orders/kds/stations/{station}/items → http://localhost:8002/api/v1/kds/stations/{station}/items
+ *   - PATCH /api/orders/items/{item_id}/kds-status → http://localhost:8002/api/v1/items/{item_id}/kds-status
  */
 
 import apiClient from './api';
@@ -20,7 +20,7 @@ import type { KdsItem, KdsStation, KdsStatus, UpdateKdsStatusRequest } from '@/t
  */
 export const getItemsByStation = async (station: KdsStation): Promise<KdsItem[]> => {
   try {
-    const response = await apiClient.get<KdsItem[]>(`/api/kds/stations/${station}/items`);
+    const response = await apiClient.get<KdsItem[]>(`/api/orders/kds/stations/${station}/items`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching KDS items for station ${station}:`, error);
@@ -41,7 +41,7 @@ export const updateItemStatus = async (
   try {
     const payload: UpdateKdsStatusRequest = { kds_status: status };
     const response = await apiClient.patch<KdsItem>(
-      `/api/items/${itemId}/kds-status`,
+      `/api/orders/items/${itemId}/kds-status`,
       payload
     );
     return response.data;

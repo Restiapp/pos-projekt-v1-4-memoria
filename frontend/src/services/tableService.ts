@@ -5,9 +5,9 @@
  *   - GET /api/v1/tables
  *   - GET /api/v1/seats/by-table/{table_id}
  *
- * Frontend hívások:
- *   - GET /api/tables → Vite proxy → http://localhost:8002/api/v1/tables
- *   - GET /api/seats/by-table/{id} → Vite proxy → http://localhost:8002/api/v1/seats/by-table/{id}
+ * Frontend hívások (JAVÍTOTT):
+ *   - GET /api/orders/tables → Vite proxy → http://localhost:8002/api/v1/tables
+ *   - GET /api/orders/seats/by-table/{id} → Vite proxy → http://localhost:8002/api/v1/seats/by-table/{id}
  */
 
 import apiClient from './api';
@@ -26,7 +26,7 @@ interface TableListResponse {
  */
 export const getTables = async (): Promise<Table[]> => {
   try {
-    const response = await apiClient.get<TableListResponse>('/api/tables', {
+    const response = await apiClient.get<TableListResponse>('/api/orders/tables', {
       params: {
         page: 1,
         page_size: 100, // Jelenleg az összes asztal egy kérésben
@@ -45,7 +45,7 @@ export const getTables = async (): Promise<Table[]> => {
  */
 export const getSeatsByTable = async (tableId: number): Promise<Seat[]> => {
   try {
-    const response = await apiClient.get<Seat[]>(`/api/seats/by-table/${tableId}`);
+    const response = await apiClient.get<Seat[]>(`/api/orders/seats/by-table/${tableId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching seats for table ${tableId}:`, error);
@@ -59,12 +59,12 @@ export const getSeatsByTable = async (tableId: number): Promise<Seat[]> => {
 
 /**
  * Új asztal létrehozása
- * POST /api/tables
+ * POST /api/orders/tables
  * Proxy Target: http://localhost:8002/api/v1/tables
  */
 export const createTable = async (tableData: TableCreate): Promise<Table> => {
   try {
-    const response = await apiClient.post<Table>('/api/tables', tableData);
+    const response = await apiClient.post<Table>('/api/orders/tables', tableData);
     return response.data;
   } catch (error) {
     console.error('Error creating table:', error);
@@ -74,7 +74,7 @@ export const createTable = async (tableData: TableCreate): Promise<Table> => {
 
 /**
  * Asztal frissítése
- * PUT /api/tables/{id}
+ * PUT /api/orders/tables/{id}
  * Proxy Target: http://localhost:8002/api/v1/tables/{id}
  */
 export const updateTable = async (
@@ -82,7 +82,7 @@ export const updateTable = async (
   tableData: TableUpdate
 ): Promise<Table> => {
   try {
-    const response = await apiClient.put<Table>(`/api/tables/${id}`, tableData);
+    const response = await apiClient.put<Table>(`/api/orders/tables/${id}`, tableData);
     return response.data;
   } catch (error) {
     console.error(`Error updating table ${id}:`, error);
@@ -92,12 +92,12 @@ export const updateTable = async (
 
 /**
  * Asztal törlése
- * DELETE /api/tables/{id}
+ * DELETE /api/orders/tables/{id}
  * Proxy Target: http://localhost:8002/api/v1/tables/{id}
  */
 export const deleteTable = async (id: number): Promise<void> => {
   try {
-    await apiClient.delete(`/api/tables/${id}`);
+    await apiClient.delete(`/api/orders/tables/${id}`);
   } catch (error) {
     console.error(`Error deleting table ${id}:`, error);
     throw error;

@@ -7,11 +7,13 @@
  *   - POST /api/v1/orders/{order_id}/payments
  *   - POST /api/v1/orders/{order_id}/status/close
  *
- * Frontend hívások (Vite proxy):
+ * Frontend hívások (Vite proxy) - ELLENŐRZÖTT ÉS HELYES:
  *   - GET /api/orders/{order_id} → http://localhost:8002/api/v1/orders/{order_id}
  *   - GET /api/orders/{order_id}/split-check → http://localhost:8002/api/v1/orders/{order_id}/split-check
  *   - POST /api/orders/{order_id}/payments → http://localhost:8002/api/v1/orders/{order_id}/payments
  *   - POST /api/orders/{order_id}/status/close → http://localhost:8002/api/v1/orders/{order_id}/status/close
+ *
+ * AUDIT 7 STÁTUSZ: ✅ Minden API hívás már a helyes /api/orders/ prefix-et használja
  */
 
 import apiClient from './api';

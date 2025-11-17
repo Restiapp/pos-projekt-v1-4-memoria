@@ -14,7 +14,6 @@ Használat:
         ...
 """
 
-import os
 from datetime import datetime, timedelta
 from typing import Optional, Callable
 
@@ -28,16 +27,17 @@ from backend.service_admin.models.database import get_db
 from backend.service_admin.models.employee import Employee
 from backend.service_admin.models.role import Role
 from backend.service_admin.models.permission import Permission
+from backend.service_admin.config import settings
 
 
 # ============================================================================
 # JWT & Password Configuration
 # ============================================================================
 
-# JWT Secret Key (load from environment variable)
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-change-in-production")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", "60"))
+# JWT Secret Key (loaded from settings, not os.getenv)
+SECRET_KEY = settings.jwt_secret_key
+ALGORITHM = settings.jwt_algorithm
+ACCESS_TOKEN_EXPIRE_MINUTES = settings.jwt_access_token_expire_minutes
 
 # Password hashing context (bcrypt)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

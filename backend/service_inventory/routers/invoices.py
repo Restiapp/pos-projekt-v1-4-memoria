@@ -8,6 +8,7 @@ Implementálja az OCR-alapú számlafeldolgozást Google Cloud Document AI haszn
 Fázis 5.3: OCR Upload Router - POST /inventory/invoices/upload végpont
 """
 
+from functools import lru_cache
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 
@@ -27,12 +28,16 @@ router = APIRouter(
 )
 
 
+@lru_cache()
 def get_ocr_service() -> OcrService:
     """
     Dependency function az OcrService injektálásához.
 
+    Lazy Loading: lru_cache biztosítja, hogy csak egyszer hozzuk létre
+    az OcrService példányt, majd újrafelhasználjuk (singleton pattern).
+
     Returns:
-        OcrService: OCR service instance
+        OcrService: OCR service instance (cached)
     """
     return OcrService()
 
