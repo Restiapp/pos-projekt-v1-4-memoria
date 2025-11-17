@@ -1,0 +1,295 @@
+/* PaymentModal.css - Fizetési Modal stílusok */
+
+.payment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.payment-modal {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.payment-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 2px solid #e0e0e0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.payment-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.close-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Loading State */
+.loading-state {
+  text-align: center;
+  padding: 60px 20px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Payment Summary */
+.payment-summary {
+  padding: 20px;
+  background: #f9f9f9;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  font-size: 1.1rem;
+}
+
+.summary-row.paid {
+  color: #4caf50;
+}
+
+.summary-row.remaining {
+  color: #ff9800;
+  border-top: 2px solid #e0e0e0;
+  margin-top: 10px;
+  padding-top: 15px;
+}
+
+.summary-row.remaining.completed {
+  color: #4caf50;
+}
+
+.fully-paid-badge {
+  margin-top: 15px;
+  padding: 10px;
+  background: #4caf50;
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Split-Check Section */
+.split-check-section {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.split-check-section h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.split-check-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.split-check-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.split-check-item .seat-info {
+  flex: 1;
+  font-weight: 500;
+}
+
+.split-check-item .item-count {
+  color: #666;
+  font-size: 0.9rem;
+  margin-right: 15px;
+}
+
+.split-check-item .person-amount {
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+/* Payment Methods */
+.payment-methods-section {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.payment-methods-section h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.payment-method-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.payment-method-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.payment-method-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.payment-method-btn .icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+/* Payment History */
+.payment-history-section {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.payment-history-section h3 {
+  margin: 0 0 15px 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.payment-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payment-history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.payment-history-item .method {
+  flex: 1;
+  font-weight: 500;
+}
+
+.payment-history-item .amount {
+  color: #4caf50;
+  font-weight: 600;
+  margin-right: 15px;
+}
+
+.payment-history-item .timestamp {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+/* Footer */
+.payment-modal-footer {
+  padding: 20px;
+  text-align: center;
+}
+
+.close-order-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.close-order-btn.enabled {
+  background: #4caf50;
+  color: white;
+}
+
+.close-order-btn.enabled:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+}
+
+.close-order-btn.disabled {
+  background: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+}
