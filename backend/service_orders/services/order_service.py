@@ -14,6 +14,7 @@ Fázis 4.7: close_order metódus hozzáadva
 
 from decimal import Decimal
 from typing import Optional, List, Dict, Any
+from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 from fastapi import HTTPException, status
@@ -455,4 +456,156 @@ class OrderService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Hiba a rendelés lezárása során: {str(e)}"
+            )
+
+    @staticmethod
+    def change_order_type(
+        db: Session,
+        order_id: int,
+        new_order_type: str,
+        reason: Optional[str] = None
+    ) -> tuple[Order, str]:
+        """
+        Rendelés típusának megváltoztatása (Átültetés).
+
+        Ez a funkció lehetővé teszi a rendelés típusának módosítását
+        (pl. Helyben -> Elvitel, Helyben -> Kiszállítás, stb.).
+
+        FONTOS: A típusváltás csak NYITOTT státuszú rendeléseknél engedélyezett!
+
+        V3.0 / Fázis 2.C: Átültetés (Order Type Change) funkció
+
+        Args:
+            db: SQLAlchemy session
+            order_id: A rendelés azonosítója
+            new_order_type: Az új rendelés típus (OrderTypeEnum értéke)
+            reason: Opcionális indoklás a változtatáshoz
+
+        Returns:
+            tuple[Order, str]: A módosított rendelés és az előző típus
+
+        Raises:
+            HTTPException 404: Ha a rendelés nem található
+            HTTPException 400: Ha a rendelés státusza nem 'NYITOTT'
+            HTTPException 400: Ha a típusváltás sikertelen
+
+        Example:
+            >>> order, prev_type = OrderService.change_order_type(
+            ...     db,
+            ...     order_id=42,
+            ...     new_order_type="Elvitel",
+            ...     reason="Vevő kérésére"
+            ... )
+            >>> print(f"Típusváltás: {prev_type} -> {order.order_type}")
+
+        V3.0 Note: Jelenleg MOCK HTTP hívásokat használ a service_inventory
+        és service_logistics felé. Ezeket a Fázis 3-ban kell valós hívásokra cserélni.
+        """
+        # Rendelés lekérdezése
+        order = OrderService.get_order(db, order_id)
+
+        # Státusz ellenőrzése - CSAK NYITOTT rendelés típusa módosítható
+        if order.status != OrderStatusEnum.NYITOTT.value:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"A rendelés típusa csak NYITOTT státuszú rendeléseknél módosítható. "
+                       f"Jelenlegi státusz: {order.status}"
+            )
+
+        # Előző típus mentése
+        previous_order_type = order.order_type
+
+        # Ellenőrzés: ha az új típus megegyezik a jelenlegi típussal
+        if previous_order_type == new_order_type:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"A rendelés típusa már '{new_order_type}'. Nincs szükség változtatásra."
+            )
+
+        try:
+            # V3.0 Fázis 2.C: MOCK HTTP hívás a service_inventory felé
+            # (Készlet kezelés értesítése a típusváltásról)
+            # TODO (Fázis 3): Valós HTTP hívásra cserélni
+            try:
+                logger.info(
+                    f"[MOCK] Sending order type change notification to service_inventory: "
+                    f"order_id={order_id}, previous_type={previous_order_type}, "
+                    f"new_type={new_order_type}"
+                )
+                # MOCK: A valós implementációban itt lenne egy HTTP POST hívás:
+                # with httpx.Client() as client:
+                #     inventory_url = f"{settings.inventory_service_url}/internal/notify-order-type-change"
+                #     payload = {
+                #         "order_id": order_id,
+                #         "previous_type": previous_order_type,
+                #         "new_type": new_order_type
+                #     }
+                #     client.post(inventory_url, json=payload, timeout=5.0)
+                logger.info(f"[MOCK] Inventory notification would be sent (not implemented yet)")
+            except Exception as e:
+                # Graceful failure: log but don't block order type change
+                logger.warning(f"[MOCK] Failed to notify inventory service for order {order_id}: {str(e)}")
+
+            # V3.0 Fázis 2.C: MOCK HTTP hívás a service_logistics felé
+            # (Szállítási/Elviteles kezelés értesítése, ha releváns)
+            # TODO (Fázis 3): Valós HTTP hívásra cserélni
+            if new_order_type == "Kiszállítás" or previous_order_type == "Kiszállítás":
+                try:
+                    logger.info(
+                        f"[MOCK] Sending order type change notification to service_logistics: "
+                        f"order_id={order_id}, previous_type={previous_order_type}, "
+                        f"new_type={new_order_type}"
+                    )
+                    # MOCK: A valós implementációban itt lenne egy HTTP POST hívás:
+                    # with httpx.Client() as client:
+                    #     logistics_url = f"{settings.logistics_service_url}/internal/notify-order-type-change"
+                    #     payload = {
+                    #         "order_id": order_id,
+                    #         "previous_type": previous_order_type,
+                    #         "new_type": new_order_type,
+                    #         "reason": reason
+                    #     }
+                    #     client.post(logistics_url, json=payload, timeout=5.0)
+                    logger.info(f"[MOCK] Logistics notification would be sent (not implemented yet)")
+                except Exception as e:
+                    # Graceful failure: log but don't block order type change
+                    logger.warning(f"[MOCK] Failed to notify logistics service for order {order_id}: {str(e)}")
+
+            # Rendelés típusának módosítása
+            order.order_type = new_order_type
+
+            # NTAK adatok frissítése (audit trail)
+            if order.ntak_data is None:
+                order.ntak_data = {}
+
+            order.ntak_data["order_type_change"] = {
+                "previous_type": previous_order_type,
+                "new_type": new_order_type,
+                "reason": reason or "Nincs megadva",
+                "changed_at": datetime.now().isoformat()
+            }
+
+            # Notes mező frissítése (ha van reason)
+            if reason:
+                current_notes = order.notes or ""
+                order.notes = f"{current_notes}\n[Átültetés] {previous_order_type} -> {new_order_type}: {reason}".strip()
+
+            db.commit()
+            db.refresh(order)
+
+            logger.info(
+                f"Order type changed successfully: order_id={order_id}, "
+                f"{previous_order_type} -> {new_order_type}"
+            )
+
+            return order, previous_order_type
+
+        except HTTPException:
+            # HTTPException-öket tovább dobni
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Hiba a rendelés típusának módosítása során: {str(e)}"
             )

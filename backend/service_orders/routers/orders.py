@@ -22,7 +22,9 @@ from backend.service_orders.schemas.order import (
     OrderResponse,
     OrderListResponse,
     OrderStatusEnum,
-    OrderTypeEnum
+    OrderTypeEnum,
+    OrderTypeChangeRequest,
+    OrderTypeChangeResponse
 )
 from backend.service_orders.schemas.payment import (
     PaymentCreate,
@@ -517,3 +519,104 @@ def close_order(
     # We let this exception propagate naturally to the client
     order = OrderService.close_order(db, order_id)
     return OrderResponse.model_validate(order)
+
+
+# ============================================================================
+# ORDER TYPE CHANGE ENDPOINT (V3.0 / Phase 2.C)
+# ============================================================================
+
+@orders_router.patch(
+    "/{order_id}/change-type",
+    response_model=OrderTypeChangeResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Change order type (Átültetés)",
+    description="""
+    **V3.0 Feature**: Change the order type (Átültetés) from one service channel to another.
+
+    This endpoint allows changing the order type, for example:
+    - From "Helyben" (Dine-in) to "Elvitel" (Takeout)
+    - From "Helyben" (Dine-in) to "Kiszállítás" (Delivery)
+    - From "Elvitel" (Takeout) to "Kiszállítás" (Delivery)
+    - Or any other combination
+
+    **Important constraints:**
+    - Only works for orders with status "NYITOTT" (Open)
+    - Cannot be applied to processed, closed, or cancelled orders
+    - The new order type must be different from the current type
+
+    **Side effects:**
+    - Notifies service_inventory about the type change (MOCK in Phase 2.C)
+    - Notifies service_logistics if switching to/from delivery (MOCK in Phase 2.C)
+    - Updates NTAK metadata for audit trail
+    - Adds a note to the order with the change details
+
+    **Phase 3 TODO**: Replace MOCK HTTP calls with real service integrations.
+    """
+)
+def change_order_type(
+    order_id: int,
+    request: OrderTypeChangeRequest,
+    db: Session = Depends(get_db)
+) -> OrderTypeChangeResponse:
+    """
+    **[V3.0 FEATURE]**
+
+    Change the order type (Átültetés).
+
+    This endpoint is critical for handling customer requests to change
+    how they want to receive their order (e.g., switching from dine-in
+    to takeout).
+
+    Args:
+        order_id: The unique order identifier
+        request: OrderTypeChangeRequest with new_order_type and optional reason
+        db: Database session (injected)
+
+    Returns:
+        OrderTypeChangeResponse: The updated order with change confirmation
+
+    Raises:
+        HTTPException 404: If order is not found
+        HTTPException 400: If order status is not "NYITOTT" (Open)
+        HTTPException 400: If new type is same as current type
+        HTTPException 400: If type change fails
+
+    Example request body:
+        {
+            "new_order_type": "Elvitel",
+            "reason": "Vevő kérésére"
+        }
+
+    Example success response:
+        {
+            "order": {
+                "id": 42,
+                "order_type": "Elvitel",
+                "status": "NYITOTT",
+                ...
+            },
+            "previous_type": "Helyben",
+            "new_type": "Elvitel",
+            "message": "Rendelés típusa sikeresen megváltoztatva: Helyben -> Elvitel"
+        }
+
+    Example error response (order not open):
+        {
+            "detail": "A rendelés típusa csak NYITOTT státuszú rendeléseknél módosítható. Jelenlegi státusz: FELDOLGOZVA"
+        }
+    """
+    # Call the service layer which handles all business logic and validation
+    updated_order, previous_type = OrderService.change_order_type(
+        db=db,
+        order_id=order_id,
+        new_order_type=request.new_order_type.value,
+        reason=request.reason
+    )
+
+    # Build the response
+    return OrderTypeChangeResponse(
+        order=OrderResponse.model_validate(updated_order),
+        previous_type=previous_type,
+        new_type=request.new_order_type,
+        message=f"Rendelés típusa sikeresen megváltoztatva: {previous_type} -> {request.new_order_type.value}"
+    )
