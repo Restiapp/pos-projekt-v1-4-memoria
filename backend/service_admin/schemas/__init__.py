@@ -92,6 +92,21 @@ from .auth import (
     PasswordResetRequest,
 )
 
+# Finance schemas
+from .finance import (
+    CashMovementBase,
+    CashDepositRequest,
+    CashWithdrawRequest,
+    CashMovementResponse,
+    DailyClosureBase,
+    DailyClosureCreate,
+    DailyClosureUpdate,
+    DailyClosureResponse,
+    SzamlazzHuInvoiceItem,
+    SzamlazzHuInvoiceRequest,
+    SzamlazzHuInvoiceResponse,
+)
+
 __all__ = [
     # NTAK
     "NTAKLineItem",
@@ -128,4 +143,17 @@ __all__ = [
     "CurrentUser",
     "PasswordChangeRequest",
     "PasswordResetRequest",
+    # Finance
+    "CashMovementBase",
+    "CashDepositRequest",
+    "CashWithdrawRequest",
+    "CashMovementResponse",
+    "DailyClosureBase",
+    "DailyClosureCreate",
+    "DailyClosureUpdate",
+    "DailyClosureResponse",
+    # Számlázz.hu Integration
+    "SzamlazzHuInvoiceItem",
+    "SzamlazzHuInvoiceRequest",
+    "SzamlazzHuInvoiceResponse",
 ]
