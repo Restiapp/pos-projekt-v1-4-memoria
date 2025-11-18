@@ -531,7 +531,7 @@ def close_order(
     status_code=status.HTTP_200_OK,
     summary="Change order type (Átültetés)",
     description="""
-    **V3.0 Feature**: Change the order type (Átültetés) from one service channel to another.
+    **V3.0 / Phase 3.B Feature**: Change the order type (Átültetés) from one service channel to another.
 
     This endpoint allows changing the order type, for example:
     - From "Helyben" (Dine-in) to "Elvitel" (Takeout)
@@ -543,14 +543,15 @@ def close_order(
     - Only works for orders with status "NYITOTT" (Open)
     - Cannot be applied to processed, closed, or cancelled orders
     - The new order type must be different from the current type
+    - For "Kiszállítás" type, customer_zip_code is required for delivery zone lookup
 
     **Side effects:**
     - Notifies service_inventory about the type change (MOCK in Phase 2.C)
-    - Notifies service_logistics if switching to/from delivery (MOCK in Phase 2.C)
+    - Checks delivery zone via service_logistics if switching to delivery (REAL in Phase 3.B)
     - Updates NTAK metadata for audit trail
     - Adds a note to the order with the change details
 
-    **Phase 3 TODO**: Replace MOCK HTTP calls with real service integrations.
+    **Phase 3.B Enhancement**: Real HTTP calls to service_logistics for ZIP code based zone lookup.
     """
 )
 def change_order_type(
@@ -559,17 +560,17 @@ def change_order_type(
     db: Session = Depends(get_db)
 ) -> OrderTypeChangeResponse:
     """
-    **[V3.0 FEATURE]**
+    **[V3.0 / Phase 3.B FEATURE]**
 
     Change the order type (Átültetés).
 
     This endpoint is critical for handling customer requests to change
     how they want to receive their order (e.g., switching from dine-in
-    to takeout).
+    to takeout or delivery).
 
     Args:
         order_id: The unique order identifier
-        request: OrderTypeChangeRequest with new_order_type and optional reason
+        request: OrderTypeChangeRequest with new_order_type, optional reason, address, and ZIP code
         db: Database session (injected)
 
     Returns:
@@ -581,7 +582,15 @@ def change_order_type(
         HTTPException 400: If new type is same as current type
         HTTPException 400: If type change fails
 
-    Example request body:
+    Example request body (Kiszállítás):
+        {
+            "new_order_type": "Kiszállítás",
+            "reason": "Vevő kérésére",
+            "customer_address": "1051 Budapest, Alkotmány utca 12.",
+            "customer_zip_code": "1051"
+        }
+
+    Example request body (Elvitel):
         {
             "new_order_type": "Elvitel",
             "reason": "Vevő kérésére"
@@ -591,13 +600,13 @@ def change_order_type(
         {
             "order": {
                 "id": 42,
-                "order_type": "Elvitel",
+                "order_type": "Kiszállítás",
                 "status": "NYITOTT",
                 ...
             },
             "previous_type": "Helyben",
-            "new_type": "Elvitel",
-            "message": "Rendelés típusa sikeresen megváltoztatva: Helyben -> Elvitel"
+            "new_type": "Kiszállítás",
+            "message": "Rendelés típusa sikeresen megváltoztatva: Helyben -> Kiszállítás"
         }
 
     Example error response (order not open):
@@ -610,7 +619,9 @@ def change_order_type(
         db=db,
         order_id=order_id,
         new_order_type=request.new_order_type.value,
-        reason=request.reason
+        reason=request.reason,
+        customer_address=request.customer_address,
+        customer_zip_code=request.customer_zip_code
     )
 
     # Build the response

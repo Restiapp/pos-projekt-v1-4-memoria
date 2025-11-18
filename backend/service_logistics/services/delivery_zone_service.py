@@ -225,6 +225,38 @@ class DeliveryZoneService:
             DeliveryZone.is_active == True
         ).all()
 
+    @staticmethod
+    def get_zone_by_zip_code(db: Session, zip_code: str) -> Optional[DeliveryZone]:
+        """
+        Get delivery zone by ZIP code lookup (V3.0 / Phase 3.B).
+
+        This method searches through all active delivery zones and returns
+        the first zone that contains the given ZIP code in its zip_codes list.
+
+        Args:
+            db: SQLAlchemy session
+            zip_code: The ZIP code to search for
+
+        Returns:
+            DeliveryZone | None: The matched delivery zone or None if not found
+
+        Example:
+            >>> zone = DeliveryZoneService.get_zone_by_zip_code(db, "1051")
+            >>> if zone:
+            ...     print(f"Found zone: {zone.zone_name}")
+        """
+        # Get all active zones
+        active_zones = db.query(DeliveryZone).filter(
+            DeliveryZone.is_active == True
+        ).all()
+
+        # Search through zones for matching ZIP code
+        for zone in active_zones:
+            if zone.zip_codes and zip_code in zone.zip_codes:
+                return zone
+
+        return None
+
 
 # Singleton instance for export
 delivery_zone_service = DeliveryZoneService()

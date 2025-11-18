@@ -19,6 +19,8 @@ from backend.service_logistics.schemas.delivery_zone import (
     DeliveryZoneListResponse,
     GetByAddressRequest,
     GetByAddressResponse,
+    GetByZipCodeRequest,
+    GetByZipCodeResponse,
 )
 
 # Create APIRouter
@@ -377,6 +379,7 @@ def get_zone_by_address(
         GetByAddressResponse: MOCK response with first active zone
     """
     # MOCK IMPLEMENTATION: Return first active zone
+    # TODO (Phase 4): Replace with real Google Maps / GeoJSON logic
     active_zones = DeliveryZoneService.get_active_zones(db=db)
 
     if active_zones:
@@ -391,4 +394,61 @@ def get_zone_by_address(
             zone=None,
             message=f"MOCK: No active zones found for address '{request.address}'",
             mock_mode=True
+        )
+
+
+# V3.0 - Phase 3.B: Real ZIP Code Lookup Endpoint
+@router.post(
+    "/get-by-zip-code",
+    response_model=GetByZipCodeResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get delivery zone by ZIP code (V3.0 / Phase 3.B)",
+    description="""
+    **V3.0 / Phase 3.B Implementation**
+
+    Get delivery zone by ZIP code lookup.
+
+    **Current Implementation:**
+    - Searches through all active delivery zones
+    - Returns the first zone that contains the given ZIP code in its zip_codes list
+    - Real implementation (not MOCK)
+
+    **Future Enhancement (Phase 4):**
+    - May be enhanced with GeoJSON polygon-based lookup
+    - May integrate with Google Maps Geocoding API for address -> ZIP code conversion
+
+    **Return values:**
+    - 200: Response with zone (or null if ZIP code not found)
+    """,
+    response_description="Zone data for the given ZIP code",
+)
+def get_zone_by_zip_code(
+    request: GetByZipCodeRequest,
+    db: Session = Depends(get_db),
+) -> GetByZipCodeResponse:
+    """
+    Get delivery zone by ZIP code (V3.0 / Phase 3.B).
+
+    **IMPORTANT:** This is a real implementation (not MOCK). It searches
+    through active delivery zones and matches based on the zip_codes field.
+
+    Args:
+        request: ZIP code request data
+        db: Database session (dependency injection)
+
+    Returns:
+        GetByZipCodeResponse: Response with matched zone or None
+    """
+    # Real implementation: Search for zone by ZIP code
+    zone = DeliveryZoneService.get_zone_by_zip_code(db=db, zip_code=request.zip_code)
+
+    if zone:
+        return GetByZipCodeResponse(
+            zone=zone,
+            message=f"Zone '{zone.zone_name}' matched for ZIP code: {request.zip_code}"
+        )
+    else:
+        return GetByZipCodeResponse(
+            zone=None,
+            message=f"No zone found for ZIP code: {request.zip_code}"
         )
