@@ -6,7 +6,7 @@ A rendeléstételek táblája, amely tartalmazza a rendeléshez tartozó
 termékeket, mennyiségeket, árakat és a kiválasztott módosítókat.
 """
 
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -22,6 +22,9 @@ class OrderItem(Base):
     - Termék módosítók tárolását (selected_modifiers JSONB)
     - Személyenkénti számla felosztást (seat_id)
     - Konyhai kijelző integrációt (kds_station, kds_status)
+    - Fogások kezelését (course) - V3.0
+    - Tétel szintű megjegyzéseket (notes) - V3.0
+    - Kedvezmények részletezését (discount_details) - V3.0
     """
     __tablename__ = 'order_items'
 
@@ -32,6 +35,9 @@ class OrderItem(Base):
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)
     selected_modifiers = Column(JSONB, nullable=True)  # [{'group_name': 'Zsemle', 'modifier_name': 'Szezamos', 'price': 0.00}]
+    course = Column(String(50), nullable=True)  # V3.0: Fogás (pl. 'Előétel', 'Főétel', 'Desszert')
+    notes = Column(Text, nullable=True)  # V3.0: Tétel szintű megjegyzések
+    discount_details = Column(JSONB, nullable=True)  # V3.0: Kedvezmény részletek {'type': 'percentage', 'value': 10}
     kds_station = Column(String(50), nullable=True)  # 'Konyha', 'Pizza', 'Pult'
     kds_status = Column(String(50), nullable=False, default='VÁRAKOZIK')  # 'VÁRAKOZIK', 'KÉSZÜL', 'KÉSZ'
 
