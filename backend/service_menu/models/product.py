@@ -30,7 +30,8 @@ class Product(Base):
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
     base_price = Column(Numeric(10, 2), nullable=False)
-    category_id = Column(Integer, ForeignKey('categories.id'), nullable=True)
+    # CRITICAL FIX (C1.3): Add ondelete behavior for data integrity
+    category_id = Column(Integer, ForeignKey('categories.id', ondelete='SET NULL'), nullable=True)
     sku = Column(String(100), unique=True, nullable=True)
     is_active = Column(Boolean, default=True)
     translations = Column(JSONB, nullable=True)  # {'en': {'name': '..', 'desc': '..'}, 'de': {...}}

@@ -129,9 +129,10 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
+    from backend.service_menu.config import settings
     uvicorn.run(
         "backend.service_menu.main:app",
         host="0.0.0.0",
-        port=8000,
+        port=settings.port,
         reload=True
     )

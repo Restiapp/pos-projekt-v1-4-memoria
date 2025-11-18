@@ -75,22 +75,35 @@ function App() {
             element={<ProductList />}
           />
 
-          {/* ÚJ: Nested Route: /admin/tables */}
+          {/* HIGH PRIORITY FIX (H8.1): Add permission checks to nested routes */}
+          {/* ÚJ: Nested Route: /admin/tables - requires orders:manage */}
           <Route
             path="tables"
-            element={<TableList />}
+            element={
+              <ProtectedRoute requiredPermission="orders:manage">
+                <TableList />
+              </ProtectedRoute>
+            }
           />
 
-          {/* ÚJ: Nested Route: /admin/employees */}
+          {/* ÚJ: Nested Route: /admin/employees - requires employees:manage */}
           <Route
             path="employees"
-            element={<EmployeeList />}
+            element={
+              <ProtectedRoute requiredPermission="employees:manage">
+                <EmployeeList />
+              </ProtectedRoute>
+            }
           />
 
-          {/* ÚJ: Nested Route: /admin/roles */}
+          {/* ÚJ: Nested Route: /admin/roles - requires roles:manage */}
           <Route
             path="roles"
-            element={<RoleList />}
+            element={
+              <ProtectedRoute requiredPermission="roles:manage">
+                <RoleList />
+              </ProtectedRoute>
+            }
           />
 
           {/* TODO: További admin modulok (kategóriák, stb.) */}
@@ -100,8 +113,29 @@ function App() {
         {/* Default redirect: Asztaltérképre */}
         <Route path="/" element={<Navigate to="/tables" replace />} />
 
-        {/* 404 - Not Found */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* CRITICAL FIX (C6.1): Add /unauthorized route for permission denied */}
+        <Route
+          path="/unauthorized"
+          element={
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h1>403 - Hozzáférés megtagadva</h1>
+              <p>Nincs jogosultságod ehhez az oldalhoz.</p>
+              <a href="/tables">Vissza az asztaltérképre</a>
+            </div>
+          }
+        />
+
+        {/* CRITICAL FIX (C6.2): Fix 404 route to not logout authenticated users */}
+        <Route
+          path="*"
+          element={
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h1>404 - Az oldal nem található</h1>
+              <p>A keresett oldal nem létezik.</p>
+              <a href="/tables">Vissza az asztaltérképre</a>
+            </div>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

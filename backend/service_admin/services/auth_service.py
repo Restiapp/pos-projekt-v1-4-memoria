@@ -12,7 +12,8 @@ Ez a modul kezeli:
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 
-import bcrypt
+# CRITICAL FIX (C4.2): Use passlib instead of bcrypt for consistency with dependencies.py
+from passlib.context import CryptContext
 import jwt
 from sqlalchemy.orm import Session
 
@@ -40,6 +41,14 @@ class AuthService:
     """
 
     def __init__(self, db: Session):
+        """
+        Initialize AuthService with database session and password context.
+        """
+        self.db = db
+        # CRITICAL FIX (C4.2): Use passlib CryptContext for password hashing
+        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    def _original_init_docstring(self):
         """
         AuthService inicializálás.
 
@@ -91,16 +100,12 @@ class AuthService:
             # Inaktív alkalmazott nem jelentkezhet be
             return None
 
-        # 3. PIN kód validáció bcrypt-tel
+        # 3. PIN kód validáció passlib-bel
         # A pin_code_hash mező bcrypt hash formátumban van tárolva
-        # bcrypt.checkpw() összehasonlítja a plain text PIN-t a hash-sel
+        # CRITICAL FIX (C4.2): Use passlib.verify() instead of bcrypt.checkpw()
         try:
-            # PIN kódot bytes-ra konvertáljuk
-            pin_bytes = pin_code.encode('utf-8')
-            hash_bytes = employee.pin_code_hash.encode('utf-8')
-
-            # Bcrypt ellenőrzés
-            if bcrypt.checkpw(pin_bytes, hash_bytes):
+            # Passlib ellenőrzés
+            if self.pwd_context.verify(pin_code, employee.pin_code_hash):
                 # Sikeres hitelesítés
                 return employee
             else:
@@ -323,16 +328,9 @@ class AuthService:
             pin_hash = auth_service.hash_pin_code("1234")
             # Tárolás adatbázisban: employee.pin_code_hash = pin_hash
         """
-        # PIN kód bytes-ra konvertálás
-        pin_bytes = pin_code.encode('utf-8')
-
-        # Bcrypt hash generálás
-        # bcrypt.gensalt() generál egy random salt-ot
-        salt = bcrypt.gensalt()
-        pin_hash = bcrypt.hashpw(pin_bytes, salt)
-
-        # Hash visszaadása string formában
-        return pin_hash.decode('utf-8')
+        # CRITICAL FIX (C4.2): Use passlib.hash() instead of bcrypt.hashpw()
+        # Passlib automatically handles salt generation and encoding
+        return self.pwd_context.hash(pin_code)
 
     def get_employee_permissions(self, employee: Employee) -> list[str]:
         """

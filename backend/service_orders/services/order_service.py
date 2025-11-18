@@ -306,8 +306,8 @@ class OrderService:
             )
 
         try:
-            # ÁFA kulcs átállítása 5%-ra (NTAK helyi felhasználás)
-            order.final_vat_rate = Decimal("5.00")
+            # ÁFA kulcs átállítása 18%-ra (NTAK helyi felhasználás/catering)
+            order.final_vat_rate = Decimal("18.00")
 
             # NTAK adatok frissítése (ha van)
             if order.ntak_data is None:

@@ -15,6 +15,17 @@ from typing import Generator
 # Import Base from models.base
 from backend.service_menu.models.base import Base
 
+# CRITICAL FIX (C1.2): Import all models so init_db() can create tables
+from backend.service_menu.models import (
+    Category,
+    Product,
+    ImageAsset,
+    ModifierGroup,
+    Modifier,
+    product_modifier_group_associations,
+    ChannelVisibility,
+)
+
 # Database URL configuration
 # Környezeti változóból vagy default PostgreSQL URL
 DATABASE_URL = os.getenv(
