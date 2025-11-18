@@ -7,7 +7,7 @@ területek adatait, beleértve a zóna nevét, leírását, kiszállítási díj
 és az aktív státuszt.
 """
 
-from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime, JSON
 from sqlalchemy.sql import func
 
 from backend.service_logistics.models.database import Base
@@ -38,6 +38,9 @@ class DeliveryZone(Base):
 
     # Delivery time estimation
     estimated_delivery_time_minutes = Column(Integer, nullable=False, default=30)
+
+    # V3.0 / Phase 3.B: ZIP code coverage
+    zip_codes = Column(JSON, nullable=True, default=list)
 
     # Status
     is_active = Column(Boolean, default=True, nullable=False, index=True)

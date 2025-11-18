@@ -463,7 +463,9 @@ class OrderService:
         db: Session,
         order_id: int,
         new_order_type: str,
-        reason: Optional[str] = None
+        reason: Optional[str] = None,
+        customer_address: Optional[str] = None,
+        customer_zip_code: Optional[str] = None
     ) -> tuple[Order, str]:
         """
         Rendelés típusának megváltoztatása (Átültetés).
@@ -473,13 +475,15 @@ class OrderService:
 
         FONTOS: A típusváltás csak NYITOTT státuszú rendeléseknél engedélyezett!
 
-        V3.0 / Fázis 2.C: Átültetés (Order Type Change) funkció
+        V3.0 / Fázis 3.B: Átültetés (Order Type Change) funkció
 
         Args:
             db: SQLAlchemy session
             order_id: A rendelés azonosítója
             new_order_type: Az új rendelés típus (OrderTypeEnum értéke)
             reason: Opcionális indoklás a változtatáshoz
+            customer_address: Opcionális ügyfél cím (Kiszállítás típusnál)
+            customer_zip_code: Opcionális ZIP kód (Kiszállítás típusnál)
 
         Returns:
             tuple[Order, str]: A módosított rendelés és az előző típus
@@ -493,13 +497,13 @@ class OrderService:
             >>> order, prev_type = OrderService.change_order_type(
             ...     db,
             ...     order_id=42,
-            ...     new_order_type="Elvitel",
-            ...     reason="Vevő kérésére"
+            ...     new_order_type="Kiszállítás",
+            ...     reason="Vevő kérésére",
+            ...     customer_zip_code="1051"
             ... )
             >>> print(f"Típusváltás: {prev_type} -> {order.order_type}")
 
-        V3.0 Note: Jelenleg MOCK HTTP hívásokat használ a service_inventory
-        és service_logistics felé. Ezeket a Fázis 3-ban kell valós hívásokra cserélni.
+        V3.0 / Phase 3.B: Real HTTP calls to service_logistics (ZIP code based).
         """
         # Rendelés lekérdezése
         order = OrderService.get_order(db, order_id)
@@ -546,30 +550,42 @@ class OrderService:
                 # Graceful failure: log but don't block order type change
                 logger.warning(f"[MOCK] Failed to notify inventory service for order {order_id}: {str(e)}")
 
-            # V3.0 Fázis 2.C: MOCK HTTP hívás a service_logistics felé
-            # (Szállítási/Elviteles kezelés értesítése, ha releváns)
-            # TODO (Fázis 3): Valós HTTP hívásra cserélni
-            if new_order_type == "Kiszállítás" or previous_order_type == "Kiszállítás":
+            # V3.0 Fázis 3.B: REAL HTTP hívás a service_logistics felé
+            # (Szállítási zóna ellenőrzése, ha releváns)
+            if new_order_type == "Kiszállítás":
                 try:
-                    logger.info(
-                        f"[MOCK] Sending order type change notification to service_logistics: "
-                        f"order_id={order_id}, previous_type={previous_order_type}, "
-                        f"new_type={new_order_type}"
-                    )
-                    # MOCK: A valós implementációban itt lenne egy HTTP POST hívás:
-                    # with httpx.Client() as client:
-                    #     logistics_url = f"{settings.logistics_service_url}/internal/notify-order-type-change"
-                    #     payload = {
-                    #         "order_id": order_id,
-                    #         "previous_type": previous_order_type,
-                    #         "new_type": new_order_type,
-                    #         "reason": reason
-                    #     }
-                    #     client.post(logistics_url, json=payload, timeout=5.0)
-                    logger.info(f"[MOCK] Logistics notification would be sent (not implemented yet)")
-                except Exception as e:
+                    # Ellenőrizzük, hogy van-e ZIP kód vagy cím
+                    if customer_zip_code:
+                        logger.info(
+                            f"Checking delivery zone for order {order_id} with ZIP code: {customer_zip_code}"
+                        )
+                        # Valós HTTP POST hívás a service_logistics felé (ZIP kód alapú keresés)
+                        with httpx.Client() as client:
+                            logistics_url = f"{settings.logistics_service_url}/zones/get-by-zip-code"
+                            payload = {"zip_code": customer_zip_code}
+                            response = client.post(logistics_url, json=payload, timeout=5.0)
+
+                            if response.status_code == 200:
+                                zone_data = response.json()
+                                if zone_data.get("zone"):
+                                    logger.info(
+                                        f"Delivery zone found for order {order_id}: {zone_data['zone']['zone_name']}"
+                                    )
+                                else:
+                                    logger.warning(
+                                        f"No delivery zone found for ZIP code {customer_zip_code} for order {order_id}"
+                                    )
+                            else:
+                                logger.warning(
+                                    f"Failed to check delivery zone for order {order_id}: HTTP {response.status_code}"
+                                )
+                    else:
+                        logger.warning(
+                            f"Order {order_id} changed to Kiszállítás but no ZIP code provided"
+                        )
+                except httpx.HTTPError as e:
                     # Graceful failure: log but don't block order type change
-                    logger.warning(f"[MOCK] Failed to notify logistics service for order {order_id}: {str(e)}")
+                    logger.warning(f"Failed to check logistics zone for order {order_id}: {str(e)}")
 
             # Rendelés típusának módosítása
             order.order_type = new_order_type

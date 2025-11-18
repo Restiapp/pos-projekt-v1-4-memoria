@@ -46,6 +46,11 @@ class DeliveryZoneBase(BaseModel):
         description="Estimated delivery time in minutes",
         examples=[15, 30, 45, 60]
     )
+    zip_codes: Optional[list[str]] = Field(
+        default=None,
+        description="List of ZIP codes covered by this delivery zone (V3.0 / Phase 3.B)",
+        examples=[["1051", "1052", "1053"], ["1013", "1014"]]
+    )
     is_active: bool = Field(
         default=True,
         description="Whether this zone is active for deliveries"
@@ -86,6 +91,10 @@ class DeliveryZoneUpdate(BaseModel):
         ge=5,
         le=120,
         description="Estimated delivery time in minutes"
+    )
+    zip_codes: Optional[list[str]] = Field(
+        None,
+        description="List of ZIP codes covered by this delivery zone (V3.0 / Phase 3.B)"
     )
     is_active: Optional[bool] = Field(
         None,
@@ -142,6 +151,44 @@ class DeliveryZoneListResponse(BaseModel):
         le=100,
         description="Number of items per page",
         examples=[20]
+    )
+
+
+# V3.0 - Phase 3.B: Get Zone by ZIP Code
+class GetByZipCodeRequest(BaseModel):
+    """
+    Schema for get-by-zip-code request (V3.0 - Phase 3.B).
+
+    This endpoint searches for delivery zones by ZIP code.
+    """
+
+    zip_code: str = Field(
+        ...,
+        min_length=4,
+        max_length=10,
+        description="ZIP code to search for",
+        examples=["1051", "1052", "1013"]
+    )
+
+
+class GetByZipCodeResponse(BaseModel):
+    """
+    Schema for get-by-zip-code response (V3.0 - Phase 3.B).
+
+    Returns the matched delivery zone based on ZIP code lookup.
+    """
+
+    zone: Optional[DeliveryZoneResponse] = Field(
+        None,
+        description="Matched delivery zone (or None if not found)"
+    )
+    message: str = Field(
+        ...,
+        description="Response message",
+        examples=[
+            "Zone matched for ZIP code: 1051",
+            "No zone found for ZIP code: 9999"
+        ]
     )
 
 

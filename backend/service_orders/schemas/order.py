@@ -193,7 +193,7 @@ class OrderTypeChangeRequest(BaseModel):
     This allows changing the order type from one service channel to another,
     e.g., from "Helyben" (Dine-in) to "Elvitel" (Takeout) or "Kiszállítás" (Delivery).
 
-    V3.0 Feature: Order Type Change (Átültetés)
+    V3.0 / Phase 3.B: Enhanced with customer address and ZIP code support.
     """
 
     new_order_type: OrderTypeEnum = Field(
@@ -205,6 +205,16 @@ class OrderTypeChangeRequest(BaseModel):
         None,
         description="Optional reason for the order type change",
         examples=["Vevő kérésére", "Adminisztratív hiba javítása"]
+    )
+    customer_address: Optional[str] = Field(
+        None,
+        description="Customer delivery address (required for Kiszállítás type)",
+        examples=["1051 Budapest, Alkotmány utca 12.", "Budapest, Andrássy út 1."]
+    )
+    customer_zip_code: Optional[str] = Field(
+        None,
+        description="Customer ZIP code (required for Kiszállítás type, used for delivery zone lookup)",
+        examples=["1051", "1052", "1013"]
     )
 
 
