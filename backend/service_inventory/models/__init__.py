@@ -11,7 +11,8 @@ Importálás:
         Recipe,
         SupplierInvoice,
         DailyInventorySheet,
-        DailyInventoryCount
+        DailyInventoryCount,
+        WasteLog
     )
 """
 
@@ -27,6 +28,7 @@ from backend.service_inventory.models.daily_inventory_sheet import (
     DailyInventoryCount,
     daily_inventory_sheet_items
 )
+from backend.service_inventory.models.waste_log import WasteLog
 
 # Export all models
 __all__ = [
@@ -37,4 +39,5 @@ __all__ = [
     'DailyInventorySheet',
     'DailyInventoryCount',
     'daily_inventory_sheet_items',
+    'WasteLog',
 ]
