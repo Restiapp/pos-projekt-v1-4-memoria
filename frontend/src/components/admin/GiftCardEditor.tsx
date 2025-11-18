@@ -63,6 +63,16 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
       return;
     }
 
+    // PIN kód validáció
+    if (formData.pin_code.trim()) {
+      // Ha PIN kódot adtak meg, ellenőrizzük a formátumot
+      const pinRegex = /^[0-9]{4,10}$/; // 4-10 számjegy
+      if (!pinRegex.test(formData.pin_code)) {
+        alert('A PIN kód 4-10 számjegyből kell álljon!');
+        return;
+      }
+    }
+
     if (formData.initial_balance <= 0 && !isEditing) {
       alert('A kezdeti egyenleg nagyobb kell legyen nullánál!');
       return;

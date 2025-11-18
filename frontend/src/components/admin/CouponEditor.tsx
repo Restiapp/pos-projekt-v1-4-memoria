@@ -11,7 +11,7 @@
 import { useState } from 'react';
 import { createCoupon, updateCoupon } from '@/services/crmService';
 import type { Coupon, CouponCreate, CouponUpdate } from '@/types/coupon';
-import { DiscountType } from '@/types/coupon';
+import { DiscountTypeEnum } from '@/types/coupon';
 import './CouponEditor.css';
 
 interface CouponEditorProps {
@@ -26,10 +26,10 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
   const [formData, setFormData] = useState({
     code: coupon?.code || '',
     description: coupon?.description || '',
-    discount_type: coupon?.discount_type || DiscountType.PERCENTAGE,
+    discount_type: coupon?.discount_type || DiscountTypeEnum.PERCENTAGE,
     discount_value: coupon?.discount_value || 0,
     min_purchase_amount: coupon?.min_purchase_amount || 0,
-    usage_limit: coupon?.usage_limit || 0,
+    max_uses: coupon?.max_uses || 0,
     valid_from: coupon?.valid_from
       ? coupon.valid_from.split('T')[0]
       : new Date().toISOString().split('T')[0],
@@ -56,7 +56,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
     if (
       name === 'discount_value' ||
       name === 'min_purchase_amount' ||
-      name === 'usage_limit'
+      name === 'max_uses'
     ) {
       setFormData((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
       return;
@@ -82,7 +82,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
     }
 
     if (
-      formData.discount_type === DiscountType.PERCENTAGE &&
+      formData.discount_type === DiscountTypeEnum.PERCENTAGE &&
       formData.discount_value > 100
     ) {
       alert('A százalékos kedvezmény nem lehet nagyobb 100%-nál!');
@@ -99,7 +99,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           discount_type: formData.discount_type,
           discount_value: formData.discount_value,
           min_purchase_amount: formData.min_purchase_amount || undefined,
-          usage_limit: formData.usage_limit || undefined,
+          max_uses: formData.max_uses || undefined,
           valid_from: formData.valid_from,
           valid_until: formData.valid_until || undefined,
           is_active: formData.is_active,
@@ -114,7 +114,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           discount_type: formData.discount_type,
           discount_value: formData.discount_value,
           min_purchase_amount: formData.min_purchase_amount || undefined,
-          usage_limit: formData.usage_limit || undefined,
+          max_uses: formData.max_uses || undefined,
           valid_from: formData.valid_from,
           valid_until: formData.valid_until || undefined,
           is_active: formData.is_active,
@@ -197,8 +197,8 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
               onChange={handleChange}
               required
             >
-              <option value={DiscountType.PERCENTAGE}>Százalékos (%)</option>
-              <option value={DiscountType.FIXED_AMOUNT}>Fix összeg (HUF)</option>
+              <option value={DiscountTypeEnum.PERCENTAGE}>Százalékos (%)</option>
+              <option value={DiscountTypeEnum.FIXED_AMOUNT}>Fix összeg (HUF)</option>
             </select>
           </div>
 
@@ -206,7 +206,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           <div className="form-group">
             <label htmlFor="discount_value">
               Kedvezmény értéke{' '}
-              {formData.discount_type === DiscountType.PERCENTAGE ? '(%)' : '(HUF)'}{' '}
+              {formData.discount_type === DiscountTypeEnum.PERCENTAGE ? '(%)' : '(HUF)'}{' '}
               <span className="required">*</span>
             </label>
             <input
@@ -216,8 +216,8 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
               value={formData.discount_value}
               onChange={handleChange}
               min={0}
-              max={formData.discount_type === DiscountType.PERCENTAGE ? 100 : undefined}
-              step={formData.discount_type === DiscountType.PERCENTAGE ? 1 : 10}
+              max={formData.discount_type === DiscountTypeEnum.PERCENTAGE ? 100 : undefined}
+              step={formData.discount_type === DiscountTypeEnum.PERCENTAGE ? 1 : 10}
               required
             />
           </div>
@@ -239,12 +239,12 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
 
           {/* Használati limit */}
           <div className="form-group">
-            <label htmlFor="usage_limit">Használati limit (max. felhasználások)</label>
+            <label htmlFor="max_uses">Használati limit (max. felhasználások)</label>
             <input
-              id="usage_limit"
-              name="usage_limit"
+              id="max_uses"
+              name="max_uses"
               type="number"
-              value={formData.usage_limit}
+              value={formData.max_uses}
               onChange={handleChange}
               min={0}
               step={1}
@@ -302,11 +302,11 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
                   <span className="stat-label">Használatok száma:</span>
                   <span className="stat-value">{coupon.usage_count}</span>
                 </div>
-                {coupon.usage_limit && (
+                {coupon.max_uses && (
                   <div className="stat-item">
                     <span className="stat-label">Felhasználható még:</span>
                     <span className="stat-value">
-                      {Math.max(0, coupon.usage_limit - coupon.usage_count)}
+                      {Math.max(0, coupon.max_uses - coupon.usage_count)}
                     </span>
                   </div>
                 )}
