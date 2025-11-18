@@ -32,12 +32,19 @@ app.add_middleware(
     allow_headers=["*"],  # Minden header engedélyezése
 )
 
-# TODO: Register routers when they are created
-# app.include_router(
-#     customers_router,
-#     prefix="/api/v1",
-#     tags=["Customers"],
-# )
+# Import routers
+from backend.service_crm.routers import customers_router, coupons_router
+
+# Register routers
+app.include_router(
+    customers_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    coupons_router,
+    prefix="/api/v1",
+)
 
 
 # Startup Event
