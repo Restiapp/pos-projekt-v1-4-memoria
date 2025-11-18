@@ -180,3 +180,59 @@ class OrderListResponse(BaseModel):
         description="Number of items per page",
         examples=[20]
     )
+
+
+# ============================================================================
+# ORDER TYPE CHANGE SCHEMAS (V3.0 / Phase 2.C)
+# ============================================================================
+
+class OrderTypeChangeRequest(BaseModel):
+    """
+    Schema for requesting an order type change (Átültetés).
+
+    This allows changing the order type from one service channel to another,
+    e.g., from "Helyben" (Dine-in) to "Elvitel" (Takeout) or "Kiszállítás" (Delivery).
+
+    V3.0 Feature: Order Type Change (Átültetés)
+    """
+
+    new_order_type: OrderTypeEnum = Field(
+        ...,
+        description="The new order type to change to",
+        examples=["Helyben", "Elvitel", "Kiszállítás"]
+    )
+    reason: Optional[str] = Field(
+        None,
+        description="Optional reason for the order type change",
+        examples=["Vevő kérésére", "Adminisztratív hiba javítása"]
+    )
+
+
+class OrderTypeChangeResponse(BaseModel):
+    """
+    Schema for order type change response.
+
+    Contains the updated order information and confirmation of the change.
+
+    V3.0 Feature: Order Type Change (Átültetés)
+    """
+
+    order: OrderResponse = Field(
+        ...,
+        description="The updated order with the new order type"
+    )
+    previous_type: OrderTypeEnum = Field(
+        ...,
+        description="The previous order type before the change",
+        examples=["Helyben", "Elvitel"]
+    )
+    new_type: OrderTypeEnum = Field(
+        ...,
+        description="The new order type after the change",
+        examples=["Elvitel", "Kiszállítás"]
+    )
+    message: str = Field(
+        ...,
+        description="Confirmation message",
+        examples=["Rendelés típusa sikeresen megváltoztatva: Helyben -> Elvitel"]
+    )

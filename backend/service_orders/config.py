@@ -51,6 +51,12 @@ class Settings(BaseSettings):
         description="URL of the Inventory Service for stock deduction"
     )
 
+    # Logistics Service URL (for order type changes and delivery management)
+    logistics_service_url: str = Field(
+        default="http://localhost:8005",
+        description="URL of the Logistics Service for order type changes and delivery management"
+    )
+
     # Order Configuration
     max_order_items: int = Field(
         default=50,
