@@ -1,0 +1,296 @@
+/* VehicleList - Járművek lista stílusok */
+
+.vehicle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Fejléc */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.list-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Gombok */
+.btn-refresh,
+.btn-create {
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.btn-refresh:hover {
+  background: #e5e7eb;
+}
+
+.btn-create {
+  background: #2563eb;
+  color: #fff;
+}
+
+.btn-create:hover {
+  background: #1d4ed8;
+}
+
+/* Szűrők */
+.list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.filter-checkbox input[type='checkbox'] {
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+}
+
+.filter-select-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-select-group label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.filter-select-group select {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Betöltés és üres állapot */
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+}
+
+.empty-state p {
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.btn-create-large {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: #2563eb;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-create-large:hover {
+  background: #1d4ed8;
+}
+
+/* Táblázat */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.vehicle-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.vehicle-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.vehicle-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.vehicle-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.15s ease;
+}
+
+.vehicle-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.vehicle-table tbody tr.row-warning {
+  background: #fef3c7;
+}
+
+.vehicle-table tbody tr.row-warning:hover {
+  background: #fde68a;
+}
+
+.vehicle-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.cell-license-plate strong {
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 1rem;
+}
+
+/* Státusz jelvény */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.status-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-maintenance {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-out-of-service {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-sold {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-retired {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Műveletek */
+.cell-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit,
+.btn-delete {
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-edit:hover {
+  background: #dbeafe;
+  border-color: #2563eb;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+/* Reszponzív */
+@media (max-width: 1024px) {
+  .list-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .vehicle-list {
+    gap: 1rem;
+  }
+
+  .list-filters {
+    flex-direction: column;
+  }
+
+  .filter-select-group {
+    flex-direction: column;
+  }
+
+  .filter-select-group label {
+    width: 100%;
+  }
+
+  .vehicle-table {
+    font-size: 0.85rem;
+  }
+
+  .vehicle-table th,
+  .vehicle-table td {
+    padding: 0.5rem;
+  }
+}

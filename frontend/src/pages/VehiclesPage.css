@@ -1,0 +1,93 @@
+/* VehiclesPage - Gépjárművek oldal stílusok */
+
+.vehicles-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.5rem;
+  background: #f5f5f5;
+}
+
+/* Fejléc */
+.vehicles-header {
+  margin-bottom: 1.5rem;
+}
+
+.vehicles-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 0.5rem 0;
+}
+
+.vehicles-description {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Tab navigáció */
+.vehicles-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #666;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  color: #333;
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.tab-button.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+  background: rgba(37, 99, 235, 0.05);
+}
+
+/* Tab tartalom */
+.vehicles-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+/* Reszponzív */
+@media (max-width: 768px) {
+  .vehicles-page {
+    padding: 1rem;
+  }
+
+  .vehicles-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .vehicles-tabs {
+    flex-wrap: wrap;
+  }
+
+  .tab-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .vehicles-content {
+    padding: 1rem;
+  }
+}
