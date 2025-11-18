@@ -1,0 +1,438 @@
+/**
+ * Finance Components - Közös stílusok a pénzügyi komponensekhez
+ */
+
+/* ============================================================================
+   Cash Drawer Styles
+   ============================================================================ */
+
+.cash-drawer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .cash-drawer {
+    grid-template-columns: 1fr;
+  }
+}
+
+.balance-card,
+.cash-operation-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.balance-card h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.balance-amount {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #27ae60;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.operation-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.operation-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  background: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.operation-btn:hover {
+  background: #f8f9fa;
+}
+
+.operation-btn.active {
+  border-color: #3498db;
+  background: #3498db;
+  color: white;
+  font-weight: bold;
+}
+
+.cash-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.cash-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.cash-form input,
+.cash-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.cash-form input:focus,
+.cash-form textarea:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submit-btn.deposit {
+  background: #27ae60;
+  color: white;
+}
+
+.submit-btn.deposit:hover:not(:disabled) {
+  background: #229954;
+}
+
+.submit-btn.withdraw {
+  background: #e74c3c;
+  color: white;
+}
+
+.submit-btn.withdraw:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   Daily Closure List Styles
+   ============================================================================ */
+
+.daily-closure-list {
+  padding: 2rem;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.list-header h2 {
+  margin: 0;
+  font-size: 2rem;
+  color: #2c3e50;
+}
+
+.header-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.status-filter {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.refresh-btn,
+.create-btn,
+.action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.refresh-btn {
+  background: #95a5a6;
+  color: white;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #7f8c8d;
+}
+
+.create-btn {
+  background: #3498db;
+  color: white;
+  font-weight: bold;
+}
+
+.create-btn:hover {
+  background: #2980b9;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.closures-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.closures-table th,
+.closures-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.closures-table th {
+  background: #34495e;
+  color: white;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+}
+
+.closures-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.status-badge.status-open {
+  background: #3498db;
+  color: white;
+}
+
+.status-badge.status-in-progress {
+  background: #f39c12;
+  color: white;
+}
+
+.status-badge.status-closed {
+  background: #95a5a6;
+  color: white;
+}
+
+.status-badge.status-reconciled {
+  background: #27ae60;
+  color: white;
+}
+
+.difference-badge {
+  font-weight: bold;
+}
+
+.difference-badge.difference-zero {
+  color: #27ae60;
+}
+
+.difference-badge.difference-positive {
+  color: #f39c12;
+}
+
+.difference-badge.difference-negative {
+  color: #e74c3c;
+}
+
+.action-btn {
+  background: transparent;
+  border: 1px solid #ddd;
+  padding: 0.25rem 0.5rem;
+  font-size: 1.25rem;
+}
+
+.action-btn:hover {
+  background: #f8f9fa;
+  border-color: #3498db;
+}
+
+.empty-state,
+.loading-state {
+  padding: 3rem;
+  text-align: center;
+  color: #95a5a6;
+  font-size: 1.25rem;
+}
+
+/* ============================================================================
+   Daily Closure Editor (Modal) Styles
+   ============================================================================ */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  color: #95a5a6;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #e74c3c;
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+.closure-summary {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.summary-item label {
+  font-weight: 600;
+  color: #7f8c8d;
+}
+
+.summary-item span {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.difference-display {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 1.25rem;
+}
+
+.difference-display.zero {
+  background: #d5f4e6;
+  color: #27ae60;
+}
+
+.difference-display.positive {
+  background: #ffe5b4;
+  color: #f39c12;
+}
+
+.difference-display.negative {
+  background: #fadbd8;
+  color: #e74c3c;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #ecf0f1;
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn {
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+.cancel-btn:hover:not(:disabled) {
+  background: #bdc3c7;
+}
+
+.save-btn {
+  background: #3498db;
+  color: white;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #2980b9;
+}
+
+.cancel-btn:disabled,
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
