@@ -1,0 +1,77 @@
+/* VehicleRefuelingList - Tankolások lista stílusok */
+
+.refueling-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Táblázat */
+.refueling-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.refueling-table thead {
+  background: #f9fafb;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.refueling-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.refueling-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.15s ease;
+}
+
+.refueling-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.refueling-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+/* Műveletek */
+.cell-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-delete {
+  padding: 0.4rem 0.6rem;
+  font-size: 1rem;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+/* Reszponzív */
+@media (max-width: 768px) {
+  .refueling-table {
+    font-size: 0.85rem;
+  }
+
+  .refueling-table th,
+  .refueling-table td {
+    padding: 0.5rem;
+  }
+}

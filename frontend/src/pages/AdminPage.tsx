@@ -74,6 +74,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/assets',
     permission: 'assets:manage', // TODO: Add assets:manage permission to RBAC
   },
+  // ÚJ MENÜPONT - FÁZIS 3.5 (Vehicles)
+  {
+    id: 'vehicles',
+    label: 'Gépjárművek',
+    icon: '🚗',
+    path: '/admin/vehicles',
+    permission: 'vehicles:manage', // TODO: Add vehicles:manage permission to RBAC
+  },
   // CRM menüpontok
   {
     id: 'customers',
