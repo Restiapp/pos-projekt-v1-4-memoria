@@ -533,6 +533,59 @@ class OrderService:
                 detail=f"A rendelés típusa már '{new_order_type}'. Nincs szükség változtatásra."
             )
 
+        # V3.0 Fázis 4.C: Ital/Fagyi ellenőrzés (service_menu HTTP hívás)
+        # Ellenőrizni kell, hogy a rendelés tartalmaz-e Ital vagy Fagyi kategóriájú terméket
+        # V3.0 terv 4.4-es szabály: Ital/Fagyi kategóriájú termékek esetén tilos az átültetés
+        try:
+            # Order items lekérdezése
+            from backend.service_orders.models.order_item import OrderItem
+            order_items = db.query(OrderItem).filter(OrderItem.order_id == order_id).all()
+
+            # Minden termék kategóriájának ellenőrzése
+            for item in order_items:
+                product_id = item.product_id
+
+                # HTTP GET hívás a service_menu felé: termék lekérdezése
+                with httpx.Client() as client:
+                    product_url = f"{settings.menu_service_url}/api/menu/products/{product_id}"
+                    product_response = client.get(product_url, timeout=5.0)
+
+                    if product_response.status_code == 200:
+                        product_data = product_response.json()
+                        category_id = product_data.get("category_id")
+
+                        if category_id:
+                            # HTTP GET hívás a service_menu felé: kategória lekérdezése
+                            category_url = f"{settings.menu_service_url}/api/menu/categories/{category_id}"
+                            category_response = client.get(category_url, timeout=5.0)
+
+                            if category_response.status_code == 200:
+                                category_data = category_response.json()
+                                category_name = category_data.get("name")
+
+                                # V3.0 terv 4.4-es szabály: Ital/Fagyi kategória tiltása
+                                if category_name in ["Ital", "Fagyi"]:
+                                    raise HTTPException(
+                                        status_code=status.HTTP_400_BAD_REQUEST,
+                                        detail=f"A rendelés típusa nem módosítható, mert tartalmaz '{category_name}' kategóriájú terméket. "
+                                               f"Az Ital és Fagyi kategóriájú termékek esetén tilos az átültetés."
+                                    )
+                            else:
+                                logger.warning(
+                                    f"Failed to fetch category {category_id} from service_menu: HTTP {category_response.status_code}"
+                                )
+                    else:
+                        logger.warning(
+                            f"Failed to fetch product {product_id} from service_menu: HTTP {product_response.status_code}"
+                        )
+        except HTTPException:
+            # HTTPException-öket tovább dobni (pl. Ital/Fagyi tiltás)
+            raise
+        except httpx.HTTPError as e:
+            # Graceful failure: log but don't block order type change
+            # Alternatíva: strict failure (raise HTTPException 503)
+            logger.warning(f"Failed to check product categories for order {order_id}: {str(e)}")
+
         try:
             # V3.0 Fázis 2.C: MOCK HTTP hívás a service_inventory felé
             # (Készlet kezelés értesítése a típusváltásról)
