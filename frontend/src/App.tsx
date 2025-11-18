@@ -15,6 +15,9 @@ import { TableList } from '@/components/admin/TableList';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { EmployeeList } from '@/components/admin/EmployeeList';
 import { RoleList } from '@/components/admin/RoleList';
+import { CustomerList } from '@/components/admin/CustomerList';
+import { CouponList } from '@/components/admin/CouponList';
+import { GiftCardList } from '@/components/admin/GiftCardList';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -102,6 +105,36 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="roles:manage">
                 <RoleList />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/customers - CRM Vendégek */}
+          <Route
+            path="customers"
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <CustomerList />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/coupons - CRM Kuponok */}
+          <Route
+            path="coupons"
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <CouponList />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/gift_cards - CRM Ajándékkártyák */}
+          <Route
+            path="gift_cards"
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <GiftCardList />
               </ProtectedRoute>
             }
           />
