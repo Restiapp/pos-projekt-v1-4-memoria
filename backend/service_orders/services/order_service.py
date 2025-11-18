@@ -436,12 +436,19 @@ class OrderService:
                 logger.warning(f"Failed to trigger NTAK for order {order_id}: {str(e)}")
 
             # Trigger inventory deduction (graceful failure)
+            # V3.0/F3.A: Real implementation of stock deduction via service_inventory
             try:
                 with httpx.Client() as client:
-                    inventory_url = f"{settings.inventory_service_url}/internal/deduct-stock"
+                    inventory_url = f"{settings.inventory_service_url}/api/v1/inventory/internal/deduct-stock"
                     payload = {"order_id": order_id}
-                    client.post(inventory_url, json=payload, timeout=5.0)
-                    logger.info(f"Inventory deduction triggered for order {order_id}")
+                    response = client.post(inventory_url, json=payload, timeout=5.0)
+                    logger.info(f"Inventory deduction triggered for order {order_id}: {response.status_code}")
+                    if response.status_code == 200:
+                        result = response.json()
+                        logger.info(
+                            f"Stock deduction result: {result.get('items_processed', 0)} items processed, "
+                            f"{len(result.get('ingredients_deducted', []))} ingredients deducted"
+                        )
             except httpx.HTTPError as e:
                 # Graceful failure: log but don't block order closure
                 logger.warning(f"Failed to trigger inventory deduction for order {order_id}: {str(e)}")
