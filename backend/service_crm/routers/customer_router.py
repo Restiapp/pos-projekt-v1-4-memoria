@@ -285,3 +285,38 @@ def get_customer_by_email(
             detail=f"Ügyfél nem található ezzel az email címmel: {email}"
         )
     return CustomerResponse.model_validate(customer)
+
+
+@customers_router.get(
+    "/by-uid/{customer_uid}",
+    response_model=CustomerResponse,
+    summary="Get customer by UID",
+    description="Retrieve a customer by their unique customer_uid (Vendégszám)."
+)
+def get_customer_by_uid(
+    customer_uid: str,
+    db: Session = Depends(get_db)
+) -> CustomerResponse:
+    """
+    Get a customer by customer_uid (Vendégszám).
+
+    Args:
+        customer_uid: Customer's unique identifier (e.g., CUST-123456)
+        db: Database session (injected)
+
+    Returns:
+        CustomerResponse: Customer details
+
+    Raises:
+        HTTPException 404: If customer not found
+
+    Example:
+        GET /customers/by-uid/CUST-123456
+    """
+    customer = CustomerService.get_customer_by_uid(db, customer_uid)
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Ügyfél nem található ezzel a vendégszámmal: {customer_uid}"
+        )
+    return CustomerResponse.model_validate(customer)

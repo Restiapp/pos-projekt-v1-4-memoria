@@ -27,6 +27,7 @@ class Customer(Base):
     __tablename__ = 'customers'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    customer_uid = Column(String(50), unique=True, nullable=False, index=True)
 
     # Personal Information
     first_name = Column(String(100), nullable=False)
