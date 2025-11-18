@@ -48,6 +48,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/assets/, '/api/v1/assets')
       },
+      // ÚJ: Vehicles API (Admin Service) - FÁZIS 3.4
+      '/api/vehicles': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/vehicles/, '/api/v1/vehicles')
+      },
 
       // ========================================
       // Orders Service (Port 8002)
