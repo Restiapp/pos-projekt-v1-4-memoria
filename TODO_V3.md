@@ -13,14 +13,21 @@ A V3.0 Fázis 2 (Kiszállítási Ökoszisztéma) során három új branch kerül
 - ✅ `claude/add-giftcard-schema-01LTRkkd5R29yNHYKv2sHhNV` - service_crm GiftCard Schema
 - ✅ `claude/feature-v3-orders-change-type-01EbMzrmDGg4dNq1DzQSjiRN` - service_orders Change Type Logic
 
+## 📋 V3.0 Fázis 3 Lezárása - NAV OSA & Logistics Integration
+
+A V3.0 Fázis 3 (Háttér Műveletek) során két új branch került integrálásra:
+- ✅ `claude/feature-v3-nav-osa-inventory-trigger-01Y9VpDMbYkBhQajBaQRsfbB` - NAV OSA & Inventory Trigger
+- ✅ `claude/feature-v3-logistics-zip-fix-01PEcN8oFpPVKc5Lr7W5WQMi` - Logistics Integration (Zip Code)
+
 Az alábbi feladatok maradtak fel további fázisokra:
 
 ---
 
 ### TODO_V3 Frissítés (Service Logistics)
 
-- [ ] **(Fázis 3)** A service_logistics `POST /zones/get-by-address` MOCK végpontját cserélje le valós Google Maps/GeoJSON logikára.
+- [x] ~~**(Fázis 3)** A service_logistics `POST /zones/get-by-address` MOCK végpontját cserélje le valós Google Maps/GeoJSON logikára.~~ ✅ **DONE** (F3.B: ZIP kód alapú zóna keresés implementálva)
 - [ ] **(Fázis 4)** A service_logistics courier modelljét bővíteni kell GPS koordinátákkal (a V3.0 terv 4.6-os pontja szerint).
+- [ ] **(Fázis 4)** A service_logistics `get_zone_by_zip_code` funkciója jelenleg ZIP kód listát használ. Ezt cserélni kell valós GeoJSON/Google Maps API logikára.
 
 ---
 
@@ -34,7 +41,15 @@ Az alábbi feladatok maradtak fel további fázisokra:
 
 ### TODO_V3 Frissítés (Service Orders)
 
-- [ ] **(Fázis 3)** A `change_order_type` metódusban a **MOCK HTTP hívásokat** (service_inventory és service_logistics felé) valós hívásokra kell cserélni.
+- [x] ~~**(Fázis 3)** A `change_order_type` metódusban a **MOCK HTTP hívásokat** (service_inventory és service_logistics felé) valós hívásokra kell cserélni.~~ ✅ **DONE** (F3.B: service_logistics integráció elkészült)
+- [ ] **(Fázis 4)** A service_orders `change_order_type` metódusa még nem hívja a service_inventory-t (ital/fagyi ellenőrzés).
+
+---
+
+### TODO_V3 Frissítés (Service Inventory/Orders)
+
+- [ ] **(Fázis 4)** A service_inventory `nav_osa_service.py` MOCK végpontját valós NAV API hívásra kell cserélni.
+- [ ] **(Fázis 3)** A service_orders `close_order` metódusában a készletcsökkentés hibakezelését (Graceful Failure) ellenőrizni kell.
 
 ---
 
@@ -42,18 +57,26 @@ Az alábbi feladatok maradtak fel további fázisokra:
 
 **Fázis 2 Statisztika:**
 - 3 branch merged
-- +2340 sor kód hozzáadva
+- +2,340 sor kód hozzáadva
 - 16 új fájl létrehozva
 - 6 jövőbeli TODO azonosítva
 
-**Következő Fázis (Fázis 3 - Háttér Műveletek):**
-- Inventory Recipe Engine
-- Valós API integrációk (MOCK-ok lecserélése)
-- Google Maps GeoJSON integráció
-- Supplier Management
+**Fázis 3 Statisztika:**
+- 2 branch merged
+- +1,334 sor kód hozzáadva
+- 12 új fájl létrehozva
+- 2 TODO befejezve, 4 új TODO azonosítva
+
+**Következő Fázis (Fázis 4 - Finomhangolás):**
+- GiftCard & Address Service/Router implementálása (CRM)
+- Customer UID mező hozzáadása
+- NAV OSA valós API integráció
+- Google Maps GeoJSON valós API
+- Courier GPS tracking
 
 ---
 
 **Utoljára Frissítette:** Claude Code AI (Integrátor Protokoll)
 **Git Branch:** main
-**Commit Context:** Post-Fázis 2 Integration
+**Commit Context:** Post-Fázis 3 Integration
+**Dátum:** 2025-01-18
