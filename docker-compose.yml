@@ -76,6 +76,12 @@ services:
 
       # Inter-service URLs (internal Docker network)
       ADMIN_SERVICE_URL: http://service_admin:8008
+
+      # HOTFIX (H1.1): Cross-service import requires these ENV vars
+      # service_menu imports service_admin.dependencies which loads config.settings
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      NTAK_API_KEY: ${NTAK_API_KEY:-dummy-key}
+      NTAK_TAX_NUMBER: ${NTAK_TAX_NUMBER:-00000000-0-00}
     volumes:
       # Mount Google Cloud credentials (optional, for local development)
       - ${GOOGLE_CREDENTIALS_PATH:-./credentials}:/app/credentials:ro
