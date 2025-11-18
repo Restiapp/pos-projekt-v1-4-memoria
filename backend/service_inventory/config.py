@@ -74,6 +74,19 @@ class Settings(BaseSettings):
         description="URL of the Menu Service for inter-service communication"
     )
 
+    # NAV OSA (Online Számlázó Alkalmazás) Configuration
+    # NOTE: NAV credentials are loaded from separate env vars via nav_config.py
+    # These are optional documentation fields
+    nav_enable_real_api: bool = Field(
+        default=False,
+        description="Enable real NAV API calls (default: false for MOCK mode)"
+    )
+
+    nav_default_test_mode: bool = Field(
+        default=True,
+        description="Use NAV test environment by default (recommended)"
+    )
+
     # Pydantic Settings Configuration
     model_config = SettingsConfigDict(
         env_file=".env",

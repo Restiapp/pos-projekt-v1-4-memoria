@@ -5,8 +5,13 @@ Module 5: Készletkezelés
 This router handles NAV (Nemzeti Adó- és Vámhivatal) Online Számlázó API integration.
 Endpoints for sending invoices to NAV, querying status, and managing tax compliance.
 
-Current implementation uses MOCK NAV service.
-TODO (Fázis 4): Replace MOCK with real NAV API integration.
+PHASE 4.1 IMPLEMENTATION: Real NAV API Integration
+- Real NAV API v3.0 support with automatic MOCK fallback
+- Improved error handling and logging
+- Support for both test and production environments
+- Retry logic for network failures
+
+NAV API Documentation: https://onlineszamla.nav.gov.hu/dokumentaciok
 """
 import logging
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -41,17 +46,26 @@ osa_router = APIRouter(
     description="""
     **NAV OSA Integration Endpoint** - Send invoice to NAV Online Számlázó API.
 
-    **CURRENT STATUS: MOCK IMPLEMENTATION**
+    **PHASE 4.1 IMPLEMENTATION: Real NAV API Integration**
 
-    This endpoint currently uses a MOCK NAV service that simulates API responses
-    without actually connecting to the NAV servers.
+    This endpoint now supports real NAV API v3.0 integration with automatic
+    MOCK fallback if credentials are not configured.
 
-    **TODO (Fázis 4): Real NAV API Integration**
-    - Implement proper XML generation for invoiceData
-    - Add cryptographic signing with tax technical user credentials
-    - Implement proper error handling for NAV API responses
-    - Add retry logic for network failures
-    - Implement webhook handling for async NAV responses
+    **Features**:
+    - ✅ XML generation for NAV invoiceData (NAV OSA v3.0 schema)
+    - ✅ Cryptographic signing with tax technical user credentials (SHA512)
+    - ✅ Error handling for NAV API responses
+    - ✅ Retry logic for network failures (exponential backoff)
+    - ✅ Automatic MOCK fallback (when NAV_ENABLE_REAL_API=false)
+
+    **Configuration** (Environment Variables):
+    - `NAV_ENABLE_REAL_API`: Enable real NAV API calls (default: false)
+    - `NAV_TECHNICAL_USER`: NAV technical user (8 digits)
+    - `NAV_TECHNICAL_PASSWORD`: NAV technical password
+    - `NAV_SIGNATURE_KEY`: Signature key
+    - `NAV_REPLACEMENT_KEY`: Replacement key
+    - `NAV_TAX_NUMBER`: Company tax number (11 digits)
+    - `NAV_DEFAULT_TEST_MODE`: Use test environment (default: true)
 
     **Authentication Required**: This endpoint requires `inventory:manage` permission.
 
@@ -63,9 +77,10 @@ osa_router = APIRouter(
     - `success`: Whether the operation succeeded
     - `invoice_id`: Local invoice ID
     - `nav_transaction_id`: NAV transaction ID (for tracking)
-    - `status`: Processing status (PENDING, ACCEPTED, REJECTED)
+    - `status`: Processing status (ACCEPTED, FAILED, ERROR)
     - `message`: Human-readable message
     - `nav_response`: Full NAV API response (for debugging)
+    - `error_code`: Error code (if failed)
     """
 )
 def send_invoice_to_nav(
