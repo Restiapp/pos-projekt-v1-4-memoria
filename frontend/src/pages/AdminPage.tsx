@@ -66,6 +66,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/finance',
     permission: 'finance:manage', // TODO: Add finance:manage permission to RBAC
   },
+  // ÚJ MENÜPONT - FÁZIS 3.3 (Assets)
+  {
+    id: 'assets',
+    label: 'Tárgyi Eszközök',
+    icon: '🏭',
+    path: '/admin/assets',
+    permission: 'assets:manage', // TODO: Add assets:manage permission to RBAC
+  },
   // CRM menüpontok
   {
     id: 'customers',

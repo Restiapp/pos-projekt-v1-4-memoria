@@ -36,6 +36,18 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/permissions/, '/api/v1/permissions')
       },
+      // ÚJ: Finance API (Admin Service)
+      '/api/finance': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/finance/, '/api/v1/finance')
+      },
+      // ÚJ: Assets API (Admin Service) - FÁZIS 3.3
+      '/api/assets': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/assets/, '/api/v1/assets')
+      },
 
       // ========================================
       // Orders Service (Port 8002)
