@@ -79,7 +79,6 @@ class StockDeductionResponse(BaseModel):
 
 @internal_router.post(
     "/deduct-stock",
-    response_model=StockDeductionResponse,
     status_code=status.HTTP_200_OK,
     summary="Készlet csökkentése egy lezárt rendelés alapján",
     description="""
@@ -101,7 +100,7 @@ def deduct_stock_for_order(
     request: StockDeductionRequest,
     db: Session = Depends(get_db),
     service: StockDeductionService = Depends(get_stock_deduction_service)
-) -> StockDeductionResponse:
+) -> dict:
     """
     Deduct inventory stock for a closed order
 
