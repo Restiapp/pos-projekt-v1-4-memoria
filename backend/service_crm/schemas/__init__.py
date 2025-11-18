@@ -33,6 +33,17 @@ from backend.service_crm.schemas.coupon import (
     CouponValidationRequest,
     CouponValidationResponse
 )
+from backend.service_crm.schemas.gift_card import (
+    GiftCardBase,
+    GiftCardCreate,
+    GiftCardUpdate,
+    GiftCardInDB,
+    GiftCardResponse,
+    GiftCardListResponse,
+    GiftCardRedemption,
+    GiftCardRedemptionResponse,
+    GiftCardBalanceUpdate
+)
 
 __all__ = [
     # Customer schemas
@@ -61,4 +72,14 @@ __all__ = [
     "CouponListResponse",
     "CouponValidationRequest",
     "CouponValidationResponse",
+    # Gift Card schemas
+    "GiftCardBase",
+    "GiftCardCreate",
+    "GiftCardUpdate",
+    "GiftCardInDB",
+    "GiftCardResponse",
+    "GiftCardListResponse",
+    "GiftCardRedemption",
+    "GiftCardRedemptionResponse",
+    "GiftCardBalanceUpdate",
 ]
