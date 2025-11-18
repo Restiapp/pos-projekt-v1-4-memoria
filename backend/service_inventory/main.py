@@ -23,6 +23,8 @@ from backend.service_inventory.routers import (
     invoice_router,
     recipes_router,
     daily_inventory_router,
+    internal_router,
+    osa_router,
 )
 
 # Create FastAPI application
@@ -107,6 +109,21 @@ app.include_router(
     prefix="/api/v1/inventory",
     tags=["Daily Inventory"],
     dependencies=[Depends(require_permission("inventory:manage"))]
+)
+
+# V3.0/F3.A - NAV OSA Integration Router (with RBAC)
+app.include_router(
+    osa_router,
+    prefix="/api/v1/inventory",
+    tags=["NAV OSA Integration"],
+    dependencies=[Depends(require_permission("inventory:manage"))]
+)
+
+# V3.0/F3.A - Internal API Router (NO RBAC - service-to-service trust)
+app.include_router(
+    internal_router,
+    prefix="/api/v1/inventory",
+    tags=["Internal API"]
 )
 
 
