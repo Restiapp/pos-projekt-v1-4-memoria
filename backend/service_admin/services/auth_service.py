@@ -48,6 +48,11 @@ class AuthService:
         # CRITICAL FIX (C4.2): Use passlib CryptContext for password hashing
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+        # HOTFIX (H2.1): Initialize JWT settings from config
+        self.secret_key = settings.jwt_secret_key
+        self.algorithm = settings.jwt_algorithm
+        self.access_token_expire_minutes = settings.jwt_access_token_expire_minutes
+
     def _original_init_docstring(self):
         """
         AuthService inicializálás.
