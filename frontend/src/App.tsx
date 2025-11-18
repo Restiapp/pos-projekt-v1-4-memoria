@@ -26,6 +26,9 @@ import { LogisticsPage } from '@/pages/LogisticsPage';
 // ÚJ IMPORT - Fázis 3 (Finance)
 import { FinancePage } from '@/pages/FinancePage';
 
+// ÚJ IMPORT - Fázis 3.3 (Assets)
+import { AssetsPage } from '@/pages/AssetsPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -132,6 +135,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="finance:manage">
                 <FinancePage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/assets - Tárgyi Eszközök - FÁZIS 3.3 */}
+          <Route
+            path="assets"
+            element={
+              <ProtectedRoute requiredPermission="assets:manage">
+                <AssetsPage />
               </ProtectedRoute>
             }
           />
