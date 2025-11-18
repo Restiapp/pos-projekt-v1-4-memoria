@@ -17,6 +17,8 @@ from backend.service_orders.schemas.table import (
     TableUpdate,
     TableResponse,
     TableListResponse,
+    TableMoveRequest,
+    TableMergeRequest,
 )
 
 # APIRouter létrehozása
@@ -356,3 +358,124 @@ def delete_table(
         "message": f"Asztal (ID: {table_id}) sikeresen törölve",
         "deleted_id": table_id
     }
+
+
+@router.patch(
+    "/{table_id}/move",
+    response_model=TableResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Asztal áthelyezése új szekcióba",
+    description="""
+    Asztal áthelyezése új szekcióba (V3.0 - Fázis 1).
+
+    **Használati esetek:**
+    - Asztal áthelyezése egy új területre (pl. Terasz -> Belső terem)
+    - Szekciók dinamikus átrendezése
+    - Fizikai elrendezés változásának követése
+
+    **Üzleti szabályok:**
+    - A szekció neve nem lehet üres
+    - Az asztalnak léteznie kell
+
+    **Visszatérési értékek:**
+    - 200: Asztal sikeresen áthelyezve
+    - 404: Asztal nem található
+    - 400: Hibás szekció név
+    """,
+    response_description="Áthelyezett asztal adatai az új szekcióval",
+)
+def move_table(
+    table_id: int,
+    move_request: TableMoveRequest,
+    db: Session = Depends(get_db),
+) -> TableResponse:
+    """
+    Asztal áthelyezése új szekcióba.
+
+    Args:
+        table_id: Az áthelyezendő asztal azonosítója
+        move_request: Új szekció adatai
+        db: Database session (dependency injection)
+
+    Returns:
+        TableResponse: Áthelyezett asztal adatai
+
+    Raises:
+        HTTPException 404: Ha az asztal nem található
+        HTTPException 400: Ha a szekció név hibás
+    """
+    try:
+        table = TableService.move_table(
+            db=db,
+            table_id=table_id,
+            new_section=move_request.new_section
+        )
+        if not table:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Asztal (ID: {table_id}) nem található"
+            )
+        return table
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.post(
+    "/merge",
+    response_model=TableResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Asztalok összevonása",
+    description="""
+    Asztalok összevonása (V3.0 - Fázis 1).
+
+    **Használati esetek:**
+    - Nagy csoportok kiszolgálása több asztal összevonásával
+    - Rugalmas asztal konfigurációk létrehozása
+    - Különálló asztalok ideiglenes egyesítése
+
+    **Üzleti szabályok:**
+    - Az elsődleges asztalnak léteznie kell
+    - Minden másodlagos asztalnak léteznie kell
+    - Az elsődleges asztal nem szerepelhet a másodlagos asztalok között
+    - A másodlagos asztalok parent_table_id-ja az elsődleges asztal ID-jára lesz állítva
+
+    **Visszatérési értékek:**
+    - 200: Asztalok sikeresen összevonva
+    - 404: Egyik asztal nem található
+    - 400: Hibás egyesítési kérés
+    """,
+    response_description="Elsődleges asztal adatai az összevonás után",
+)
+def merge_tables(
+    merge_request: TableMergeRequest,
+    db: Session = Depends(get_db),
+) -> TableResponse:
+    """
+    Asztalok összevonása.
+
+    Args:
+        merge_request: Összevonási kérés adatai (primary és secondary table IDs)
+        db: Database session (dependency injection)
+
+    Returns:
+        TableResponse: Elsődleges asztal adatai
+
+    Raises:
+        HTTPException 404: Ha valamelyik asztal nem található
+        HTTPException 400: Ha az egyesítési kérés hibás
+    """
+    try:
+        primary_table = TableService.merge_tables(
+            db=db,
+            primary_table_id=merge_request.primary_table_id,
+            secondary_table_ids=merge_request.secondary_table_ids
+        )
+        return primary_table
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )

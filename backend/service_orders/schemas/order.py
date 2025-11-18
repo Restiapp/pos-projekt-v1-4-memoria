@@ -48,6 +48,11 @@ class OrderBase(BaseModel):
         description="Associated table identifier (for dine-in orders)",
         examples=[1, 5, None]
     )
+    customer_id: Optional[int] = Field(
+        None,
+        description="Customer identifier (V3.0: for CRM integration)",
+        examples=[1, 42, None]
+    )
     total_amount: Optional[Decimal] = Field(
         None,
         ge=0,
@@ -71,6 +76,11 @@ class OrderBase(BaseModel):
             "timestamp": "2024-01-15T14:30:00Z"
         }]
     )
+    notes: Optional[str] = Field(
+        None,
+        description="Notes for the order (V3.0)",
+        examples=["Allergia: mogyoró", "Kérés: extra gyors kiszolgálás"]
+    )
 
 
 class OrderCreate(OrderBase):
@@ -93,6 +103,10 @@ class OrderUpdate(BaseModel):
         None,
         description="Table identifier"
     )
+    customer_id: Optional[int] = Field(
+        None,
+        description="Customer identifier"
+    )
     total_amount: Optional[Decimal] = Field(
         None,
         ge=0,
@@ -109,6 +123,10 @@ class OrderUpdate(BaseModel):
     ntak_data: Optional[Dict[str, Any]] = Field(
         None,
         description="NTAK compliance data"
+    )
+    notes: Optional[str] = Field(
+        None,
+        description="Notes for the order"
     )
 
 

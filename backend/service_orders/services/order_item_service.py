@@ -70,6 +70,8 @@ class OrderItemService:
                 quantity=order_item_data.quantity,
                 unit_price=order_item_data.unit_price,
                 selected_modifiers=selected_modifiers_dict,
+                course=order_item_data.course,
+                notes=order_item_data.notes,
                 kds_station=order_item_data.kds_station,
                 kds_status=order_item_data.kds_status or 'VÁRAKOZIK'
             )

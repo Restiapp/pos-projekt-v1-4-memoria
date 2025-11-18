@@ -84,6 +84,17 @@ class OrderItemBase(BaseModel):
             }
         ]]
     )
+    course: Optional[str] = Field(
+        None,
+        max_length=50,
+        description="Course type (V3.0: e.g., 'Előétel', 'Főétel', 'Desszert')",
+        examples=["Előétel", "Főétel", "Desszert", "Levesek"]
+    )
+    notes: Optional[str] = Field(
+        None,
+        description="Item-level notes (V3.0)",
+        examples=["Extra fűszeres", "Gluténmentes"]
+    )
     kds_station: Optional[str] = Field(
         None,
         max_length=50,
@@ -132,6 +143,15 @@ class OrderItemUpdate(BaseModel):
     selected_modifiers: Optional[List[SelectedModifierSchema]] = Field(
         None,
         description="Selected modifiers list"
+    )
+    course: Optional[str] = Field(
+        None,
+        max_length=50,
+        description="Course type"
+    )
+    notes: Optional[str] = Field(
+        None,
+        description="Item-level notes"
     )
     kds_station: Optional[str] = Field(
         None,

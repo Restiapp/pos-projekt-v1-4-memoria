@@ -109,3 +109,31 @@ class TableListResponse(BaseModel):
         description="Number of items per page",
         examples=[20]
     )
+
+
+class TableMoveRequest(BaseModel):
+    """Schema for moving a table to a new section (V3.0 - Phase 1)."""
+
+    new_section: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        description="New section name for the table",
+        examples=["Terasz", "Belső terem", "VIP"]
+    )
+
+
+class TableMergeRequest(BaseModel):
+    """Schema for merging tables (V3.0 - Phase 1)."""
+
+    primary_table_id: int = Field(
+        ...,
+        description="Primary (main) table ID",
+        examples=[1, 5]
+    )
+    secondary_table_ids: list[int] = Field(
+        ...,
+        min_length=1,
+        description="List of secondary table IDs to merge into the primary table",
+        examples=[[2, 3], [10, 11, 12]]
+    )
