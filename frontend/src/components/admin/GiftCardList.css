@@ -1,0 +1,297 @@
+/**
+ * GiftCardList stílusok
+ */
+
+.gift-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1600px;
+}
+
+/* =====================================================
+   FEJLÉC
+   ===================================================== */
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.list-header h1 {
+  font-size: 28px;
+  margin: 0;
+  color: #333;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.filter-checkbox input[type='checkbox'] {
+  cursor: pointer;
+}
+
+.refresh-btn,
+.create-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-btn {
+  background: #4a90e2;
+  color: white;
+}
+
+.create-btn:hover {
+  background: #357abd;
+}
+
+/* =====================================================
+   TÁBLÁZAT
+   ===================================================== */
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.gift-cards-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gift-cards-table thead {
+  background: #f8f9fa;
+}
+
+.gift-cards-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.gift-cards-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.gift-cards-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.card-code {
+  display: inline-block;
+  padding: 6px 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+}
+
+.assigned-badge {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 2px 6px;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.balance {
+  font-weight: 700;
+  color: #2e7d32;
+}
+
+.balance.depleted {
+  color: #d32f2f;
+  text-decoration: line-through;
+}
+
+.usage-bar-container {
+  position: relative;
+  width: 100px;
+  height: 20px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.usage-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #4caf50 0%, #81c784 100%);
+  transition: width 0.3s ease;
+}
+
+.usage-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-weight: 700;
+  color: #333;
+  text-shadow: 0 0 2px white;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.edit-btn {
+  background: #fff3cd;
+}
+
+.edit-btn:hover {
+  transform: scale(1.1);
+}
+
+.delete-btn {
+  background: #f8d7da;
+}
+
+.delete-btn:hover {
+  transform: scale(1.1);
+}
+
+/* =====================================================
+   ÁLLAPOTOK
+   ===================================================== */
+
+.loading-state,
+.empty-state {
+  padding: 48px;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+}
+
+/* =====================================================
+   LAPOZÁS
+   ===================================================== */
+
+.list-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}

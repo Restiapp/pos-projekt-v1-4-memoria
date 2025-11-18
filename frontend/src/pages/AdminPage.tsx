@@ -58,6 +58,28 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/roles',
     permission: 'roles:manage',
   },
+  // CRM menüpontok
+  {
+    id: 'customers',
+    label: 'Vendégek',
+    icon: '👤',
+    path: '/admin/customers',
+    permission: 'menu:manage', // TODO: Add crm:manage permission
+  },
+  {
+    id: 'coupons',
+    label: 'Kuponok',
+    icon: '🎫',
+    path: '/admin/coupons',
+    permission: 'menu:manage', // TODO: Add crm:manage permission
+  },
+  {
+    id: 'gift_cards',
+    label: 'Ajándékkártyák',
+    icon: '🎁',
+    path: '/admin/gift_cards',
+    permission: 'menu:manage', // TODO: Add crm:manage permission
+  },
 ];
 
 export const AdminPage = () => {

@@ -108,6 +108,25 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/inventory/, '/api/v1/inventory')
       },
+
+      // ========================================
+      // CRM Service (Port 8004)
+      // ========================================
+      '/api/customers': {
+        target: 'http://localhost:8004',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/customers/, '/api/v1/customers')
+      },
+      '/api/coupons': {
+        target: 'http://localhost:8004',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/coupons/, '/api/v1/coupons')
+      },
+      '/api/gift_cards': {
+        target: 'http://localhost:8004',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/gift_cards/, '/api/v1/gift_cards')
+      },
     }
   }
 })

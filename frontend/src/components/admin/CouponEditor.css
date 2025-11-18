@@ -1,0 +1,32 @@
+/**
+ * CouponEditor stílusok (Modal)
+ */
+
+/* Közös modal stílusok a CustomerEditor.css-ből örökölve */
+/* Csak a specifikus kiegészítések vannak itt */
+
+.coupon-form small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.coupon-form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  background: white;
+  cursor: pointer;
+}
+
+.coupon-form select:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
