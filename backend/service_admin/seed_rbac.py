@@ -161,6 +161,78 @@ SYSTEM_PERMISSIONS = [
         "is_system": True
     },
 
+    # Finance Management (PÉNZÜGYEK) - V3.0 Phase 3.1
+    {
+        "name": "finance:manage",
+        "display_name": "Pénzügyek kezelése",
+        "description": "Számlák, kifizetések, pénzügyi tételek kezelése",
+        "resource": "finance",
+        "action": "manage",
+        "is_system": True
+    },
+    {
+        "name": "finance:view",
+        "display_name": "Pénzügyek megtekintése",
+        "description": "Pénzügyi adatok és számlák megtekintése",
+        "resource": "finance",
+        "action": "view",
+        "is_system": True
+    },
+
+    # Asset Management (ESZKÖZNYILVÁNTARTÁS) - V3.0 Phase 3.3
+    {
+        "name": "assets:manage",
+        "display_name": "Eszközök kezelése",
+        "description": "Eszközök, berendezések, tárgyi eszközök nyilvántartása és kezelése",
+        "resource": "assets",
+        "action": "manage",
+        "is_system": True
+    },
+    {
+        "name": "assets:view",
+        "display_name": "Eszközök megtekintése",
+        "description": "Eszköznyilvántartás megtekintése",
+        "resource": "assets",
+        "action": "view",
+        "is_system": True
+    },
+
+    # Vehicle Management (GÉPJÁRMŰNYILVÁNTARTÁS) - V3.0 Phase 3.4
+    {
+        "name": "vehicles:manage",
+        "display_name": "Járművek kezelése",
+        "description": "Járművek, tankolások, karbantartások kezelése",
+        "resource": "vehicles",
+        "action": "manage",
+        "is_system": True
+    },
+    {
+        "name": "vehicles:view",
+        "display_name": "Járművek megtekintése",
+        "description": "Járművek és kapcsolódó adatok megtekintése",
+        "resource": "vehicles",
+        "action": "view",
+        "is_system": True
+    },
+
+    # Logistics Management (LOGISZTIKA) - V3.0 Phase 2.A
+    {
+        "name": "logistics:manage",
+        "display_name": "Logisztika kezelése",
+        "description": "Futárok, kiszállítási zónák, szállítások kezelése",
+        "resource": "logistics",
+        "action": "manage",
+        "is_system": True
+    },
+    {
+        "name": "logistics:view",
+        "display_name": "Logisztika megtekintése",
+        "description": "Logisztikai adatok megtekintése",
+        "resource": "logistics",
+        "action": "view",
+        "is_system": True
+    },
+
     # System Administration
     {
         "name": "admin:all",
@@ -192,6 +264,10 @@ SYSTEM_ROLES = [
             "employees:manage",
             "roles:manage",
             "ntak:send",
+            "finance:manage",
+            "assets:manage",
+            "vehicles:manage",
+            "logistics:manage",
         ]
     },
     {
