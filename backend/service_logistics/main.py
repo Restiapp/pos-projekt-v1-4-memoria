@@ -14,6 +14,9 @@ from backend.service_logistics.config import settings
 # Import database initialization
 from backend.service_logistics.models.database import init_db
 
+# Import routers
+from backend.service_logistics.routers import delivery_zone_router, courier_router
+
 # Create FastAPI application
 app = FastAPI(
     title="V3.0: Logistics Service",
@@ -32,17 +35,15 @@ app.add_middleware(
     allow_headers=["*"],  # Minden header engedélyezése
 )
 
-# TODO: Register routers when created
-# app.include_router(
-#     delivery_zones_router,
-#     prefix="/api/v1",
-#     tags=["Delivery Zones"]
-# )
-# app.include_router(
-#     couriers_router,
-#     prefix="/api/v1",
-#     tags=["Couriers"]
-# )
+# Register routers (V3.0 - Phase 2.A)
+app.include_router(
+    delivery_zone_router,
+    prefix="/api/v1",
+)
+app.include_router(
+    courier_router,
+    prefix="/api/v1",
+)
 
 
 # Startup Event
