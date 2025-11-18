@@ -122,6 +122,12 @@ services:
       MENU_SERVICE_URL: http://service_menu:8000
       ADMIN_SERVICE_URL: http://service_admin:8008
       INVENTORY_SERVICE_URL: http://service_inventory:8003
+
+      # HOTFIX (H1.1): Cross-service import requires these ENV vars
+      # service_orders imports service_admin.dependencies which loads config.settings
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      NTAK_API_KEY: ${NTAK_API_KEY:-dummy-key}
+      NTAK_TAX_NUMBER: ${NTAK_TAX_NUMBER:-00000000-0-00}
     depends_on:
       postgres:
         condition: service_healthy
@@ -169,6 +175,12 @@ services:
       # Inter-service URLs
       MENU_SERVICE_URL: http://service_menu:8000
       ORDERS_SERVICE_URL: http://service_orders:8001
+
+      # HOTFIX (H1.1): Cross-service import requires these ENV vars
+      # service_inventory imports service_admin.dependencies which loads config.settings
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      NTAK_API_KEY: ${NTAK_API_KEY:-dummy-key}
+      NTAK_TAX_NUMBER: ${NTAK_TAX_NUMBER:-00000000-0-00}
     volumes:
       # Mount Google Cloud credentials
       - ${GOOGLE_CREDENTIALS_PATH:-./credentials}:/app/credentials:ro
