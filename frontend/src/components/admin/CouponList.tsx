@@ -14,7 +14,7 @@ import { useState, useEffect } from 'react';
 import { getCoupons, deleteCoupon } from '@/services/crmService';
 import { CouponEditor } from './CouponEditor';
 import type { Coupon } from '@/types/coupon';
-import { DiscountType } from '@/types/coupon';
+import { DiscountTypeEnum } from '@/types/coupon';
 import './CouponList.css';
 
 export const CouponList = () => {
@@ -96,7 +96,7 @@ export const CouponList = () => {
 
   // Kedvezmény formázása
   const formatDiscount = (coupon: Coupon): string => {
-    if (coupon.discount_type === DiscountType.PERCENTAGE) {
+    if (coupon.discount_type === DiscountTypeEnum.PERCENTAGE) {
       return `${coupon.discount_value}%`;
     } else {
       return new Intl.NumberFormat('hu-HU', {
@@ -193,7 +193,7 @@ export const CouponList = () => {
                       <td>
                         <span className="usage-info">
                           {coupon.usage_count}
-                          {coupon.usage_limit ? ` / ${coupon.usage_limit}` : ' / ∞'}
+                          {coupon.max_uses ? ` / ${coupon.max_uses}` : ' / ∞'}
                         </span>
                       </td>
                       <td>

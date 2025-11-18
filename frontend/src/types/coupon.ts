@@ -3,8 +3,8 @@
  * Backend: backend/service_crm/schemas/coupon.py
  */
 
-// Discount Type Enum
-export enum DiscountType {
+// Discount Type Enum (szinkronizálva a backend DiscountTypeEnum-mal)
+export enum DiscountTypeEnum {
   PERCENTAGE = 'PERCENTAGE',      // Százalékos kedvezmény (0-100%)
   FIXED_AMOUNT = 'FIXED_AMOUNT',  // Fix összegű kedvezmény (HUF)
 }
@@ -15,10 +15,10 @@ export interface Coupon {
   id: number;
   code: string; // Unique coupon code (pl. "WELCOME10")
   description?: string;
-  discount_type: DiscountType;
+  discount_type: DiscountTypeEnum;
   discount_value: number; // Decimal (2 places) - percentage (0-100) or HUF amount
   min_purchase_amount?: number; // Decimal (2 places) - minimum order value (HUF)
-  usage_limit?: number; // null = unlimited
+  max_uses?: number; // null = unlimited (korábban: usage_limit)
   usage_count: number; // Current usage count
   customer_id?: number; // null = public coupon
   valid_from: string; // ISO datetime string
@@ -31,10 +31,10 @@ export interface Coupon {
 export interface CouponCreate {
   code: string;
   description?: string;
-  discount_type: DiscountType;
+  discount_type: DiscountTypeEnum;
   discount_value: number;
   min_purchase_amount?: number;
-  usage_limit?: number;
+  max_uses?: number;
   customer_id?: number;
   valid_from: string; // ISO datetime string
   valid_until?: string; // ISO datetime string
@@ -43,10 +43,10 @@ export interface CouponCreate {
 
 export interface CouponUpdate {
   description?: string;
-  discount_type?: DiscountType;
+  discount_type?: DiscountTypeEnum;
   discount_value?: number;
   min_purchase_amount?: number;
-  usage_limit?: number;
+  max_uses?: number;
   valid_from?: string;
   valid_until?: string;
   is_active?: boolean;
