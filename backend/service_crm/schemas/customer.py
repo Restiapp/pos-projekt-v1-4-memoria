@@ -119,6 +119,11 @@ class CustomerInDB(CustomerBase):
         description="Unique customer identifier",
         examples=[1, 42, 1234]
     )
+    customer_uid: str = Field(
+        ...,
+        description="Unique customer UID (Vendégszám)",
+        examples=["CUST-123456", "CUST-789012"]
+    )
     loyalty_points: Decimal = Field(
         ...,
         ge=0,

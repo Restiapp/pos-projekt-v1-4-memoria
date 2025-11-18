@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import desc, or_
 from fastapi import HTTPException, status
 import logging
+import random
 
 from backend.service_crm.models.customer import Customer
 from backend.service_crm.schemas.customer import (
@@ -34,6 +35,34 @@ class CustomerService:
     - Törzsvásárlói pontok kezelése
     - Email egyediség validáció
     """
+
+    @staticmethod
+    def _generate_customer_uid(db: Session) -> str:
+        """
+        Egyedi customer_uid generálása (Vendégszám).
+
+        Args:
+            db: SQLAlchemy session
+
+        Returns:
+            str: Egyedi customer_uid formátumban: CUST-XXXXXX
+
+        Example:
+            >>> uid = CustomerService._generate_customer_uid(db)
+            >>> print(uid)  # CUST-123456
+        """
+        while True:
+            # 6 számjegyű random szám generálása
+            random_number = random.randint(100000, 999999)
+            customer_uid = f"CUST-{random_number}"
+
+            # Ellenőrizzük, hogy ez a UID még nem létezik
+            existing = db.query(Customer).filter(
+                Customer.customer_uid == customer_uid
+            ).first()
+
+            if not existing:
+                return customer_uid
 
     @staticmethod
     def create_customer(db: Session, customer_data: CustomerCreate) -> Customer:
@@ -71,8 +100,12 @@ class CustomerService:
             )
 
         try:
+            # Egyedi customer_uid generálása
+            customer_uid = CustomerService._generate_customer_uid(db)
+
             # Új Customer objektum létrehozása
             db_customer = Customer(
+                customer_uid=customer_uid,
                 first_name=customer_data.first_name,
                 last_name=customer_data.last_name,
                 email=customer_data.email,
@@ -142,6 +175,23 @@ class CustomerService:
             >>> customer = CustomerService.get_customer_by_email(db, "janos.nagy@example.com")
         """
         return db.query(Customer).filter(Customer.email == email).first()
+
+    @staticmethod
+    def get_customer_by_uid(db: Session, customer_uid: str) -> Optional[Customer]:
+        """
+        Ügyfél keresése customer_uid (Vendégszám) alapján.
+
+        Args:
+            db: SQLAlchemy session
+            customer_uid: Ügyfél egyedi azonosítója (pl. CUST-123456)
+
+        Returns:
+            Optional[Customer]: Az ügyfél vagy None
+
+        Example:
+            >>> customer = CustomerService.get_customer_by_uid(db, "CUST-123456")
+        """
+        return db.query(Customer).filter(Customer.customer_uid == customer_uid).first()
 
     @staticmethod
     def get_customers(
