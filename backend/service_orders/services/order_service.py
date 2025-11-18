@@ -76,9 +76,11 @@ class OrderService:
                 order_type=order_data.order_type.value,
                 status=order_data.status.value,
                 table_id=order_data.table_id,
+                customer_id=order_data.customer_id,
                 total_amount=order_data.total_amount,
                 final_vat_rate=order_data.final_vat_rate,
-                ntak_data=order_data.ntak_data
+                ntak_data=order_data.ntak_data,
+                notes=order_data.notes
             )
 
             db.add(db_order)

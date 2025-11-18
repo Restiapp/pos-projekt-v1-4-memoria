@@ -215,6 +215,87 @@ class TableService:
             Table.capacity >= min_capacity
         ).all()
 
+    @staticmethod
+    def move_table(
+        db: Session,
+        table_id: int,
+        new_section: str
+    ) -> Optional[Table]:
+        """
+        Asztal áthelyezése új szekcióba (V3.0 - Fázis 1).
+
+        Args:
+            db: SQLAlchemy session
+            table_id: Az áthelyezendő asztal azonosítója
+            new_section: Az új szekció neve
+
+        Returns:
+            Table | None: A frissített asztal objektum vagy None, ha nem található
+
+        Raises:
+            ValueError: Ha a szekció név üres
+        """
+        if not new_section or not new_section.strip():
+            raise ValueError("A szekció neve nem lehet üres")
+
+        db_table = db.query(Table).filter(Table.id == table_id).first()
+
+        if not db_table:
+            return None
+
+        db_table.section = new_section.strip()
+        db.commit()
+        db.refresh(db_table)
+
+        return db_table
+
+    @staticmethod
+    def merge_tables(
+        db: Session,
+        primary_table_id: int,
+        secondary_table_ids: List[int]
+    ) -> Optional[Table]:
+        """
+        Asztalok összevonása (V3.0 - Fázis 1).
+
+        A secondary_table_ids listában szereplő asztalok parent_table_id-ja
+        a primary_table_id-ra lesz állítva.
+
+        Args:
+            db: SQLAlchemy session
+            primary_table_id: Elsődleges (fő) asztal azonosítója
+            secondary_table_ids: Másodlagos asztalok azonosítói (lista)
+
+        Returns:
+            Table | None: Az elsődleges asztal objektum vagy None, ha nem található
+
+        Raises:
+            ValueError: Ha az elsődleges asztal nem található, vagy ha egy másodlagos
+                       asztal nem található, vagy ha az elsődleges asztal szerepel a
+                       másodlagos asztalok listájában
+        """
+        # Elsődleges asztal lekérdezése
+        primary_table = db.query(Table).filter(Table.id == primary_table_id).first()
+        if not primary_table:
+            raise ValueError(f"Elsődleges asztal (ID: {primary_table_id}) nem található")
+
+        # Ellenőrizzük, hogy az elsődleges asztal nem szerepel a másodlagos asztalok között
+        if primary_table_id in secondary_table_ids:
+            raise ValueError("Az elsődleges asztal nem szerepelhet a másodlagos asztalok listájában")
+
+        # Másodlagos asztalok frissítése
+        for secondary_id in secondary_table_ids:
+            secondary_table = db.query(Table).filter(Table.id == secondary_id).first()
+            if not secondary_table:
+                raise ValueError(f"Másodlagos asztal (ID: {secondary_id}) nem található")
+
+            secondary_table.parent_table_id = primary_table_id
+
+        db.commit()
+        db.refresh(primary_table)
+
+        return primary_table
+
 
 # Singleton példány exportálása
 table_service = TableService()
