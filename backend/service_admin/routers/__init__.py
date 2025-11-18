@@ -13,6 +13,7 @@ from backend.service_admin.routers.auth import auth_router
 from backend.service_admin.routers.finance import finance_router
 from backend.service_admin.routers.integrations import integrations_router
 from backend.service_admin.routers.asset_router import asset_router
+from backend.service_admin.routers.vehicle_router import vehicle_router
 
 __all__ = [
     # Internal Router (Module 8 - NTAK)
@@ -38,4 +39,7 @@ __all__ = [
 
     # Asset Router (Module 8 - V3.0 Phase 3.2)
     "asset_router",
+
+    # Vehicle Router (Module 8 - V3.0 Phase 3.4)
+    "vehicle_router",
 ]

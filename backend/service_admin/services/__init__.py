@@ -17,6 +17,7 @@ from backend.service_admin.services.auth_service import AuthService, get_auth_se
 from backend.service_admin.services.finance_service import FinanceService
 from backend.service_admin.services.szamlazz_hu_service import SzamlazzHuService, get_szamlazz_hu_service
 from backend.service_admin.services.asset_service import AssetManagementService
+from backend.service_admin.services.vehicle_service import VehicleManagementService
 
 __all__ = [
     # NTAK Service (Module 8 - Phase 4.1)
@@ -46,4 +47,7 @@ __all__ = [
 
     # Asset Management Service (Module 8 - V3.0 Phase 3.2)
     "AssetManagementService",
+
+    # Vehicle Management Service (Module 8 - V3.0 Phase 3.4)
+    "VehicleManagementService",
 ]
