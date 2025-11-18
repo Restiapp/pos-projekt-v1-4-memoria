@@ -19,6 +19,10 @@ import { CustomerList } from '@/components/admin/CustomerList';
 import { CouponList } from '@/components/admin/CouponList';
 import { GiftCardList } from '@/components/admin/GiftCardList';
 
+// ÚJ IMPORTOK - V3.0 Hullám 10
+import { OperatorPage } from '@/pages/OperatorPage';
+import { LogisticsPage } from '@/pages/LogisticsPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -32,6 +36,16 @@ function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
+
+        {/* ÚJ ROUTE: Operátori Felület (Telefonos Rendelésfelvétel) */}
+        <Route
+          path="/operator"
+          element={
+            <ProtectedRoute>
+              <OperatorPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* ÚJ ROUTE: Asztaltérkép */}
         <Route
@@ -135,6 +149,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="menu:manage">
                 <GiftCardList />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/logistics - Logisztikai Adminisztráció */}
+          <Route
+            path="logistics"
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <LogisticsPage />
               </ProtectedRoute>
             }
           />

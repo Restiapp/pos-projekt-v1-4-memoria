@@ -80,6 +80,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/gift_cards',
     permission: 'menu:manage', // TODO: Add crm:manage permission
   },
+  // ÚJ MENÜPONT - V3.0 Hullám 10
+  {
+    id: 'logistics',
+    label: 'Logisztika',
+    icon: '🚚',
+    path: '/admin/logistics',
+    permission: 'menu:manage', // TODO: Add logistics:manage permission
+  },
 ];
 
 export const AdminPage = () => {

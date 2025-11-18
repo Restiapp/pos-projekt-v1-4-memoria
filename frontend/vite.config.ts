@@ -127,6 +127,15 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/gift_cards/, '/api/v1/gift_cards')
       },
+
+      // ========================================
+      // Logistics Service (Port 8006) - V3.0 Hullám 10
+      // ========================================
+      '/api/logistics': {
+        target: 'http://localhost:8006',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/logistics/, '/api/v1')
+      },
     }
   }
 })

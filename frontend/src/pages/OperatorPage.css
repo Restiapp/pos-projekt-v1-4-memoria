@@ -1,0 +1,268 @@
+/* OperatorPage.css */
+
+.operator-page {
+  padding: 2rem;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.operator-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.operator-header h1 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.operator-subtitle {
+  color: #666;
+  font-size: 1rem;
+}
+
+.operator-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.operator-section {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.operator-section h2 {
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+/* Vendégkeresés */
+.search-box {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-input,
+.zip-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.search-input:focus,
+.zip-input:focus {
+  outline: none;
+  border-color: #4caf50;
+}
+
+.search-btn,
+.check-btn {
+  padding: 0.75rem 1.5rem;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.search-btn:hover,
+.check-btn:hover {
+  background-color: #45a049;
+}
+
+.search-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Keresési eredmények */
+.search-results {
+  border: 2px solid #4caf50;
+  border-radius: 4px;
+  padding: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.search-results h3 {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.search-result-item {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: background 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: #f9f9f9;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.customer-contact {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.customer-uid {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+/* Kiválasztott vendég */
+.selected-customer {
+  margin-top: 1.5rem;
+}
+
+.customer-card {
+  background: #f0f8ff;
+  border: 2px solid #2196f3;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.customer-info h4 {
+  margin-bottom: 0.5rem;
+  color: #2196f3;
+}
+
+.customer-info p {
+  margin: 0.25rem 0;
+  color: #555;
+}
+
+.customer-stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.customer-stats span {
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.deselect-btn {
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.deselect-btn:hover {
+  background-color: #d32f2f;
+}
+
+/* Zóna ellenőrzés */
+.zone-check-box {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.zone-result {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.zone-result.success {
+  background-color: #e8f5e9;
+  border: 2px solid #4caf50;
+}
+
+.zone-result.error {
+  background-color: #ffebee;
+  border: 2px solid #f44336;
+}
+
+.zone-details {
+  margin-top: 1rem;
+}
+
+.zone-details h4 {
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.zone-info {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.zone-info span {
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+/* Új rendelés */
+.new-order-btn {
+  width: 100%;
+  padding: 1rem;
+  background-color: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.new-order-btn:hover {
+  background-color: #f57c00;
+}
+
+.new-order-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.hint-text {
+  text-align: center;
+  color: #999;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+hr {
+  margin: 2rem 0;
+  border: none;
+  border-top: 1px solid #eee;
+}
+
+/* Reszponzív */
+@media (max-width: 968px) {
+  .operator-container {
+    grid-template-columns: 1fr;
+  }
+}
