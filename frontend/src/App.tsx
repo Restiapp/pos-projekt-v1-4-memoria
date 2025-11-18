@@ -23,6 +23,9 @@ import { GiftCardList } from '@/components/admin/GiftCardList';
 import { OperatorPage } from '@/pages/OperatorPage';
 import { LogisticsPage } from '@/pages/LogisticsPage';
 
+// ÚJ IMPORT - Fázis 3 (Finance)
+import { FinancePage } from '@/pages/FinancePage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -119,6 +122,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="roles:manage">
                 <RoleList />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/finance - Pénzügy és Zárások - FÁZIS 3 */}
+          <Route
+            path="finance"
+            element={
+              <ProtectedRoute requiredPermission="finance:manage">
+                <FinancePage />
               </ProtectedRoute>
             }
           />

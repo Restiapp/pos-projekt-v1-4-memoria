@@ -58,6 +58,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/roles',
     permission: 'roles:manage',
   },
+  // ÚJ MENÜPONT - FÁZIS 3 (Finance)
+  {
+    id: 'finance',
+    label: 'Pénzügy',
+    icon: '💰',
+    path: '/admin/finance',
+    permission: 'finance:manage', // TODO: Add finance:manage permission to RBAC
+  },
   // CRM menüpontok
   {
     id: 'customers',
