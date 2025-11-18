@@ -21,6 +21,8 @@ from backend.service_logistics.schemas.delivery_zone import (
     GetByAddressResponse,
     GetByZipCodeRequest,
     GetByZipCodeResponse,
+    GetByCoordinatesRequest,
+    GetByCoordinatesResponse,
 )
 
 # Create APIRouter
@@ -451,4 +453,68 @@ def get_zone_by_zip_code(
         return GetByZipCodeResponse(
             zone=None,
             message=f"No zone found for ZIP code: {request.zip_code}"
+        )
+
+
+# V3.0 - Phase 4.2: Real Point-in-Polygon Endpoint
+@router.post(
+    "/get-by-coordinates",
+    response_model=GetByCoordinatesResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Get delivery zone by coordinates (V3.0 / Phase 4.2)",
+    description="""
+    **V3.0 / Phase 4.2 Implementation - Real Point-in-Polygon**
+
+    Get delivery zone by GPS coordinates using GeoJSON polygon-based lookup.
+
+    **Current Implementation:**
+    - Uses Shapely library for geometric Point-in-Polygon calculations
+    - Searches through all active delivery zones with polygon definitions
+    - Returns the first zone whose polygon contains the given coordinates
+    - Real implementation (not MOCK)
+
+    **Use Cases:**
+    - Google Maps API geocoding integration
+    - GPS-based delivery zone detection
+    - Mobile app location-based zone lookup
+
+    **Return values:**
+    - 200: Response with zone (or null if coordinates not in any zone)
+    """,
+    response_description="Zone data for the given coordinates",
+)
+def get_zone_by_coordinates(
+    request: GetByCoordinatesRequest,
+    db: Session = Depends(get_db),
+) -> GetByCoordinatesResponse:
+    """
+    Get delivery zone by coordinates (V3.0 / Phase 4.2).
+
+    **IMPORTANT:** This is a real implementation using Shapely Point-in-Polygon.
+    It searches through active delivery zones and performs geometric calculations
+    to find the zone containing the given coordinates.
+
+    Args:
+        request: Coordinates request data (latitude, longitude)
+        db: Database session (dependency injection)
+
+    Returns:
+        GetByCoordinatesResponse: Response with matched zone or None
+    """
+    # Real implementation: Point-in-Polygon lookup
+    zone = DeliveryZoneService.get_zone_by_coordinates(
+        db=db,
+        latitude=request.latitude,
+        longitude=request.longitude
+    )
+
+    if zone:
+        return GetByCoordinatesResponse(
+            zone=zone,
+            message=f"Zone '{zone.zone_name}' matched for coordinates ({request.latitude}, {request.longitude})"
+        )
+    else:
+        return GetByCoordinatesResponse(
+            zone=None,
+            message=f"No zone found for coordinates ({request.latitude}, {request.longitude})"
         )

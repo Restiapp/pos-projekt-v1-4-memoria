@@ -42,6 +42,9 @@ class DeliveryZone(Base):
     # V3.0 / Phase 3.B: ZIP code coverage
     zip_codes = Column(JSON, nullable=True, default=list)
 
+    # V3.0 / Phase 4.2: GeoJSON polygon for Point-in-Polygon lookup
+    polygon = Column(JSON, nullable=True, default=None)
+
     # Status
     is_active = Column(Boolean, default=True, nullable=False, index=True)
 

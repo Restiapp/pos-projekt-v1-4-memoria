@@ -10,6 +10,9 @@ from typing import Optional, List
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
+# V3.0 / Phase 4.2: GeoJSON/Point-in-Polygon support
+from shapely.geometry import shape, Point
+
 from backend.service_logistics.models.delivery_zone import DeliveryZone
 from backend.service_logistics.schemas.delivery_zone import (
     DeliveryZoneCreate,
@@ -254,6 +257,59 @@ class DeliveryZoneService:
         for zone in active_zones:
             if zone.zip_codes and zip_code in zone.zip_codes:
                 return zone
+
+        return None
+
+    @staticmethod
+    def get_zone_by_coordinates(db: Session, latitude: float, longitude: float) -> Optional[DeliveryZone]:
+        """
+        Get delivery zone by coordinates using Point-in-Polygon lookup (V3.0 / Phase 4.2).
+
+        This method uses Shapely to perform real geometric Point-in-Polygon detection.
+        It searches through all active delivery zones and returns the first zone
+        whose polygon contains the given coordinates.
+
+        Args:
+            db: SQLAlchemy session
+            latitude: Latitude coordinate (e.g., 47.4979)
+            longitude: Longitude coordinate (e.g., 19.0402)
+
+        Returns:
+            DeliveryZone | None: The matched delivery zone or None if not found
+
+        Example:
+            >>> zone = DeliveryZoneService.get_zone_by_coordinates(db, 47.4979, 19.0402)
+            >>> if zone:
+            ...     print(f"Found zone: {zone.zone_name}")
+
+        Notes:
+            - Requires zones to have valid GeoJSON polygons in the `polygon` field
+            - Uses Shapely library for geometric calculations
+            - Returns the first matching zone (zones should not overlap)
+        """
+        # Get all active zones
+        active_zones = db.query(DeliveryZone).filter(
+            DeliveryZone.is_active == True
+        ).all()
+
+        # Create a Point from the coordinates
+        point = Point(longitude, latitude)  # Note: GeoJSON uses [lon, lat] order
+
+        # Search through zones for polygon match
+        for zone in active_zones:
+            if zone.polygon:
+                try:
+                    # Convert GeoJSON to Shapely geometry
+                    polygon = shape(zone.polygon)
+
+                    # Check if point is within polygon
+                    if polygon.contains(point):
+                        return zone
+                except Exception as e:
+                    # Log error but continue searching
+                    # In production, you might want to log this error
+                    print(f"Error processing polygon for zone {zone.zone_name}: {e}")
+                    continue
 
         return None
 

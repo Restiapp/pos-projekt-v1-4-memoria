@@ -21,6 +21,10 @@ python-dotenv==1.0.1
 # Date/Time handling
 python-dateutil==2.9.0
 
+# Geospatial libraries for GeoJSON/Point-in-Polygon (V3.0 Phase 4.2)
+shapely==2.0.2
+geoalchemy2==0.14.2
+
 # Security and Authentication (needed for admin dependencies)
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4

@@ -51,6 +51,14 @@ class DeliveryZoneBase(BaseModel):
         description="List of ZIP codes covered by this delivery zone (V3.0 / Phase 3.B)",
         examples=[["1051", "1052", "1053"], ["1013", "1014"]]
     )
+    polygon: Optional[dict] = Field(
+        default=None,
+        description="GeoJSON polygon defining the delivery zone boundary (V3.0 / Phase 4.2)",
+        examples=[{
+            "type": "Polygon",
+            "coordinates": [[[19.0402, 47.4979], [19.0502, 47.4979], [19.0502, 47.5079], [19.0402, 47.5079], [19.0402, 47.4979]]]
+        }]
+    )
     is_active: bool = Field(
         default=True,
         description="Whether this zone is active for deliveries"
@@ -95,6 +103,10 @@ class DeliveryZoneUpdate(BaseModel):
     zip_codes: Optional[list[str]] = Field(
         None,
         description="List of ZIP codes covered by this delivery zone (V3.0 / Phase 3.B)"
+    )
+    polygon: Optional[dict] = Field(
+        None,
+        description="GeoJSON polygon defining the delivery zone boundary (V3.0 / Phase 4.2)"
     )
     is_active: Optional[bool] = Field(
         None,
@@ -192,7 +204,7 @@ class GetByZipCodeResponse(BaseModel):
     )
 
 
-# V3.0 - Phase 2.A: MOCK Endpoint for Get-by-Address
+# V3.0 - Phase 2.A: MOCK Endpoint for Get-by-Address (DEPRECATED - use get-by-coordinates)
 class GetByAddressRequest(BaseModel):
     """
     Schema for get-by-address request (V3.0 - Phase 2.A MOCK).
@@ -237,4 +249,50 @@ class GetByAddressResponse(BaseModel):
     mock_mode: bool = Field(
         default=True,
         description="Indicates this is a MOCK response (will be False in Phase 3)"
+    )
+
+
+# V3.0 - Phase 4.2: Real Point-in-Polygon Endpoint
+class GetByCoordinatesRequest(BaseModel):
+    """
+    Schema for get-by-coordinates request (V3.0 - Phase 4.2).
+
+    This endpoint performs real Point-in-Polygon lookup using GeoJSON polygons
+    and Shapely geometric calculations.
+    """
+
+    latitude: float = Field(
+        ...,
+        ge=-90.0,
+        le=90.0,
+        description="Latitude coordinate (WGS84)",
+        examples=[47.4979, 47.5079, 47.5238]
+    )
+    longitude: float = Field(
+        ...,
+        ge=-180.0,
+        le=180.0,
+        description="Longitude coordinate (WGS84)",
+        examples=[19.0402, 19.0502, 19.0635]
+    )
+
+
+class GetByCoordinatesResponse(BaseModel):
+    """
+    Schema for get-by-coordinates response (V3.0 - Phase 4.2).
+
+    Returns the matched delivery zone based on Point-in-Polygon lookup.
+    """
+
+    zone: Optional[DeliveryZoneResponse] = Field(
+        None,
+        description="Matched delivery zone (or None if not found)"
+    )
+    message: str = Field(
+        ...,
+        description="Response message",
+        examples=[
+            "Zone 'Downtown' matched for coordinates (47.4979, 19.0402)",
+            "No zone found for coordinates (47.9999, 19.9999)"
+        ]
     )
