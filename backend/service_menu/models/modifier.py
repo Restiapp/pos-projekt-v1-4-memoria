@@ -25,7 +25,8 @@ class Modifier(Base):
     __tablename__ = 'modifiers'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    group_id = Column(Integer, ForeignKey('modifier_groups.id'), nullable=False)
+    # CRITICAL FIX (C1.3): Add ondelete CASCADE for data integrity
+    group_id = Column(Integer, ForeignKey('modifier_groups.id', ondelete='CASCADE'), nullable=False)
     name = Column(String(255), nullable=False)
     price_modifier = Column(Numeric(10, 2), default=0.00)
     is_default = Column(Boolean, default=False)

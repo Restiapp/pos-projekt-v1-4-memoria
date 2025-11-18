@@ -45,7 +45,7 @@ class OcrService:
 
     def __init__(self):
         """
-        Initialize the OCR Service with Google Cloud Document AI client.
+        Initialize the OCR Service configuration (lazy client initialization).
 
         Raises:
             ValueError: If required configuration is missing
@@ -54,18 +54,32 @@ class OcrService:
         self.location = settings.documentai_location
         self.processor_id = settings.documentai_processor_id
 
-        # Initialize Document AI client with location-specific endpoint
-        opts = ClientOptions(api_endpoint=f"{self.location}-documentai.googleapis.com")
-        self.client = documentai.DocumentProcessorServiceClient(client_options=opts)
-
-        # Build processor resource name
-        self.processor_name = self.client.processor_path(
-            self.project_id, self.location, self.processor_id
-        )
+        # CRITICAL FIX (C3.2): Lazy initialization - don't create client until needed
+        self._client = None
+        self._processor_name = None
 
         logger.info(
-            f"OcrService initialized with processor: {self.processor_name}"
+            f"OcrService initialized (client will be created on first use)"
         )
+
+    @property
+    def client(self):
+        """Lazy initialization of Document AI client."""
+        if self._client is None:
+            opts = ClientOptions(api_endpoint=f"{self.location}-documentai.googleapis.com")
+            self._client = documentai.DocumentProcessorServiceClient(client_options=opts)
+            logger.info("Document AI client created")
+        return self._client
+
+    @property
+    def processor_name(self):
+        """Lazy initialization of processor name."""
+        if self._processor_name is None:
+            self._processor_name = self.client.processor_path(
+                self.project_id, self.location, self.processor_id
+            )
+            logger.info(f"Processor name resolved: {self._processor_name}")
+        return self._processor_name
 
     async def process_invoice_upload(
         self,

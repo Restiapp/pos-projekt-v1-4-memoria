@@ -26,7 +26,8 @@ class Recipe(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     product_id = Column(Integer, nullable=False, index=True)
-    inventory_item_id = Column(Integer, ForeignKey('inventory_items.id'), nullable=False)
+    # CRITICAL FIX (C3.1): Add ondelete CASCADE for data integrity
+    inventory_item_id = Column(Integer, ForeignKey('inventory_items.id', ondelete='CASCADE'), nullable=False)
     quantity_used = Column(Numeric(10, 3), nullable=False)
 
     # Relationships

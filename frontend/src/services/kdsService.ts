@@ -20,7 +20,8 @@ import type { KdsItem, KdsStation, KdsStatus, UpdateKdsStatusRequest } from '@/t
  */
 export const getItemsByStation = async (station: KdsStation): Promise<KdsItem[]> => {
   try {
-    const response = await apiClient.get<KdsItem[]>(`/api/kds/stations/${station}/items`);
+    // CRITICAL FIX (C7.1): Add /orders prefix to match backend router
+    const response = await apiClient.get<KdsItem[]>(`/api/orders/kds/stations/${station}/items`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching KDS items for station ${station}:`, error);
@@ -40,8 +41,9 @@ export const updateItemStatus = async (
 ): Promise<KdsItem> => {
   try {
     const payload: UpdateKdsStatusRequest = { kds_status: status };
+    // CRITICAL FIX (C7.2): Add /orders prefix to match backend router
     const response = await apiClient.patch<KdsItem>(
-      `/api/items/${itemId}/kds-status`,
+      `/api/orders/items/${itemId}/kds-status`,
       payload
     );
     return response.data;

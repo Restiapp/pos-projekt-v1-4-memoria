@@ -29,13 +29,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/products',
     permission: 'menu:manage',
   },
-  {
-    id: 'categories',
-    label: 'Kategóriák',
-    icon: '📁',
-    path: '/admin/categories',
-    permission: 'menu:manage',
-  },
+  // CRITICAL FIX (C8.1): Comment out Categories link until CategoryList component is created
+  // {
+  //   id: 'categories',
+  //   label: 'Kategóriák',
+  //   icon: '📁',
+  //   path: '/admin/categories',
+  //   permission: 'menu:manage',
+  // },
   {
     id: 'tables',
     label: 'Asztalok',
