@@ -33,7 +33,7 @@ app.add_middleware(
 )
 
 # Import routers
-from backend.service_crm.routers import customers_router, coupons_router
+from backend.service_crm.routers import customers_router, coupons_router, gift_cards_router, addresses_router
 
 # Register routers
 app.include_router(
@@ -43,6 +43,16 @@ app.include_router(
 
 app.include_router(
     coupons_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    gift_cards_router,
+    prefix="/api/v1",
+)
+
+app.include_router(
+    addresses_router,
     prefix="/api/v1",
 )
 
