@@ -1,10 +1,11 @@
 /**
  * KdsPage - Konyhai Kijelző Oldal
  * Valós idejű frissítéssel (10 másodpercenként)
+ * V3.0 Fázis 5: GlobalHeader integrálva
  */
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { GlobalHeader } from '@/components/layout/GlobalHeader';
 import { getItemsByStation } from '@/services/kdsService';
 import { KdsLane } from '@/components/kds/KdsLane';
 import type { KdsItem, KdsStation } from '@/types/kds';
@@ -14,7 +15,6 @@ const STATIONS: KdsStation[] = ['PULT', 'KONYHA', 'PIZZA'];
 const REFRESH_INTERVAL = 10000; // 10 másodperc
 
 export const KdsPage = () => {
-  const { user, logout } = useAuth();
   const [items, setItems] = useState<Record<KdsStation, KdsItem[]>>({
     KONYHA: [],
     PIZZA: [],
@@ -73,22 +73,16 @@ export const KdsPage = () => {
 
   return (
     <div className="kds-page">
-      {/* Fejléc */}
-      <header className="page-header">
-        <h1>🍽️ Konyhai Kijelző (KDS)</h1>
-        <div className="header-controls">
-          <button onClick={handleManualRefresh} className="refresh-btn" disabled={isLoading}>
-            🔄 Frissítés
-          </button>
-          <span className="last-update">Utolsó frissítés: {formatLastUpdate()}</span>
-          <div className="user-info">
-            <span>👤 {user?.name}</span>
-            <button onClick={logout} className="logout-btn">
-              Kijelentkezés
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Globális navigációs header */}
+      <GlobalHeader currentPage="kds" />
+
+      {/* KDS-specifikus vezérlők */}
+      <div className="kds-controls">
+        <button onClick={handleManualRefresh} className="refresh-btn" disabled={isLoading}>
+          🔄 Frissítés
+        </button>
+        <span className="last-update">Utolsó frissítés: {formatLastUpdate()}</span>
+      </div>
 
       {/* Állomások (oszlopok) */}
       <main className="kds-content">
