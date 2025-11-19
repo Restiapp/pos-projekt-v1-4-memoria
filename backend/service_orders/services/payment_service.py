@@ -24,8 +24,23 @@ from backend.service_orders.schemas.payment import (
     PaymentCreate,
     PaymentResponse,
     SplitCheckResponse,
-    SplitCheckItemSchema
+    SplitCheckItemSchema,
+    PaymentMethodInfo,
+    PaymentMethodsResponse,
+    SplitPaymentRequest,
+    SplitPaymentResponse,
+    PaymentBase
 )
+
+
+# Supported payment methods with display names
+PAYMENT_METHODS = {
+    "cash": "Készpénz",
+    "card": "Bankkártya",
+    "szep_card": "SZÉP kártya",
+    "transfer": "Átutalás",
+    "voucher": "Utalvány"
+}
 
 
 class PaymentService:
@@ -36,8 +51,32 @@ class PaymentService:
     - Fizetések létrehozása és lekérdezése
     - Fizetettségi státusz ellenőrzése
     - Split-check számítások (számla szétosztás személyenként/seat alapján)
+    - Split payment támogatás (több fizetési mód egy rendeléshez)
     - Összbefizetett összegek kalkulációja
     """
+
+    @staticmethod
+    def get_payment_methods() -> PaymentMethodsResponse:
+        """
+        Visszaadja az elérhető fizetési módokat.
+
+        Returns:
+            PaymentMethodsResponse: Az elérhető fizetési módok listája
+
+        Example:
+            >>> methods = PaymentService.get_payment_methods()
+            >>> for method in methods.methods:
+            ...     print(f"{method.code}: {method.display_name}")
+        """
+        methods = [
+            PaymentMethodInfo(
+                code=code,
+                display_name=name,
+                enabled=True
+            )
+            for code, name in PAYMENT_METHODS.items()
+        ]
+        return PaymentMethodsResponse(methods=methods)
 
     @staticmethod
     def record_payment(db: Session, payment_data: PaymentCreate) -> Payment:
@@ -69,6 +108,20 @@ class PaymentService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Rendelés nem található: ID={payment_data.order_id}"
+            )
+
+        # Ellenőrizzük, hogy a rendelés NYITOTT státuszú-e
+        if order.status != 'NYITOTT':
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Csak NYITOTT státuszú rendelésre lehet fizetést rögzíteni. Jelenlegi státusz: {order.status}"
+            )
+
+        # Validáljuk a fizetési módot
+        if payment_data.payment_method not in PAYMENT_METHODS:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Érvénytelen fizetési mód: {payment_data.payment_method}. Elérhető módok: {', '.join(PAYMENT_METHODS.keys())}"
             )
 
         try:
@@ -289,6 +342,132 @@ class PaymentService:
             order_id=order_id,
             items=split_items,
             total_amount=total_amount
+        )
+
+        return response
+
+    @staticmethod
+    def process_split_payment(
+        db: Session,
+        order_id: int,
+        split_payment_data: SplitPaymentRequest
+    ) -> SplitPaymentResponse:
+        """
+        Több fizetés rögzítése egy rendeléshez (split payment).
+
+        Ez a kulcsfontosságú metódus támogatja a split payment funkcionalitást,
+        ahol egy rendelést több fizetési móddal is lehet kifizetni (pl. 50% készpénz + 50% kártya).
+
+        Validációk:
+        - A rendelésnek létezni kell
+        - A rendelés csak NYITOTT státuszú lehet
+        - Minden fizetési módnak érvényesnek kell lennie
+        - A fizetések összege PONTOSAN meg kell egyezzen a rendelés total_amount-jával
+
+        Args:
+            db: SQLAlchemy session
+            order_id: A rendelés azonosítója
+            split_payment_data: SplitPaymentRequest a fizetések listájával
+
+        Returns:
+            SplitPaymentResponse: A rögzített fizetések és státusz információk
+
+        Raises:
+            HTTPException 404: Ha a rendelés nem található
+            HTTPException 400: Ha a rendelés nem NYITOTT, vagy az összegek nem egyeznek,
+                                vagy érvénytelen fizetési mód
+
+        Example:
+            >>> split_request = SplitPaymentRequest(payments=[
+            ...     PaymentBase(payment_method="cash", amount=Decimal("3000.00")),
+            ...     PaymentBase(payment_method="card", amount=Decimal("2000.00"))
+            ... ])
+            >>> result = PaymentService.process_split_payment(db, order_id=42, split_payment_data=split_request)
+            >>> print(f"Fully paid: {result.fully_paid}")
+        """
+        # 1. Rendelés lekérdezése és ellenőrzése
+        order = db.query(Order).filter(Order.id == order_id).first()
+        if not order:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Rendelés nem található: ID={order_id}"
+            )
+
+        # 2. Ellenőrizzük, hogy a rendelés NYITOTT státuszú-e
+        if order.status != 'NYITOTT':
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Csak NYITOTT státuszú rendelésre lehet fizetést rögzíteni. Jelenlegi státusz: {order.status}"
+            )
+
+        # 3. Ellenőrizzük, hogy a rendelés total_amount be van-e állítva
+        if order.total_amount is None:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"A rendelés total_amount értéke nincs beállítva: ID={order_id}"
+            )
+
+        # 4. Validáljuk a fizetési módokat
+        for payment in split_payment_data.payments:
+            if payment.payment_method not in PAYMENT_METHODS:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Érvénytelen fizetési mód: {payment.payment_method}. Elérhető módok: {', '.join(PAYMENT_METHODS.keys())}"
+                )
+
+        # 5. Számítsuk ki a fizetések összegét
+        total_payment_amount = sum(payment.amount for payment in split_payment_data.payments)
+
+        # 6. KRITIKUS VALIDÁCIÓ: Az összegnek PONTOSAN meg kell egyeznie
+        if total_payment_amount != order.total_amount:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=(
+                    f"A fizetések összege ({total_payment_amount} HUF) nem egyezik "
+                    f"a rendelés végösszegével ({order.total_amount} HUF). "
+                    f"Különbség: {abs(total_payment_amount - order.total_amount)} HUF. "
+                    f"Pontosan egyeznie kell!"
+                )
+            )
+
+        # 7. Rögzítsük az összes fizetést tranzakcióban
+        recorded_payments = []
+        try:
+            for payment_data in split_payment_data.payments:
+                db_payment = Payment(
+                    order_id=order_id,
+                    payment_method=payment_data.payment_method,
+                    amount=payment_data.amount,
+                    status='SIKERES'
+                )
+                db.add(db_payment)
+                recorded_payments.append(db_payment)
+
+            # Commit az összes fizetés
+            db.commit()
+
+            # Refresh minden payment objektumot
+            for payment in recorded_payments:
+                db.refresh(payment)
+
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Hiba a fizetések rögzítése során: {str(e)}"
+            )
+
+        # 8. Válasz összeállítása
+        payment_responses = [
+            PaymentResponse.model_validate(p) for p in recorded_payments
+        ]
+
+        response = SplitPaymentResponse(
+            order_id=order_id,
+            payments=payment_responses,
+            total_paid=total_payment_amount,
+            order_total=order.total_amount,
+            fully_paid=True  # Mivel pontosan egyezik az összeg
         )
 
         return response

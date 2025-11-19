@@ -29,7 +29,9 @@ from backend.service_orders.schemas.order import (
 from backend.service_orders.schemas.payment import (
     PaymentCreate,
     PaymentResponse,
-    SplitCheckResponse
+    SplitCheckResponse,
+    SplitPaymentRequest,
+    SplitPaymentResponse
 )
 
 # Router létrehozása
@@ -322,49 +324,80 @@ def set_vat_to_local(
 
 @orders_router.post(
     "/{order_id}/payments",
-    response_model=PaymentResponse,
+    response_model=SplitPaymentResponse,
     status_code=status.HTTP_201_CREATED,
-    summary="Record a payment for an order",
+    summary="Record payment(s) for an order (supports split payment)",
     description="""
-    Record a new payment for a specific order.
+    Record one or more payments for a specific order with split payment support.
 
-    This endpoint allows recording payments with various payment methods:
-    - Készpénz (Cash)
-    - Bankkártya (Credit Card)
-    - OTP SZÉP, K&H SZÉP, MKB SZÉP (SZÉP card variants)
+    **Split Payment Feature:**
+    This endpoint allows recording multiple payments for a single order, enabling
+    scenarios like paying 50% cash + 50% card.
 
-    The payment is automatically marked as 'SIKERES' (successful).
+    **Supported payment methods:**
+    - cash: Készpénz
+    - card: Bankkártya
+    - szep_card: SZÉP kártya
+    - transfer: Átutalás
+    - voucher: Utalvány
+
+    **Validation rules:**
+    - Order must exist and be in 'NYITOTT' (OPEN) status
+    - Total of all payments MUST EXACTLY match the order's total_amount
+    - No overpayment or underpayment allowed
+    - All payment methods must be valid
+
+    **Example: 100% cash payment**
+    ```json
+    {
+        "payments": [
+            {"payment_method": "cash", "amount": 5000.00}
+        ]
+    }
+    ```
+
+    **Example: Split payment (50% cash + 50% card)**
+    ```json
+    {
+        "payments": [
+            {"payment_method": "cash", "amount": 2500.00},
+            {"payment_method": "card", "amount": 2500.00}
+        ]
+    }
+    ```
     """
 )
 def record_payment(
     order_id: int,
-    payment_data: PaymentCreate,
+    payment_data: SplitPaymentRequest,
     db: Session = Depends(get_db)
-) -> PaymentResponse:
+) -> SplitPaymentResponse:
     """
-    Record a new payment for an order.
+    Record one or more payments for an order (split payment support).
 
     Args:
         order_id: The unique order identifier
-        payment_data: Payment creation data (payment_method, amount)
+        payment_data: SplitPaymentRequest with list of payments
         db: Database session (injected)
 
     Returns:
-        PaymentResponse: The newly recorded payment
+        SplitPaymentResponse: Details of all recorded payments and validation results
 
     Raises:
         HTTPException 404: If order is not found
-        HTTPException 400: If payment recording fails
+        HTTPException 400: If order is not NYITOTT, payment amounts don't match order total,
+                          or invalid payment method
 
-    Example request body:
+    Example request body (split payment):
         {
-            "order_id": 42,
-            "payment_method": "Készpénz",
-            "amount": 5000.00
+            "payments": [
+                {"payment_method": "cash", "amount": 3000.00},
+                {"payment_method": "szep_card", "amount": 2000.00}
+            ]
         }
     """
-    payment = PaymentService.record_payment(db, payment_data)
-    return PaymentResponse.model_validate(payment)
+    result = PaymentService.process_split_payment(db, order_id, payment_data)
+    return result
 
 
 @orders_router.get(
