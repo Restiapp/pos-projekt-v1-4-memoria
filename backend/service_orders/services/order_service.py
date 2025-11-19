@@ -53,6 +53,10 @@ class OrderService:
         """
         Új rendelés létrehozása.
 
+        V3.0 Feature: Customer UID validation against service_crm.
+        If customer_uid is provided, validates that the customer exists
+        in the CRM system before creating the order.
+
         Args:
             db: SQLAlchemy session
             order_data: OrderCreate schema a bemeneti adatokkal
@@ -61,23 +65,73 @@ class OrderService:
             Order: Az újonnan létrehozott rendelés
 
         Raises:
-            HTTPException: Ha az adatok érvénytelenek
+            HTTPException 404: Ha a customer_uid megvan adva, de nem létezik a CRM-ben
+            HTTPException 400: Ha az adatok érvénytelenek
 
         Example:
             >>> order_data = OrderCreate(
             ...     order_type="Helyben",
             ...     status="NYITOTT",
-            ...     table_id=5
+            ...     table_id=5,
+            ...     customer_uid="CUST-123456",
+            ...     guest_count=4
             ... )
             >>> new_order = OrderService.create_order(db, order_data)
         """
         try:
+            # V3.0 Feature: Customer UID validation
+            # Ha customer_uid meg van adva, ellenőrizni kell a CRM-ben
+            if order_data.customer_uid:
+                try:
+                    with httpx.Client() as client:
+                        crm_url = f"{settings.crm_service_url}/api/v1/customers/by-uid/{order_data.customer_uid}"
+                        logger.info(f"Validating customer UID: {order_data.customer_uid} at {crm_url}")
+
+                        response = client.get(crm_url, timeout=5.0)
+
+                        if response.status_code == 404:
+                            # Vendég nem létezik a CRM-ben
+                            raise HTTPException(
+                                status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"A vendég nem található a CRM rendszerben: customer_uid={order_data.customer_uid}"
+                            )
+                        elif response.status_code != 200:
+                            # Egyéb hiba a CRM-től
+                            logger.error(
+                                f"Failed to validate customer UID {order_data.customer_uid}: "
+                                f"HTTP {response.status_code} - {response.text}"
+                            )
+                            raise HTTPException(
+                                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                                detail=f"A CRM szolgáltatás nem érhető el. Kérem próbálja újra később."
+                            )
+
+                        # Sikeres validáció
+                        customer_data = response.json()
+                        logger.info(
+                            f"Customer validated successfully: {customer_data.get('first_name')} "
+                            f"{customer_data.get('last_name')} (UID: {order_data.customer_uid})"
+                        )
+
+                except HTTPException:
+                    # HTTPException-öket tovább dobni
+                    raise
+                except httpx.HTTPError as e:
+                    # Network/connection hiba
+                    logger.error(f"Failed to connect to CRM service: {str(e)}")
+                    raise HTTPException(
+                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                        detail=f"A CRM szolgáltatás nem érhető el. Kérem próbálja újra később."
+                    )
+
             # Új Order objektum létrehozása
             db_order = Order(
                 order_type=order_data.order_type.value,
                 status=order_data.status.value,
                 table_id=order_data.table_id,
                 customer_id=order_data.customer_id,
+                customer_uid=order_data.customer_uid,
+                guest_count=order_data.guest_count,
                 total_amount=order_data.total_amount,
                 final_vat_rate=order_data.final_vat_rate,
                 ntak_data=order_data.ntak_data,
@@ -90,6 +144,9 @@ class OrderService:
 
             return db_order
 
+        except HTTPException:
+            # HTTPException-öket tovább dobni (validációs hibák)
+            raise
         except Exception as e:
             db.rollback()
             raise HTTPException(

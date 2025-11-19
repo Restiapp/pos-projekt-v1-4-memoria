@@ -57,6 +57,12 @@ class Settings(BaseSettings):
         description="URL of the Logistics Service for order type changes and delivery management"
     )
 
+    # CRM Service URL (for customer validation)
+    crm_service_url: str = Field(
+        default="http://localhost:8004",
+        description="URL of the CRM Service for customer validation and management"
+    )
+
     # Order Configuration
     max_order_items: int = Field(
         default=50,

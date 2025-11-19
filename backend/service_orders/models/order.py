@@ -23,7 +23,8 @@ class Order(Base):
     - Státusz kezelést (status: 'NYITOTT', 'FELDOLGOZVA', 'LEZART', 'SZTORNÓ')
     - NTAK-kompatibilis ÁFA váltást (final_vat_rate: 27.00 vagy 5.00)
     - NTAK adatszolgáltatás tárolást (ntak_data JSONB)
-    - Ügyfél hivatkozást (customer_id) - V3.0
+    - Ügyfél hivatkozást (customer_id, customer_uid) - V3.0
+    - Vendégszám tárolást (guest_count) - V3.0
     - Megjegyzéseket (notes) - V3.0
     """
     __tablename__ = 'orders'
@@ -33,6 +34,8 @@ class Order(Base):
     status = Column(String(50), nullable=False, default='NYITOTT')  # 'NYITOTT', 'FELDOLGOZVA', 'LEZART', 'SZTORNÓ'
     table_id = Column(Integer, ForeignKey('tables.id'), nullable=True)
     customer_id = Column(Integer, index=True, nullable=True)  # V3.0: Ügyfél hivatkozás
+    customer_uid = Column(String(50), index=True, nullable=True)  # V3.0: Vendégszám (CRM UID)
+    guest_count = Column(Integer, nullable=True)  # V3.0: Vendégek száma
     total_amount = Column(Numeric(10, 2), nullable=True)
     final_vat_rate = Column(Numeric(4, 2), nullable=False, default=27.00)  # NTAK: 27.00 vagy 5.00
     ntak_data = Column(JSONB, nullable=True)  # NTAK 'Rendelésösszesítő' adatai

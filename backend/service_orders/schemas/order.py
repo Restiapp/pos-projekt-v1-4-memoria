@@ -53,6 +53,18 @@ class OrderBase(BaseModel):
         description="Customer identifier (V3.0: for CRM integration)",
         examples=[1, 42, None]
     )
+    customer_uid: Optional[str] = Field(
+        None,
+        description="Customer UID (Vendégszám) for CRM integration (e.g., CUST-123456)",
+        examples=["CUST-123456", "CUST-789012", None]
+    )
+    guest_count: Optional[int] = Field(
+        None,
+        ge=1,
+        le=100,
+        description="Number of guests for this order",
+        examples=[2, 4, None]
+    )
     total_amount: Optional[Decimal] = Field(
         None,
         ge=0,
@@ -106,6 +118,16 @@ class OrderUpdate(BaseModel):
     customer_id: Optional[int] = Field(
         None,
         description="Customer identifier"
+    )
+    customer_uid: Optional[str] = Field(
+        None,
+        description="Customer UID (Vendégszám)"
+    )
+    guest_count: Optional[int] = Field(
+        None,
+        ge=1,
+        le=100,
+        description="Number of guests"
     )
     total_amount: Optional[Decimal] = Field(
         None,
