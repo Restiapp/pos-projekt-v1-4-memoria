@@ -13,6 +13,9 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, Optional
 from sqlalchemy.orm import Session
+from fastapi import Depends
+
+from backend.service_inventory.models.database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -217,6 +220,6 @@ class NAVOSAService:
             }
 
 
-def get_nav_osa_service(db: Session = None) -> NAVOSAService:
+def get_nav_osa_service(db: Session = Depends(get_db)) -> NAVOSAService:
     """Dependency injection helper for NAVOSAService"""
     return NAVOSAService(db)
