@@ -1,5 +1,6 @@
 /**
  * OperatorPage - Telefonos Rendelésfelvételi Felület
+ * V3.0 Fázis 5: GlobalHeader integrálva
  *
  * Funkciók:
  *   - Vendégkeresés (név, telefonszám alapján)
@@ -14,6 +15,7 @@
  */
 
 import { useState } from 'react';
+import { GlobalHeader } from '@/components/layout/GlobalHeader';
 import { getCustomers } from '@/services/crmService';
 import { getZoneByZipCode } from '@/services/logisticsService';
 import type { Customer } from '@/types/customer';
@@ -99,12 +101,8 @@ export const OperatorPage = () => {
 
   return (
     <div className="operator-page">
-      <header className="operator-header">
-        <h1>📞 Operátori Felület - Telefonos Rendelés</h1>
-        <p className="operator-subtitle">
-          Vendég keresése, zóna ellenőrzése és rendelésfelvétel
-        </p>
-      </header>
+      {/* Globális navigációs header */}
+      <GlobalHeader currentPage="operator" />
 
       <div className="operator-container">
         {/* BAL PANEL: Vendégkeresés */}

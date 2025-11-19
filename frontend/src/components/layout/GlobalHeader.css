@@ -1,0 +1,168 @@
+/**
+ * GlobalHeader stílusok
+ * V3.0 Fázis 5: Globális navigáció
+ */
+
+.global-header {
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 3px solid #ff6b35;
+}
+
+.global-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 32px;
+  max-width: 1920px;
+  margin: 0 auto;
+}
+
+/* BAL OLDAL: Brand / Logo */
+.global-header-brand {
+  flex-shrink: 0;
+}
+
+.brand-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* KÖZÉPSŐ RÉSZ: Navigáció */
+.global-header-nav {
+  display: flex;
+  gap: 8px;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: #f5f5f5;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: #555;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover {
+  background-color: #ffe8df;
+  border-color: #ff6b35;
+  color: #ff6b35;
+  transform: translateY(-2px);
+}
+
+.nav-item.active {
+  background-color: #ff6b35;
+  color: white;
+  border-color: #ff6b35;
+}
+
+.nav-item.active:hover {
+  background-color: #ff5722;
+  transform: translateY(0);
+}
+
+.nav-icon {
+  font-size: 20px;
+}
+
+.nav-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* JOBB OLDAL: User info */
+.global-header-user {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(244, 67, 54, 0.3);
+}
+
+/* Reszponzív dizájn (tablet és mobil) */
+@media (max-width: 1024px) {
+  .global-header-content {
+    padding: 10px 16px;
+  }
+
+  .brand-title {
+    font-size: 18px;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .nav-icon {
+    font-size: 18px;
+  }
+
+  .nav-label {
+    display: none; /* Csak ikonok kis képernyőn */
+  }
+}
+
+@media (max-width: 768px) {
+  .global-header-content {
+    flex-wrap: wrap;
+  }
+
+  .global-header-brand {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .global-header-nav {
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .global-header-user {
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #e0e0e0;
+  }
+}

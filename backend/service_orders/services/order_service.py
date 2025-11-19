@@ -431,8 +431,9 @@ class OrderService:
                     ntak_url = f"{settings.admin_service_url}/internal/report-order/{order_id}"
                     client.post(ntak_url, timeout=5.0)
                     logger.info(f"NTAK trigger sent for order {order_id}")
-            except httpx.HTTPError as e:
+            except Exception as e:
                 # Graceful failure: log but don't block order closure
+                # V3.0 Fázis 5: Robusztus hibakezelés (minden Exception típus)
                 logger.warning(f"Failed to trigger NTAK for order {order_id}: {str(e)}")
 
             # Trigger inventory deduction (graceful failure)
@@ -449,8 +450,10 @@ class OrderService:
                             f"Stock deduction result: {result.get('items_processed', 0)} items processed, "
                             f"{len(result.get('ingredients_deducted', []))} ingredients deducted"
                         )
-            except httpx.HTTPError as e:
+            except Exception as e:
                 # Graceful failure: log but don't block order closure
+                # V3.0 Fázis 5: Robusztus hibakezelés (minden Exception típus)
+                # Catches all possible errors: httpx.HTTPError, DNS, JSON, Timeout, Connection, etc.
                 logger.warning(f"Failed to trigger inventory deduction for order {order_id}: {str(e)}")
 
             return order

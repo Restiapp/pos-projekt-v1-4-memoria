@@ -1,5 +1,6 @@
 /**
  * PaymentPage - Fizetési képernyő oldal
+ * V3.0 Fázis 5: GlobalHeader integrálva
  *
  * Az URL paraméterből veszi az order_id-t (react-router useParams)
  * Megjeleníti a PaymentModal komponenst
@@ -7,7 +8,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { GlobalHeader } from '@/components/layout/GlobalHeader';
 import { getOrderDetails } from '@/services/paymentService';
 import { PaymentModal } from '@/components/payment/PaymentModal';
 import type { Order } from '@/types/payment';
@@ -16,7 +17,6 @@ import './PaymentPage.css';
 export const PaymentPage = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -55,15 +55,8 @@ export const PaymentPage = () => {
 
   return (
     <div className="payment-page">
-      <header className="page-header">
-        <h1>💳 Fizetés</h1>
-        <div className="user-info">
-          <span>👤 {user?.name}</span>
-          <button onClick={logout} className="logout-btn">
-            Kijelentkezés
-          </button>
-        </div>
-      </header>
+      {/* Globális navigációs header */}
+      <GlobalHeader currentPage="tables" />
 
       <main className="page-content">
         {isLoading && <div className="loading-state">Betöltés...</div>}
