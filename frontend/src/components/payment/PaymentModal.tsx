@@ -22,6 +22,9 @@ import {
   closeOrder,
   getPaymentsForOrder,
 } from '@/services/paymentService';
+import { createInvoice } from '@/services/invoiceService';
+import type { InvoiceItem } from '@/types/invoice';
+import apiClient from '@/services/api';
 import './PaymentModal.css';
 
 interface PaymentModalProps {
@@ -39,6 +42,11 @@ export const PaymentModal = ({
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Invoice state
+  const [requestInvoice, setRequestInvoice] = useState(false);
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
 
   // Összes fizetés összege
   const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
@@ -99,6 +107,12 @@ export const PaymentModal = ({
       return;
     }
 
+    // Validate invoice request
+    if (requestInvoice && !customerName.trim()) {
+      alert('Kérjük, adja meg a vásárló nevét a számlához!');
+      return;
+    }
+
     const confirmed = window.confirm(
       'Biztos, hogy lezárod a rendelést? Ez a művelet nem visszavonható.'
     );
@@ -106,8 +120,57 @@ export const PaymentModal = ({
 
     try {
       setIsProcessing(true);
+
+      // Close the order first
       await closeOrder(order.id);
-      alert('Rendelés sikeresen lezárva!');
+
+      // Create invoice if requested
+      if (requestInvoice) {
+        try {
+          // Fetch order items for invoice
+          const orderItemsResponse = await apiClient.get(
+            `/api/order_items/${order.id}/items`
+          );
+          const orderItems = orderItemsResponse.data;
+
+          // Convert order items to invoice items
+          const invoiceItems: InvoiceItem[] = orderItems.map((item: any) => ({
+            name: `Termék #${item.product_id}`, // Simplified: use product_id for now
+            quantity: item.quantity,
+            unit: 'db',
+            unit_price: Number(item.unit_price),
+            vat_rate: order.final_vat_rate || 27.0,
+          }));
+
+          // Create invoice
+          const invoiceResponse = await createInvoice({
+            order_id: order.id,
+            customer_name: customerName,
+            customer_email: customerEmail || undefined,
+            items: invoiceItems,
+            payment_method: 'CASH', // Simplified for now
+            notes: `Rendelés #${order.id}`,
+          });
+
+          if (invoiceResponse.success) {
+            alert(
+              `Rendelés sikeresen lezárva!\nSzámla: ${invoiceResponse.invoice_number}\n${invoiceResponse.message || ''}`
+            );
+          } else {
+            alert(
+              `Rendelés lezárva, de a számla létrehozása sikertelen:\n${invoiceResponse.message || 'Ismeretlen hiba'}`
+            );
+          }
+        } catch (invoiceError: any) {
+          console.error('Invoice creation failed:', invoiceError);
+          const errorMsg =
+            invoiceError.response?.data?.detail || 'Hiba történt a számla létrehozása közben!';
+          alert(`Rendelés lezárva, de a számla létrehozása sikertelen:\n${errorMsg}`);
+        }
+      } else {
+        alert('Rendelés sikeresen lezárva!');
+      }
+
       onPaymentSuccess();
       onClose();
     } catch (error: any) {
@@ -222,6 +285,50 @@ export const PaymentModal = ({
                 </div>
               </div>
             )}
+
+            {/* Számla kérése szekció */}
+            <div className="invoice-section">
+              <h3>📄 Számla</h3>
+              <div className="invoice-checkbox">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={requestInvoice}
+                    onChange={(e) => setRequestInvoice(e.target.checked)}
+                    disabled={isProcessing}
+                  />
+                  <span>Számla kérése</span>
+                </label>
+              </div>
+
+              {requestInvoice && (
+                <div className="invoice-customer-info">
+                  <div className="form-group">
+                    <label htmlFor="customerName">Vásárló neve *</label>
+                    <input
+                      id="customerName"
+                      type="text"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Kovács János"
+                      disabled={isProcessing}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="customerEmail">Email (opcionális)</label>
+                    <input
+                      id="customerEmail"
+                      type="email"
+                      value={customerEmail}
+                      onChange={(e) => setCustomerEmail(e.target.value)}
+                      placeholder="kovacs@example.com"
+                      disabled={isProcessing}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Rendelés lezárása gomb */}
             <div className="payment-modal-footer">
