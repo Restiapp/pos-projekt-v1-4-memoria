@@ -6,7 +6,7 @@ A futárok táblája, amely tartalmazza a futárok adatait, beleértve
 a nevüket, telefonszámukat, státuszukat és az aktív állapotukat.
 """
 
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Enum, Float
 from sqlalchemy.sql import func
 import enum
 
@@ -36,6 +36,7 @@ class Courier(Base):
     - Futár azonosítást (courier_name, phone)
     - Email címet (email)
     - Státusz követést (status)
+    - Hely követést (current_location_lat, current_location_lng)
     - Aktív/inaktív státusz kezelést (is_active)
     - Időbélyegeket (created_at, updated_at)
     """
@@ -53,6 +54,10 @@ class Courier(Base):
         nullable=False,
         index=True
     )
+
+    # Location tracking (GPS coordinates)
+    current_location_lat = Column(Float, nullable=True, default=None)
+    current_location_lng = Column(Float, nullable=True, default=None)
 
     # Active/Inactive
     is_active = Column(Boolean, default=True, nullable=False, index=True)
