@@ -22,7 +22,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from backend.service_admin.models.database import get_db
 from backend.service_admin.models.employee import Employee
@@ -199,7 +199,13 @@ async def get_current_user(
         raise credentials_exception
 
     # Employee lekérése az adatbázisból (roles és permissions eager loading)
-    employee = db.query(Employee).filter(Employee.id == employee_id).first()
+    # Használjunk explicit joinedload-ot a roles és permissions betöltésére
+    employee = db.query(Employee)\
+        .options(
+            joinedload(Employee.roles).joinedload(Role.permissions)
+        )\
+        .filter(Employee.id == employee_id)\
+        .first()
 
     if employee is None:
         raise credentials_exception
