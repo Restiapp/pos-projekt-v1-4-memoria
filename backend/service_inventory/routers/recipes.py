@@ -259,6 +259,7 @@ def update_recipe(
 
 @router.delete(
     "/{recipe_id}",
+    response_model=None,
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete recipe",
     description="""
@@ -305,6 +306,7 @@ def delete_recipe(
 
 @router.get(
     "/product/{product_id}/ingredients",
+    response_model=None,
     summary="Get required ingredients for a product",
     description="""
     Calculate the required ingredients and quantities to produce a specific product.
@@ -358,6 +360,7 @@ def get_required_ingredients(
 
 @router.get(
     "/product/{product_id}/availability",
+    response_model=None,
     summary="Check product availability based on current stock",
     description="""
     Check if a product can be produced with the current inventory stock.
