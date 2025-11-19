@@ -13,9 +13,12 @@ import { useState, useEffect } from 'react';
 import { getTables, deleteTable } from '@/services/tableService';
 import { TableEditor } from './TableEditor';
 import type { Table } from '@/types/table';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './TableList.css';
 
 export const TableList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [tables, setTables] = useState<Table[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,16 +34,18 @@ export const TableList = () => {
       setTables(data);
     } catch (error) {
       console.error('Hiba az asztalok betöltésekor:', error);
-      alert('Nem sikerült betölteni az asztalokat!');
+      notify.error('Nem sikerült betölteni az asztalokat!');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Első betöltés
+  // Első betöltés - CSAK ha autentikált
   useEffect(() => {
-    fetchTables();
-  }, []);
+    if (isAuthenticated) {
+      fetchTables();
+    }
+  }, [isAuthenticated]);
 
   // Új asztal létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -64,11 +69,11 @@ export const TableList = () => {
 
     try {
       await deleteTable(table.id);
-      alert('Asztal sikeresen törölve!');
+      notify.success('Asztal sikeresen törölve!');
       fetchTables(); // Lista frissítése
     } catch (error) {
       console.error('Hiba az asztal törlésekor:', error);
-      alert('Nem sikerült törölni az asztalt!');
+      notify.error('Nem sikerült törölni az asztalt!');
     }
   };
 

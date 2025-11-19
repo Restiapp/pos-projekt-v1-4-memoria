@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { createCustomer, updateCustomer } from '@/services/crmService';
 import type { Customer, CustomerCreate, CustomerUpdate } from '@/types/customer';
+import { notify } from '@/utils/notifications';
 import './CustomerEditor.css';
 
 interface CustomerEditorProps {
@@ -59,17 +60,17 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
 
     // Validáció
     if (!formData.first_name.trim()) {
-      alert('A keresztnév kötelező!');
+      notify.warning('A keresztnév kötelező!');
       return;
     }
 
     if (!formData.last_name.trim()) {
-      alert('A vezetéknév kötelező!');
+      notify.warning('A vezetéknév kötelező!');
       return;
     }
 
     if (!formData.email.trim()) {
-      alert('Az email kötelező!');
+      notify.warning('Az email kötelező!');
       return;
     }
 
@@ -90,7 +91,7 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           is_active: formData.is_active,
         };
         await updateCustomer(customer.id, updateData);
-        alert('Vendég sikeresen frissítve!');
+        notify.success('Vendég sikeresen frissítve!');
       } else {
         // Létrehozás
         const createData: CustomerCreate = {
@@ -104,7 +105,7 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           notes: formData.notes || undefined,
         };
         await createCustomer(createData);
-        alert('Vendég sikeresen létrehozva!');
+        notify.success('Vendég sikeresen létrehozva!');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -112,7 +113,7 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
       console.error('Hiba a vendég mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a vendéget!';
-      alert(errorMessage);
+      notify.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

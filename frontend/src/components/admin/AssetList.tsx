@@ -18,9 +18,12 @@ import {
 } from '@/services/assetService';
 import { AssetEditor } from './AssetEditor';
 import type { Asset, AssetGroup } from '@/types/asset';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './AssetList.css';
 
 export const AssetList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [assetGroups, setAssetGroups] = useState<AssetGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +65,7 @@ export const AssetList = () => {
       setAssets(data);
     } catch (error) {
       console.error('Hiba az eszközök betöltésekor:', error);
-      alert('Nem sikerült betölteni az eszközöket!');
+      notify.error('Nem sikerült betölteni az eszközöket!');
     } finally {
       setIsLoading(false);
     }
@@ -70,12 +73,16 @@ export const AssetList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchAssetGroups();
-  }, []);
+    if (isAuthenticated) {
+      fetchAssetGroups();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchAssets();
-  }, [selectedGroupId, selectedStatus, showOnlyActive]);
+    if (isAuthenticated) {
+      fetchAssets();
+    }
+  }, [selectedGroupId, selectedStatus, showOnlyActive, isAuthenticated]);
 
   // Új eszköz létrehozása
   const handleCreate = () => {
@@ -99,11 +106,11 @@ export const AssetList = () => {
 
     try {
       await deleteAsset(asset.id);
-      alert('Eszköz sikeresen törölve!');
+      notify.success('Eszköz sikeresen törölve!');
       fetchAssets();
     } catch (error) {
       console.error('Hiba az eszköz törlésekor:', error);
-      alert('Nem sikerült törölni az eszközt!');
+      notify.error('Nem sikerült törölni az eszközt!');
     }
   };
 

@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { createAssetService, updateAssetService } from '@/services/assetService';
 import type { AssetService, Asset, AssetServiceCreate, AssetServiceUpdate } from '@/types/asset';
+import { notify } from '@/utils/notifications';
 import './AssetServiceEditor.css';
 
 interface AssetServiceEditorProps {
@@ -55,22 +56,22 @@ export const AssetServiceEditor = ({
 
     // Validáció
     if (!formData.asset_id) {
-      alert('Az eszköz választása kötelező!');
+      notify.warning('Az eszköz választása kötelező!');
       return;
     }
 
     if (!formData.service_type) {
-      alert('A szerviz típusa kötelező!');
+      notify.warning('A szerviz típusa kötelező!');
       return;
     }
 
     if (!formData.service_date) {
-      alert('A szerviz dátuma kötelező!');
+      notify.warning('A szerviz dátuma kötelező!');
       return;
     }
 
     if (!formData.description.trim()) {
-      alert('A leírás kötelező!');
+      notify.warning('A leírás kötelező!');
       return;
     }
 
@@ -92,7 +93,7 @@ export const AssetServiceEditor = ({
         };
 
         await updateAssetService(service!.id, updateData);
-        alert('Szerviz bejegyzés sikeresen frissítve!');
+        notify.success('Szerviz bejegyzés sikeresen frissítve!');
       } else {
         const createData: AssetServiceCreate = {
           asset_id: parseInt(formData.asset_id),
@@ -109,14 +110,14 @@ export const AssetServiceEditor = ({
         };
 
         await createAssetService(createData);
-        alert('Szerviz bejegyzés sikeresen létrehozva!');
+        notify.success('Szerviz bejegyzés sikeresen létrehozva!');
       }
 
       onClose(true);
     } catch (error: any) {
       console.error('Hiba a szerviz bejegyzés mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
-      alert(`Hiba: ${errorMsg}`);
+      notify.error(`Hiba: ${errorMsg}`);
     } finally {
       setIsSubmitting(false);
     }

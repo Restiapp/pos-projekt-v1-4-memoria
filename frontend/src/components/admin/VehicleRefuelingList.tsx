@@ -15,9 +15,12 @@ import {
   getVehicles,
 } from '@/services/vehicleService';
 import type { VehicleRefueling, Vehicle } from '@/types/vehicle';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './VehicleRefuelingList.css';
 
 export const VehicleRefuelingList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [refuelings, setRefuelings] = useState<VehicleRefueling[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,7 +52,7 @@ export const VehicleRefuelingList = () => {
       setRefuelings(data);
     } catch (error) {
       console.error('Hiba a tankolások betöltésekor:', error);
-      alert('Nem sikerült betölteni a tankolásokat!');
+      notify.error('Nem sikerült betölteni a tankolásokat!');
     } finally {
       setIsLoading(false);
     }
@@ -57,12 +60,16 @@ export const VehicleRefuelingList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchVehicles();
-  }, []);
+    if (isAuthenticated) {
+      fetchVehicles();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchRefuelings();
-  }, [selectedVehicleId]);
+    if (isAuthenticated) {
+      fetchRefuelings();
+    }
+  }, [selectedVehicleId, isAuthenticated]);
 
   // Tankolás törlése
   const handleDelete = async (refueling: VehicleRefueling) => {
@@ -76,11 +83,11 @@ export const VehicleRefuelingList = () => {
 
     try {
       await deleteVehicleRefueling(refueling.id);
-      alert('Tankolás sikeresen törölve!');
+      notify.success('Tankolás sikeresen törölve!');
       fetchRefuelings();
     } catch (error) {
       console.error('Hiba a tankolás törlésekor:', error);
-      alert('Nem sikerült törölni a tankolást!');
+      notify.error('Nem sikerült törölni a tankolást!');
     }
   };
 

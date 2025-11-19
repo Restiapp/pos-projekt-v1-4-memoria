@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { createCoupon, updateCoupon } from '@/services/crmService';
 import type { Coupon, CouponCreate, CouponUpdate } from '@/types/coupon';
 import { DiscountTypeEnum } from '@/types/coupon';
+import { notify } from '@/utils/notifications';
 import './CouponEditor.css';
 
 interface CouponEditorProps {
@@ -72,12 +73,12 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
 
     // Validáció
     if (!formData.code.trim()) {
-      alert('A kuponkód kötelező!');
+      notify.warning('A kuponkód kötelező!');
       return;
     }
 
     if (formData.discount_value <= 0) {
-      alert('A kedvezmény értéke nagyobb kell legyen nullánál!');
+      notify.warning('A kedvezmény értéke nagyobb kell legyen nullánál!');
       return;
     }
 
@@ -85,7 +86,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
       formData.discount_type === DiscountTypeEnum.PERCENTAGE &&
       formData.discount_value > 100
     ) {
-      alert('A százalékos kedvezmény nem lehet nagyobb 100%-nál!');
+      notify.warning('A százalékos kedvezmény nem lehet nagyobb 100%-nál!');
       return;
     }
 
@@ -105,7 +106,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           is_active: formData.is_active,
         };
         await updateCoupon(coupon.id, updateData);
-        alert('Kupon sikeresen frissítve!');
+        notify.success('Kupon sikeresen frissítve!');
       } else {
         // Létrehozás
         const createData: CouponCreate = {
@@ -120,7 +121,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           is_active: formData.is_active,
         };
         await createCoupon(createData);
-        alert('Kupon sikeresen létrehozva!');
+        notify.success('Kupon sikeresen létrehozva!');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -128,7 +129,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
       console.error('Hiba a kupon mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a kupont!';
-      alert(errorMessage);
+      notify.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

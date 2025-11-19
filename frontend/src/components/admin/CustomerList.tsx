@@ -15,9 +15,12 @@ import { useState, useEffect } from 'react';
 import { getCustomers, deleteCustomer } from '@/services/crmService';
 import { CustomerEditor } from './CustomerEditor';
 import type { Customer } from '@/types/customer';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './CustomerList.css';
 
 export const CustomerList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -46,7 +49,7 @@ export const CustomerList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a vendégek betöltésekor:', error);
-      alert('Nem sikerült betölteni a vendégeket!');
+      notify.error('Nem sikerült betölteni a vendégeket!');
     } finally {
       setIsLoading(false);
     }
@@ -54,8 +57,10 @@ export const CustomerList = () => {
 
   // Első betöltés és frissítés szűrő/keresés változásakor
   useEffect(() => {
-    fetchCustomers();
-  }, [page, showOnlyActive, searchTerm]);
+    if (isAuthenticated) {
+      fetchCustomers();
+    }
+  }, [page, showOnlyActive, searchTerm, isAuthenticated]);
 
   // Új vendég létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -79,11 +84,11 @@ export const CustomerList = () => {
 
     try {
       await deleteCustomer(customer.id);
-      alert('Vendég sikeresen törölve!');
+      notify.success('Vendég sikeresen törölve!');
       fetchCustomers(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a vendég törlésekor:', error);
-      alert('Nem sikerült törölni a vendéget!');
+      notify.error('Nem sikerült törölni a vendéget!');
     }
   };
 

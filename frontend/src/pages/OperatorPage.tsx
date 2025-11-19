@@ -20,6 +20,7 @@ import { getCustomers } from '@/services/crmService';
 import { getZoneByZipCode } from '@/services/logisticsService';
 import type { Customer } from '@/types/customer';
 import type { DeliveryZone } from '@/types/logistics';
+import { notify } from '@/utils/notifications';
 import './OperatorPage.css';
 
 export const OperatorPage = () => {
@@ -36,7 +37,7 @@ export const OperatorPage = () => {
   // Vendég keresés
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
-      alert('Kérlek adj meg keresési kifejezést (név, email, telefon)!');
+      notify.warning('Kérlek adj meg keresési kifejezést (név, email, telefon)!');
       return;
     }
 
@@ -45,11 +46,11 @@ export const OperatorPage = () => {
       const response = await getCustomers(1, 10, undefined, searchTerm);
       setSearchResults(response.items);
       if (response.items.length === 0) {
-        alert('Nem található vendég ezzel a keresési kifejezéssel.');
+        notify.info('Nem található vendég ezzel a keresési kifejezéssel.');
       }
     } catch (error) {
       console.error('Hiba a vendég keresésekor:', error);
-      alert('Nem sikerült megtalálni a vendéget!');
+      notify.error('Nem sikerült megtalálni a vendéget!');
     } finally {
       setIsSearching(false);
     }
@@ -65,7 +66,7 @@ export const OperatorPage = () => {
   // Zóna ellenőrzés irányítószám alapján
   const handleCheckZone = async () => {
     if (!zipCode.trim()) {
-      alert('Kérlek adj meg irányítószámot!');
+      notify.warning('Kérlek adj meg irányítószámot!');
       return;
     }
 
@@ -75,17 +76,17 @@ export const OperatorPage = () => {
       setZoneMessage(response.message);
     } catch (error) {
       console.error('Hiba a zóna ellenőrzésekor:', error);
-      alert('Nem sikerült ellenőrizni a zónát!');
+      notify.error('Nem sikerült ellenőrizni a zónát!');
     }
   };
 
   // Új rendelés indítása (placeholder)
   const handleStartNewOrder = () => {
     if (!selectedCustomer) {
-      alert('Először válassz ki egy vendéget!');
+      notify.warning('Először válassz ki egy vendéget!');
       return;
     }
-    alert(
+    notify.info(
       `ÚJ KISZÁLLÍTÁSI RENDELÉS\n\nVendég: ${selectedCustomer.first_name} ${selectedCustomer.last_name}\n\n(Ez még placeholder funkció - V4.0-ban lesz teljes rendelésfelvétel)`
     );
   };

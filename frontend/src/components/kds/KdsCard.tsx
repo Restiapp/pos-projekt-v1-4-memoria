@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import type { KdsItem, KdsStatus } from '@/types/kds';
 import { updateItemStatus } from '@/services/kdsService';
+import { notify } from '@/utils/notifications';
 import './KdsCard.css';
 
 interface KdsCardProps {
@@ -27,7 +28,7 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
       }
     } catch (error) {
       console.error('Failed to update KDS status:', error);
-      alert('Hiba történt a státusz frissítése közben!');
+      notify.error('Hiba történt a státusz frissítése közben!');
     } finally {
       setIsUpdating(false);
     }

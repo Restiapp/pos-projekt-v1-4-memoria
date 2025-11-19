@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { createVehicle, updateVehicle } from '@/services/vehicleService';
 import type { Vehicle, VehicleCreate, VehicleUpdate } from '@/types/vehicle';
+import { notify } from '@/utils/notifications';
 import './VehicleEditor.css';
 
 interface VehicleEditorProps {
@@ -75,7 +76,7 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
       !formData.model ||
       !formData.fuel_type
     ) {
-      alert(
+      notify.warning(
         'Kérlek, töltsd ki a kötelező mezőket: Rendszám, Márka, Modell, Üzemanyag!'
       );
       return;
@@ -106,7 +107,7 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
         };
 
         await updateVehicle(vehicle!.id, updateData);
-        alert('Jármű sikeresen frissítve!');
+        notify.success('Jármű sikeresen frissítve!');
       } else {
         // Létrehozás
         const createData: VehicleCreate = {
@@ -129,13 +130,13 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
         };
 
         await createVehicle(createData);
-        alert('Jármű sikeresen létrehozva!');
+        notify.success('Jármű sikeresen létrehozva!');
       }
 
       onClose(true); // Frissítés szükséges
     } catch (error) {
       console.error('Hiba a jármű mentésekor:', error);
-      alert('Nem sikerült menteni a járművet!');
+      notify.error('Nem sikerült menteni a járművet!');
     } finally {
       setIsSaving(false);
     }

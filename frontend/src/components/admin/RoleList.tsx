@@ -13,9 +13,12 @@ import { useState, useEffect } from 'react';
 import { getRoles, deleteRole, getPermissions, getRoleById } from '@/services/roleService';
 import { RoleEditor } from './RoleEditor';
 import type { Role, Permission, RoleWithPermissions } from '@/types/role';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './RoleList.css';
 
 export const RoleList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [roles, setRoles] = useState<Role[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +39,7 @@ export const RoleList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a szerepkörök betöltésekor:', error);
-      alert('Nem sikerült betölteni a szerepköröket!');
+      notify.error('Nem sikerült betölteni a szerepköröket!');
     } finally {
       setIsLoading(false);
     }
@@ -54,12 +57,16 @@ export const RoleList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchRoles();
-  }, [page]);
+    if (isAuthenticated) {
+      fetchRoles();
+    }
+  }, [page, isAuthenticated]);
 
   useEffect(() => {
-    fetchPermissions();
-  }, []);
+    if (isAuthenticated) {
+      fetchPermissions();
+    }
+  }, [isAuthenticated]);
 
   // Új szerepkör létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -76,7 +83,7 @@ export const RoleList = () => {
       setIsEditorOpen(true);
     } catch (error) {
       console.error('Hiba a szerepkör betöltésekor:', error);
-      alert('Nem sikerült betölteni a szerepkör részleteit!');
+      notify.error('Nem sikerült betölteni a szerepkör részleteit!');
     }
   };
 
@@ -90,11 +97,11 @@ export const RoleList = () => {
 
     try {
       await deleteRole(role.id);
-      alert('Szerepkör sikeresen törölve!');
+      notify.success('Szerepkör sikeresen törölve!');
       fetchRoles(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a szerepkör törlésekor:', error);
-      alert('Nem sikerült törölni a szerepkört!');
+      notify.error('Nem sikerült törölni a szerepkört!');
     }
   };
 

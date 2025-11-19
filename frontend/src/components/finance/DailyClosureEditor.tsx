@@ -11,6 +11,7 @@
 import { useState, useEffect } from 'react';
 import { createDailyClosure, closeDailyClosure } from '@/services/financeService';
 import type { DailyClosure, DailyClosureCreateRequest, DailyClosureUpdateRequest } from '@/types/finance';
+import { notify } from '@/utils/notifications';
 import './Finance.css';
 
 interface DailyClosureEditorProps {
@@ -47,7 +48,7 @@ export const DailyClosureEditor: React.FC<DailyClosureEditorProps> = ({ closure,
         // Lezárás (update)
         const numActual = parseFloat(actualClosingBalance);
         if (isNaN(numActual) || numActual < 0) {
-          alert('Érvénytelen záró egyenleg!');
+          notify.error('Érvénytelen záró egyenleg!');
           return;
         }
 
@@ -57,13 +58,13 @@ export const DailyClosureEditor: React.FC<DailyClosureEditorProps> = ({ closure,
         };
 
         await closeDailyClosure(closure!.id, payload);
-        alert('Zárás sikeresen lezárva!');
+        notify.success('Zárás sikeresen lezárva!');
         onClose(true);
       } else {
         // Új zárás létrehozása
         const numOpening = parseFloat(openingBalance);
         if (isNaN(numOpening) || numOpening < 0) {
-          alert('Érvénytelen nyitó egyenleg!');
+          notify.error('Érvénytelen nyitó egyenleg!');
           return;
         }
 
@@ -73,12 +74,12 @@ export const DailyClosureEditor: React.FC<DailyClosureEditorProps> = ({ closure,
         };
 
         await createDailyClosure(payload);
-        alert('Új zárás sikeresen létrehozva!');
+        notify.success('Új zárás sikeresen létrehozva!');
         onClose(true);
       }
     } catch (error: any) {
       console.error('Hiba a művelet során:', error);
-      alert(error.response?.data?.detail || 'Nem sikerült a művelet!');
+      notify.error(error.response?.data?.detail || 'Nem sikerült a művelet!');
     } finally {
       setIsSaving(false);
     }

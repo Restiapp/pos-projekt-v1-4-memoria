@@ -15,9 +15,12 @@ import {
   getVehicles,
 } from '@/services/vehicleService';
 import type { VehicleMaintenance, Vehicle } from '@/types/vehicle';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './VehicleMaintenanceList.css';
 
 export const VehicleMaintenanceList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [maintenances, setMaintenances] = useState<VehicleMaintenance[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +56,7 @@ export const VehicleMaintenanceList = () => {
       setMaintenances(data);
     } catch (error) {
       console.error('Hiba a karbantartások betöltésekor:', error);
-      alert('Nem sikerült betölteni a karbantartásokat!');
+      notify.error('Nem sikerült betölteni a karbantartásokat!');
     } finally {
       setIsLoading(false);
     }
@@ -61,12 +64,16 @@ export const VehicleMaintenanceList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchVehicles();
-  }, []);
+    if (isAuthenticated) {
+      fetchVehicles();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchMaintenances();
-  }, [selectedVehicleId, selectedType]);
+    if (isAuthenticated) {
+      fetchMaintenances();
+    }
+  }, [selectedVehicleId, selectedType, isAuthenticated]);
 
   // Karbantartás törlése
   const handleDelete = async (maintenance: VehicleMaintenance) => {
@@ -80,11 +87,11 @@ export const VehicleMaintenanceList = () => {
 
     try {
       await deleteVehicleMaintenance(maintenance.id);
-      alert('Karbantartás sikeresen törölve!');
+      notify.success('Karbantartás sikeresen törölve!');
       fetchMaintenances();
     } catch (error) {
       console.error('Hiba a karbantartás törlésekor:', error);
-      alert('Nem sikerült törölni a karbantartást!');
+      notify.error('Nem sikerült törölni a karbantartást!');
     }
   };
 

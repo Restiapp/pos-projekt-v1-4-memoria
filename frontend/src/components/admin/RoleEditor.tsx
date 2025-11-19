@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import { createRole, updateRole } from '@/services/roleService';
 import type { RoleWithPermissions, Permission, RoleCreate, RoleUpdate } from '@/types/role';
+import { notify } from '@/utils/notifications';
 import './RoleEditor.css';
 
 interface RoleEditorProps {
@@ -68,12 +69,12 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
 
     // Validáció
     if (!formData.name.trim()) {
-      alert('A szerepkör neve kötelező!');
+      notify.warning('A szerepkör neve kötelező!');
       return;
     }
 
     if (!formData.description.trim()) {
-      alert('A leírás kötelező!');
+      notify.warning('A leírás kötelező!');
       return;
     }
 
@@ -89,7 +90,7 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
         };
 
         await updateRole(role.id, updateData);
-        alert('Szerepkör sikeresen frissítve!');
+        notify.success('Szerepkör sikeresen frissítve!');
       } else {
         // Létrehozás
         const createData: RoleCreate = {
@@ -99,7 +100,7 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
         };
 
         await createRole(createData);
-        alert('Szerepkör sikeresen létrehozva!');
+        notify.success('Szerepkör sikeresen létrehozva!');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -107,7 +108,7 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
       console.error('Hiba a szerepkör mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a szerepkört!';
-      alert(errorMessage);
+      notify.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

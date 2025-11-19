@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { createGiftCard, updateGiftCard } from '@/services/crmService';
 import type { GiftCard, GiftCardCreate, GiftCardUpdate } from '@/types/giftCard';
+import { notify } from '@/utils/notifications';
 import './GiftCardEditor.css';
 
 interface GiftCardEditorProps {
@@ -59,7 +60,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
 
     // Validáció
     if (!formData.card_code.trim()) {
-      alert('A kártyakód kötelező!');
+      notify.warning('A kártyakód kötelező!');
       return;
     }
 
@@ -68,13 +69,13 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
       // Ha PIN kódot adtak meg, ellenőrizzük a formátumot
       const pinRegex = /^[0-9]{4,10}$/; // 4-10 számjegy
       if (!pinRegex.test(formData.pin_code)) {
-        alert('A PIN kód 4-10 számjegyből kell álljon!');
+        notify.warning('A PIN kód 4-10 számjegyből kell álljon!');
         return;
       }
     }
 
     if (formData.initial_balance <= 0 && !isEditing) {
-      alert('A kezdeti egyenleg nagyobb kell legyen nullánál!');
+      notify.warning('A kezdeti egyenleg nagyobb kell legyen nullánál!');
       return;
     }
 
@@ -89,7 +90,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
           is_active: formData.is_active,
         };
         await updateGiftCard(giftCard.id, updateData);
-        alert('Ajándékkártya sikeresen frissítve!');
+        notify.success('Ajándékkártya sikeresen frissítve!');
       } else {
         // Létrehozás
         const createData: GiftCardCreate = {
@@ -100,7 +101,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
           is_active: formData.is_active,
         };
         await createGiftCard(createData);
-        alert('Ajándékkártya sikeresen létrehozva!');
+        notify.success('Ajándékkártya sikeresen létrehozva!');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -108,7 +109,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
       console.error('Hiba az ajándékkártya mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni az ajándékkártyát!';
-      alert(errorMessage);
+      notify.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { notify } from '@/utils/notifications';
 import './AdminPage.css';
 
 interface MenuItem {
@@ -123,7 +124,7 @@ export const AdminPage = () => {
   const handleMenuClick = (item: MenuItem) => {
     // Jogosultság ellenőrzés (opcionális, a route is védett)
     if (item.permission && !hasPermission(item.permission)) {
-      alert('Nincs jogosultságod ehhez a funkcióhoz!');
+      notify.warning('Nincs jogosultságod ehhez a funkcióhoz!');
       return;
     }
     navigate(item.path);

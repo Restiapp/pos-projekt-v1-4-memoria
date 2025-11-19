@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { createAssetGroup, updateAssetGroup } from '@/services/assetService';
 import type { AssetGroup, AssetGroupCreate, AssetGroupUpdate } from '@/types/asset';
+import { notify } from '@/utils/notifications';
 import './AssetGroupEditor.css';
 
 interface AssetGroupEditorProps {
@@ -56,7 +57,7 @@ export const AssetGroupEditor = ({
 
     // Validáció
     if (!formData.name.trim()) {
-      alert('Az eszközcsoport neve kötelező!');
+      notify.warning('Az eszközcsoport neve kötelező!');
       return;
     }
 
@@ -78,7 +79,7 @@ export const AssetGroupEditor = ({
         };
 
         await updateAssetGroup(assetGroup!.id, updateData);
-        alert('Eszközcsoport sikeresen frissítve!');
+        notify.success('Eszközcsoport sikeresen frissítve!');
       } else {
         const createData: AssetGroupCreate = {
           name: formData.name.trim(),
@@ -93,14 +94,14 @@ export const AssetGroupEditor = ({
         };
 
         await createAssetGroup(createData);
-        alert('Eszközcsoport sikeresen létrehozva!');
+        notify.success('Eszközcsoport sikeresen létrehozva!');
       }
 
       onClose(true); // Bezárás + lista frissítése
     } catch (error: any) {
       console.error('Hiba az eszközcsoport mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
-      alert(`Hiba: ${errorMsg}`);
+      notify.error(`Hiba: ${errorMsg}`);
     } finally {
       setIsSubmitting(false);
     }

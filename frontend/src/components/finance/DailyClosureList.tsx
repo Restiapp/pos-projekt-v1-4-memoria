@@ -13,9 +13,13 @@ import { useState, useEffect } from 'react';
 import { getDailyClosures } from '@/services/financeService';
 import { DailyClosureEditor } from './DailyClosureEditor';
 import type { DailyClosure } from '@/types/finance';
+import { useAuthStore } from '@/stores/authStore';
+import { notify } from '@/utils/notifications';
 import './Finance.css';
 
 export const DailyClosureList = () => {
+  const { isAuthenticated } = useAuthStore();
+
   const [closures, setClosures] = useState<DailyClosure[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -35,15 +39,17 @@ export const DailyClosureList = () => {
       setClosures(data);
     } catch (error) {
       console.error('Hiba a zárások betöltésekor:', error);
-      alert('Nem sikerült betölteni a zárásokat!');
+      notify.error('Nem sikerült betölteni a zárásokat!');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchClosures();
-  }, [statusFilter]);
+    if (isAuthenticated) {
+      fetchClosures();
+    }
+  }, [isAuthenticated, statusFilter]);
 
   // Új zárás létrehozása (modal nyitás)
   const handleCreate = () => {

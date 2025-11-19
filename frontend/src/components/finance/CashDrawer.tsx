@@ -11,11 +11,15 @@
 import { useState, useEffect } from 'react';
 import { getCashBalance, cashDeposit, cashWithdraw } from '@/services/financeService';
 import type { CashDepositRequest, CashWithdrawRequest } from '@/types/finance';
+import { useAuthStore } from '@/stores/authStore';
+import { notify } from '@/utils/notifications';
 import './Finance.css';
 
 type OperationType = 'deposit' | 'withdraw';
 
 export const CashDrawer = () => {
+  const { isAuthenticated } = useAuthStore();
+
   // State
   const [balance, setBalance] = useState<number>(0);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
@@ -32,15 +36,17 @@ export const CashDrawer = () => {
       setBalance(data.balance);
     } catch (error) {
       console.error('Hiba az egyenleg betöltésekor:', error);
-      alert('Nem sikerült betölteni a pénztár egyenleget!');
+      notify.error('Nem sikerült betölteni a pénztár egyenleget!');
     } finally {
       setIsLoadingBalance(false);
     }
   };
 
   useEffect(() => {
-    fetchBalance();
-  }, []);
+    if (isAuthenticated) {
+      fetchBalance();
+    }
+  }, [isAuthenticated]);
 
   // Form submit kezelése
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +54,7 @@ export const CashDrawer = () => {
 
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      alert('Érvénytelen összeg!');
+      notify.error('Érvénytelen összeg!');
       return;
     }
 
@@ -61,14 +67,14 @@ export const CashDrawer = () => {
           description: description || undefined,
         };
         await cashDeposit(request);
-        alert('Befizetés sikeresen rögzítve!');
+        notify.success('Befizetés sikeresen rögzítve!');
       } else {
         const request: CashWithdrawRequest = {
           amount: numAmount,
           description: description || undefined,
         };
         await cashWithdraw(request);
-        alert('Kivétel sikeresen rögzítve!');
+        notify.success('Kivétel sikeresen rögzítve!');
       }
 
       // Form reset és egyenleg frissítése
@@ -77,7 +83,7 @@ export const CashDrawer = () => {
       fetchBalance();
     } catch (error: any) {
       console.error('Hiba a művelet során:', error);
-      alert(error.response?.data?.detail || 'Nem sikerült a művelet!');
+      notify.error(error.response?.data?.detail || 'Nem sikerült a művelet!');
     } finally {
       setIsSubmitting(false);
     }
