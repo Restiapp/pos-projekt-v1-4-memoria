@@ -271,6 +271,23 @@ SYSTEM_ROLES = [
         ]
     },
     {
+        "name": "Manager",
+        "display_name": "Menedzser / Vezető",
+        "description": "Vezetői hozzáférés riportokhoz, pénzügyekhez és készletkezeléshez",
+        "is_system": True,
+        "permissions": [
+            "orders:manage",
+            "menu:manage",
+            "inventory:manage",
+            "reports:manage",
+            "finance:manage",
+            "finance:view",
+            "assets:view",
+            "vehicles:view",
+            "logistics:view",
+        ]
+    },
+    {
         "name": "Pultos",
         "display_name": "Pincér / Pultos",
         "description": "Rendelések felvétele, menü megtekintése, alapvető műveletek",

@@ -167,6 +167,79 @@ async def cash_withdraw(
 
 
 @finance_router.get(
+    "/cash-drawer/movements",
+    response_model=List[CashMovementResponse],
+    summary="Készpénzmozgások listázása",
+    description="Adott időszakra vonatkozó készpénzmozgások listázása.",
+    dependencies=[Depends(require_permission("finance:view"))]
+)
+async def get_cash_movements(
+    start_date: Optional[datetime] = Query(None, description="Kezdő dátum"),
+    end_date: Optional[datetime] = Query(None, description="Záró dátum"),
+    movement_type: Optional[str] = Query(None, description="Mozgás típusa"),
+    employee_id: Optional[int] = Query(None, description="Munkatárs azonosító"),
+    limit: int = Query(100, ge=1, le=500, description="Maximum eredmények száma"),
+    offset: int = Query(0, ge=0, description="Lapozási eltolás"),
+    current_user: Employee = Depends(get_current_user),
+    service: FinanceService = Depends(get_finance_service)
+) -> List[CashMovementResponse]:
+    """
+    Készpénzmozgások listázása időszak szerint.
+
+    **Jogosultság:** `finance:view`
+
+    Args:
+        start_date: Kezdő dátum (opcionális)
+        end_date: Záró dátum (opcionális)
+        movement_type: Mozgás típusa (opcionális)
+        employee_id: Munkatárs azonosító (opcionális)
+        limit: Maximum eredmények száma
+        offset: Lapozási eltolás
+        current_user: Bejelentkezett felhasználó (dependency)
+        service: FinanceService instance (dependency)
+
+    Returns:
+        List[CashMovementResponse]: Pénzmozgások listája
+
+    Raises:
+        HTTPException 403: Ha nincs jogosultság
+    """
+    try:
+        from backend.service_admin.models.finance import CashMovementType
+
+        # Parse movement_type if provided
+        parsed_movement_type = None
+        if movement_type:
+            try:
+                parsed_movement_type = CashMovementType(movement_type)
+            except ValueError:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Érvénytelen mozgás típus: {movement_type}. "
+                           f"Érvényes értékek: {[t.value for t in CashMovementType]}"
+                )
+
+        movements = service.get_cash_movements(
+            start_date=start_date,
+            end_date=end_date,
+            movement_type=parsed_movement_type,
+            employee_id=employee_id,
+            limit=limit,
+            offset=offset
+        )
+
+        return [CashMovementResponse.model_validate(m) for m in movements]
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Hiba történt a pénzmozgások lekérdezése során: {str(e)}"
+        )
+
+
+@finance_router.get(
     "/cash-drawer/balance",
     summary="Aktuális készpénz egyenleg",
     description="Lekérdezi az aktuális készpénz egyenleget a pénztárban.",
@@ -374,6 +447,55 @@ async def list_daily_closures(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Hiba történt a zárások lekérdezése során: {str(e)}"
+        )
+
+
+@finance_router.get(
+    "/daily-closures/by-date/{date}",
+    response_model=DailyClosureResponse,
+    summary="Napi zárás lekérdezése dátum alapján",
+    description="Egy adott dátumhoz tartozó napi zárás részletes adatainak lekérdezése.",
+    dependencies=[Depends(require_permission("finance:view"))]
+)
+async def get_daily_closure_by_date(
+    date: date,
+    current_user: Employee = Depends(get_current_user),
+    service: FinanceService = Depends(get_finance_service)
+) -> DailyClosureResponse:
+    """
+    Napi zárás lekérdezése dátum alapján.
+
+    **Jogosultság:** `finance:view`
+
+    Args:
+        date: Dátum (YYYY-MM-DD formátumban)
+        current_user: Bejelentkezett felhasználó (dependency)
+        service: FinanceService instance (dependency)
+
+    Returns:
+        DailyClosureResponse: Napi zárás adatai
+
+    Raises:
+        HTTPException 404: Ha a zárás nem található
+        HTTPException 403: Ha nincs jogosultság
+    """
+    try:
+        closure = service.get_daily_closure_by_date(date)
+
+        if not closure:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Napi zárás nem található a következő dátumra: {date}"
+            )
+
+        return DailyClosureResponse.model_validate(closure)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Hiba történt a zárás lekérdezése során: {str(e)}"
         )
 
 

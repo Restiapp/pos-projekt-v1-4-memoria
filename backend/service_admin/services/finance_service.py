@@ -230,15 +230,20 @@ class FinanceService:
         self,
         opening_balance: Decimal,
         closed_by_employee_id: Optional[int] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
+        closure_date: Optional[datetime] = None
     ) -> DailyClosure:
         """
         Napi pénztárzárás létrehozása.
+
+        Automatikusan aggregálja a lezárt rendelésekből a bevételeket
+        fizetési módok szerint (KESZPENZ, KARTYA, SZEP_KARTYA).
 
         Args:
             opening_balance: Nyitó egyenleg
             closed_by_employee_id: Munkatárs aki a zárást végrehajtja
             notes: Megjegyzések
+            closure_date: Zárás dátuma (opcionális, default: most)
 
         Returns:
             DailyClosure: Létrehozott napi zárás rekord
@@ -247,7 +252,8 @@ class FinanceService:
             ValueError: Ha már van nyitott zárás a mai napra
         """
         # Ellenőrizzük hogy van-e már nyitott zárás ma
-        today = datetime.now().date()
+        target_date = closure_date or datetime.now()
+        today = target_date.date()
         existing_closure = self.db.query(DailyClosure).filter(
             and_(
                 func.date(DailyClosure.closure_date) == today,
@@ -258,10 +264,18 @@ class FinanceService:
         if existing_closure:
             raise ValueError("Már van nyitott pénztárzárás a mai napra")
 
+        # Aggregáljuk a bevételeket fizetési módok szerint
+        # FONTOS: Csak LEZART státuszú rendelésekből és SIKERES fizetésekből számolunk
+        revenue_data = self._aggregate_daily_revenue(today)
+
         closure = DailyClosure(
-            closure_date=datetime.now(),
+            closure_date=target_date,
             status=ClosureStatus.OPEN,
             opening_balance=opening_balance,
+            total_cash=revenue_data['total_cash'],
+            total_card=revenue_data['total_card'],
+            total_szep_card=revenue_data['total_szep_card'],
+            total_revenue=revenue_data['total_revenue'],
             notes=notes,
             closed_by_employee_id=closed_by_employee_id
         )
@@ -271,6 +285,73 @@ class FinanceService:
         self.db.refresh(closure)
 
         return closure
+
+    def _aggregate_daily_revenue(self, target_date: date) -> dict:
+        """
+        Aggregálja a napi bevételeket fizetési módok szerint.
+
+        Csak LEZART státuszú rendelésekből és SIKERES fizetésekből számol.
+
+        Args:
+            target_date: Cél dátum amihez a bevételeket aggregáljuk
+
+        Returns:
+            dict: Bevételek fizetési módok szerint
+                {
+                    'total_cash': Decimal,
+                    'total_card': Decimal,
+                    'total_szep_card': Decimal,
+                    'total_revenue': Decimal
+                }
+        """
+        from backend.service_orders.models.order import Order
+        from backend.service_orders.models.payment import Payment
+
+        # Lekérdezzük a mai napi LEZART rendeléseket
+        start_of_day = datetime.combine(target_date, datetime.min.time())
+        end_of_day = datetime.combine(target_date, datetime.max.time())
+
+        # Összesítjük a fizetéseket típus szerint
+        # CSAK LEZART rendelésekből és SIKERES fizetésekből
+        payment_query = self.db.query(
+            Payment.payment_method,
+            func.sum(Payment.amount).label('total')
+        ).join(
+            Order, Payment.order_id == Order.id
+        ).filter(
+            and_(
+                Order.status == 'LEZART',
+                Payment.status == 'SIKERES',
+                Order.created_at >= start_of_day,
+                Order.created_at <= end_of_day
+            )
+        ).group_by(Payment.payment_method)
+
+        payment_results = payment_query.all()
+
+        # Inicializáljuk az összegeket nullára
+        total_cash = Decimal('0.00')
+        total_card = Decimal('0.00')
+        total_szep_card = Decimal('0.00')
+
+        # Osztályozzuk a fizetéseket
+        for payment_method, total in payment_results:
+            if payment_method == 'KESZPENZ':
+                total_cash += total
+            elif payment_method == 'KARTYA':
+                total_card += total
+            elif payment_method == 'SZEP_KARTYA':
+                total_szep_card += total
+
+        # Összes bevétel
+        total_revenue = total_cash + total_card + total_szep_card
+
+        return {
+            'total_cash': total_cash,
+            'total_card': total_card,
+            'total_szep_card': total_szep_card,
+            'total_revenue': total_revenue
+        }
 
     def close_daily_closure(
         self,
@@ -380,6 +461,20 @@ class FinanceService:
         """
         return self.db.query(DailyClosure).filter(
             DailyClosure.id == closure_id
+        ).first()
+
+    def get_daily_closure_by_date(self, target_date: date) -> Optional[DailyClosure]:
+        """
+        Napi zárás lekérdezése dátum alapján.
+
+        Args:
+            target_date: Cél dátum
+
+        Returns:
+            Optional[DailyClosure]: Napi zárás vagy None
+        """
+        return self.db.query(DailyClosure).filter(
+            func.date(DailyClosure.closure_date) == target_date
         ).first()
 
     def get_current_open_closure(self) -> Optional[DailyClosure]:

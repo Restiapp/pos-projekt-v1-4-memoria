@@ -126,6 +126,12 @@ class DailyClosure(Base):
     # Eltérés (actual - expected)
     difference = Column(DECIMAL(10, 2), nullable=True)
 
+    # Bevételek fizetési módok szerint (aggregált értékek a lezárt rendelésekből)
+    total_cash = Column(DECIMAL(10, 2), nullable=True, default=0.00, comment="Készpénzes fizetések összege")
+    total_card = Column(DECIMAL(10, 2), nullable=True, default=0.00, comment="Bankkártyás fizetések összege")
+    total_szep_card = Column(DECIMAL(10, 2), nullable=True, default=0.00, comment="SZÉP kártya fizetések összege")
+    total_revenue = Column(DECIMAL(10, 2), nullable=True, default=0.00, comment="Összes bevétel")
+
     # Megjegyzések/indoklás
     notes = Column(Text, nullable=True)
 

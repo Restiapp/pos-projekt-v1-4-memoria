@@ -184,6 +184,26 @@ class DailyClosureResponse(BaseModel):
         None,
         description="Eltérés"
     )
+    total_cash: Optional[Decimal] = Field(
+        None,
+        description="Készpénzes fizetések összege",
+        examples=[50000.00, 125000.50]
+    )
+    total_card: Optional[Decimal] = Field(
+        None,
+        description="Bankkártyás fizetések összege",
+        examples=[75000.00, 200000.00]
+    )
+    total_szep_card: Optional[Decimal] = Field(
+        None,
+        description="SZÉP kártya fizetések összege",
+        examples=[25000.00, 50000.00]
+    )
+    total_revenue: Optional[Decimal] = Field(
+        None,
+        description="Összes bevétel",
+        examples=[150000.00, 375000.50]
+    )
     notes: Optional[str] = Field(
         None,
         description="Megjegyzések"
