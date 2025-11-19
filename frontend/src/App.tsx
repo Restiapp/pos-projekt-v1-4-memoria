@@ -98,7 +98,11 @@ function App() {
           {/* Nested Route: /admin/products */}
           <Route
             path="products"
-            element={<ProductList />}
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <ProductList />
+              </ProtectedRoute>
+            }
           />
 
           {/* HIGH PRIORITY FIX (H8.1): Add permission checks to nested routes */}

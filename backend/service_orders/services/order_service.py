@@ -308,9 +308,14 @@ class OrderService:
                        f"Jelenlegi státusz: {order.status}"
             )
 
+        # Idempotencia: Ha már 5%-on van, nincs teendő
+        if order.final_vat_rate == Decimal("5.00"):
+            logger.info(f"Order {order_id} ÁFA már 5%-on van, idempotens művelet.")
+            return order
+
         try:
-            # ÁFA kulcs átállítása 18%-ra (NTAK helyi felhasználás/catering)
-            order.final_vat_rate = Decimal("18.00")
+            # ÁFA kulcs átállítása 5%-ra (NTAK helyi felhasználás)
+            order.final_vat_rate = Decimal("5.00")
 
             # NTAK adatok frissítése (ha van)
             if order.ntak_data is None:
