@@ -79,6 +79,7 @@ class StockDeductionResponse(BaseModel):
 
 @internal_router.post(
     "/deduct-stock",
+    response_model=None,
     status_code=status.HTTP_200_OK,
     summary="Készlet csökkentése egy lezárt rendelés alapján",
     description="""
