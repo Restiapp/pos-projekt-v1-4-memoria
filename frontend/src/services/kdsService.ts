@@ -32,7 +32,7 @@ export const getItemsByStation = async (station: KdsStation): Promise<KdsItem[]>
 /**
  * Tétel státuszának frissítése
  * @param itemId - Tétel azonosító
- * @param status - Új státusz ('PENDING', 'PREPARING', 'READY')
+ * @param status - Új státusz ('VÁRAKOZIK', 'KÉSZÜL', 'KÉSZ', 'KISZOLGÁLVA')
  * @returns Frissített KDS tétel
  */
 export const updateItemStatus = async (
@@ -40,11 +40,9 @@ export const updateItemStatus = async (
   status: KdsStatus
 ): Promise<KdsItem> => {
   try {
-    const payload: UpdateKdsStatusRequest = { kds_status: status };
-    // CRITICAL FIX (C7.2): Add /orders prefix to match backend router
+    // Backend expects status as a query parameter, not in the body
     const response = await apiClient.patch<KdsItem>(
-      `/api/orders/items/${itemId}/kds-status`,
-      payload
+      `/api/orders/items/${itemId}/kds-status?status=${encodeURIComponent(status)}`
     );
     return response.data;
   } catch (error) {

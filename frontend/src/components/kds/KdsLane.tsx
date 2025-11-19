@@ -1,8 +1,10 @@
 /**
  * KdsLane - Egyetlen KDS állomás oszlopa
  * Megjeleníti egy állomáshoz tartozó összes tételt
+ * V2: Magyar státuszok használata
  */
 
+import { KdsStatus } from '@/types/kds';
 import type { KdsItem, KdsStation } from '@/types/kds';
 import { KdsCard } from './KdsCard';
 import './KdsLane.css';
@@ -28,10 +30,10 @@ export const KdsLane = ({ station, items, onRefresh }: KdsLaneProps) => {
     }
   };
 
-  // Tételek szűrése státusz szerint (csak aktív tételek)
-  const pendingItems = items.filter((item) => item.kds_status === 'PENDING');
-  const preparingItems = items.filter((item) => item.kds_status === 'PREPARING');
-  const readyItems = items.filter((item) => item.kds_status === 'READY');
+  // Tételek szűrése státusz szerint
+  const varakozikItems = items.filter((item) => item.kds_status === KdsStatus.VARAKOZIK);
+  const keszulItems = items.filter((item) => item.kds_status === KdsStatus.KESZUL);
+  const keszItems = items.filter((item) => item.kds_status === KdsStatus.KESZ);
 
   return (
     <div className="kds-lane">
@@ -39,9 +41,9 @@ export const KdsLane = ({ station, items, onRefresh }: KdsLaneProps) => {
       <div className="kds-lane-header">
         <h2>{getStationLabel()}</h2>
         <div className="lane-stats">
-          <span className="stat pending">{pendingItems.length} Várakozik</span>
-          <span className="stat preparing">{preparingItems.length} Készül</span>
-          <span className="stat ready">{readyItems.length} Kész</span>
+          <span className="stat pending">{varakozikItems.length} Várakozik</span>
+          <span className="stat preparing">{keszulItems.length} Készül</span>
+          <span className="stat ready">{keszItems.length} Kész</span>
         </div>
       </div>
 

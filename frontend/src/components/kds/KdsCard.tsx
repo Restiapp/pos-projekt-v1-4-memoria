@@ -1,10 +1,12 @@
 /**
  * KdsCard - Egyetlen KDS tétel kártyája
  * Megjeleníti a terméket és státuszváltó gombokat
+ * V2: Magyar státuszok (VÁRAKOZIK, KÉSZÜL, KÉSZ) és eltelt idő megjelenítés
  */
 
-import { useState } from 'react';
-import type { KdsItem, KdsStatus } from '@/types/kds';
+import { useState, useEffect } from 'react';
+import { KdsStatus } from '@/types/kds';
+import type { KdsItem } from '@/types/kds';
 import { updateItemStatus } from '@/services/kdsService';
 import './KdsCard.css';
 
@@ -15,6 +17,32 @@ interface KdsCardProps {
 
 export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState('');
+
+  // Eltelt idő számítása és frissítése
+  useEffect(() => {
+    const updateElapsedTime = () => {
+      const now = new Date();
+      const created = new Date(item.created_at);
+      const diffMs = now.getTime() - created.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+
+      if (diffMins < 1) {
+        setElapsedTime('< 1 perc');
+      } else if (diffMins < 60) {
+        setElapsedTime(`${diffMins} perc`);
+      } else {
+        const hours = Math.floor(diffMins / 60);
+        const mins = diffMins % 60;
+        setElapsedTime(`${hours}ó ${mins}p`);
+      }
+    };
+
+    updateElapsedTime();
+    const interval = setInterval(updateElapsedTime, 30000); // 30 másodpercenként frissítés
+
+    return () => clearInterval(interval);
+  }, [item.created_at]);
 
   const handleStatusChange = async (newStatus: KdsStatus) => {
     if (isUpdating) return;
@@ -36,28 +64,16 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
   // Státusz specifikus CSS osztály
   const getStatusClass = () => {
     switch (item.kds_status) {
-      case 'PENDING':
+      case KdsStatus.VARAKOZIK:
         return 'status-pending';
-      case 'PREPARING':
+      case KdsStatus.KESZUL:
         return 'status-preparing';
-      case 'READY':
+      case KdsStatus.KESZ:
         return 'status-ready';
+      case KdsStatus.KISZOLGALVA:
+        return 'status-served';
       default:
         return '';
-    }
-  };
-
-  // Státusz magyar megjelenítése
-  const getStatusLabel = () => {
-    switch (item.kds_status) {
-      case 'PENDING':
-        return 'Várakozik';
-      case 'PREPARING':
-        return 'Készül';
-      case 'READY':
-        return 'Kész';
-      default:
-        return item.kds_status;
     }
   };
 
@@ -69,10 +85,11 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
 
   return (
     <div className={`kds-card ${getStatusClass()}`}>
-      {/* Fejléc: Asztalszám + Rendelésszám */}
+      {/* Fejléc: Asztalszám + Rendelésszám + Eltelt idő */}
       <div className="kds-card-header">
         <span className="table-number">{item.table_number || 'N/A'}</span>
         <span className="order-id">#{item.order_id}</span>
+        <span className="elapsed-time">⏱️ {elapsedTime}</span>
       </div>
 
       {/* Termék neve + mennyiség */}
@@ -84,32 +101,41 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
 
       {/* Státusz + Időbélyeg */}
       <div className="kds-card-status">
-        <span className="status-label">{getStatusLabel()}</span>
+        <span className="status-label">{item.kds_status}</span>
         <span className="timestamp">{formatTime(item.created_at)}</span>
       </div>
 
       {/* Akció gombok */}
       <div className="kds-card-actions">
-        {item.kds_status === 'PENDING' && (
+        {item.kds_status === KdsStatus.VARAKOZIK && (
           <button
-            onClick={() => handleStatusChange('PREPARING')}
+            onClick={() => handleStatusChange(KdsStatus.KESZUL)}
             disabled={isUpdating}
             className="btn btn-start"
           >
             ▶️ Elkezdeni
           </button>
         )}
-        {item.kds_status === 'PREPARING' && (
+        {item.kds_status === KdsStatus.KESZUL && (
           <button
-            onClick={() => handleStatusChange('READY')}
+            onClick={() => handleStatusChange(KdsStatus.KESZ)}
             disabled={isUpdating}
             className="btn btn-complete"
           >
             ✅ Kész
           </button>
         )}
-        {item.kds_status === 'READY' && (
-          <div className="btn-placeholder">Kész! ✨</div>
+        {item.kds_status === KdsStatus.KESZ && (
+          <button
+            onClick={() => handleStatusChange(KdsStatus.KISZOLGALVA)}
+            disabled={isUpdating}
+            className="btn btn-served"
+          >
+            🍽️ Kiszolgálva
+          </button>
+        )}
+        {item.kds_status === KdsStatus.KISZOLGALVA && (
+          <div className="btn-placeholder">Kiszolgálva ✨</div>
         )}
       </div>
     </div>

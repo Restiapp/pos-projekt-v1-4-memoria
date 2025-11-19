@@ -6,11 +6,12 @@
 // KDS Állomások típusa
 export type KdsStation = 'KONYHA' | 'PIZZA' | 'PULT';
 
-// KDS Státuszok (Backend enum-nak megfelelően)
+// KDS Státuszok (Backend magyar nyelvű státuszok szerint)
 export enum KdsStatus {
-  PENDING = 'PENDING',     // Várakozik
-  PREPARING = 'PREPARING', // Készül
-  READY = 'READY',         // Kész
+  VARAKOZIK = 'VÁRAKOZIK',   // Várakozik (Waiting)
+  KESZUL = 'KÉSZÜL',         // Készül (In Progress)
+  KESZ = 'KÉSZ',             // Kész (Ready)
+  KISZOLGALVA = 'KISZOLGÁLVA' // Kiszolgálva (Served)
 }
 
 // KDS Tétel (egy rendelési tétel)
