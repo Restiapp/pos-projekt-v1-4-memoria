@@ -19,6 +19,7 @@ from .recipes import router as recipes_router
 from .daily_inventory import daily_inventory_router
 from .internal_router import internal_router
 from .osa_integration_router import osa_router
+from .incoming_invoices import router as incoming_invoices_router
 
 __all__ = [
     # Inventory Items Router (Phase 5.1)
@@ -38,4 +39,7 @@ __all__ = [
 
     # NAV OSA Integration Router (V3.0/F3.A - NAV Invoice Integration)
     "osa_router",
+
+    # Incoming Invoices Router (C1 - OSA Integration Basic)
+    "incoming_invoices_router",
 ]

@@ -219,6 +219,135 @@ class NAVOSAService:
                 "taxpayer_data": None
             }
 
+    def fetch_incoming_invoices(
+        self,
+        from_date: Optional[str] = None,
+        to_date: Optional[str] = None,
+        test_mode: bool = True
+    ) -> Dict[str, Any]:
+        """
+        MOCK: Fetch incoming invoices from NAV OSA API
+
+        This method simulates fetching supplier invoices that were reported
+        to the NAV (Hungarian Tax Authority) system by suppliers.
+
+        Args:
+            from_date: Start date for invoice query (ISO format: YYYY-MM-DD)
+            to_date: End date for invoice query (ISO format: YYYY-MM-DD)
+            test_mode: If True, use NAV test environment (currently MOCK anyway)
+
+        Returns:
+            Dict with list of incoming invoices from NAV
+
+        TODO (Fázis 4): Implement real NAV API call
+        - POST to /queryInvoiceData endpoint
+        - Generate request XML with date range and invoice direction (INBOUND)
+        - Sign request with technical user credentials
+        - Parse and validate NAV response
+        - Extract invoice data from response XML
+        - Handle NAV-specific error codes
+        """
+        logger.info(f"[MOCK NAV OSA] Fetching incoming invoices (test_mode={test_mode})")
+        logger.info(f"[MOCK NAV OSA] Date range: {from_date} to {to_date}")
+
+        # MOCK: Generate dummy incoming invoice data
+        mock_invoices = [
+            {
+                "invoice_number": f"MOCK-NAV-INV-{datetime.now().strftime('%Y%m%d')}-001",
+                "supplier_tax_number": "12345678-1-23",
+                "supplier_name": "Metro Cash & Carry Kereskedelmi Kft.",
+                "invoice_date": datetime.now().date().isoformat(),
+                "total_amount": 125000.00,
+                "currency": "HUF",
+                "line_items": [
+                    {
+                        "name": "Marhahús",
+                        "quantity": 50.0,
+                        "unit": "kg",
+                        "unit_price": 2000.00,
+                        "total_price": 100000.00
+                    },
+                    {
+                        "name": "Paradicsom",
+                        "quantity": 100.0,
+                        "unit": "kg",
+                        "unit_price": 250.00,
+                        "total_price": 25000.00
+                    }
+                ],
+                "nav_metadata": {
+                    "invoice_operation": "CREATE",
+                    "invoice_category": "NORMAL",
+                    "invoice_delivery_date": datetime.now().date().isoformat()
+                }
+            },
+            {
+                "invoice_number": f"MOCK-NAV-INV-{datetime.now().strftime('%Y%m%d')}-002",
+                "supplier_tax_number": "98765432-2-44",
+                "supplier_name": "Tesco-Global Áruházak Zrt.",
+                "invoice_date": datetime.now().date().isoformat(),
+                "total_amount": 87500.00,
+                "currency": "HUF",
+                "line_items": [
+                    {
+                        "name": "Liszt",
+                        "quantity": 500.0,
+                        "unit": "kg",
+                        "unit_price": 150.00,
+                        "total_price": 75000.00
+                    },
+                    {
+                        "name": "Cukor",
+                        "quantity": 100.0,
+                        "unit": "kg",
+                        "unit_price": 125.00,
+                        "total_price": 12500.00
+                    }
+                ],
+                "nav_metadata": {
+                    "invoice_operation": "CREATE",
+                    "invoice_category": "NORMAL",
+                    "invoice_delivery_date": datetime.now().date().isoformat()
+                }
+            },
+            {
+                "invoice_number": f"MOCK-NAV-INV-{datetime.now().strftime('%Y%m%d')}-003",
+                "supplier_tax_number": "11223344-5-66",
+                "supplier_name": "Spar Magyarország Kereskedelmi Kft.",
+                "invoice_date": datetime.now().date().isoformat(),
+                "total_amount": 45600.00,
+                "currency": "HUF",
+                "line_items": [
+                    {
+                        "name": "Tejföl",
+                        "quantity": 120.0,
+                        "unit": "liter",
+                        "unit_price": 380.00,
+                        "total_price": 45600.00
+                    }
+                ],
+                "nav_metadata": {
+                    "invoice_operation": "CREATE",
+                    "invoice_category": "NORMAL",
+                    "invoice_delivery_date": datetime.now().date().isoformat()
+                }
+            }
+        ]
+
+        logger.info(f"[MOCK NAV OSA] Generated {len(mock_invoices)} dummy invoices")
+
+        return {
+            "success": True,
+            "invoices": mock_invoices,
+            "count": len(mock_invoices),
+            "message": f"[MOCK] Successfully fetched {len(mock_invoices)} incoming invoices (simulated)",
+            "query_params": {
+                "from_date": from_date,
+                "to_date": to_date,
+                "test_mode": test_mode
+            }
+        }
+
 
 def get_nav_osa_service(db: Session = Depends(get_db)) -> NAVOSAService:
     """Dependency injection helper for NAVOSAService"""

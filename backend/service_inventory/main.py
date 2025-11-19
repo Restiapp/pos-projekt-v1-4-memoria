@@ -25,6 +25,7 @@ from backend.service_inventory.routers import (
     daily_inventory_router,
     internal_router,
     osa_router,
+    incoming_invoices_router,
 )
 
 # Create FastAPI application
@@ -116,6 +117,14 @@ app.include_router(
     osa_router,
     prefix="/api/v1/inventory",
     tags=["NAV OSA Integration"],
+    dependencies=[Depends(require_permission("inventory:manage"))]
+)
+
+# C1 - Incoming Invoices Router (NAV OSA Integration - Fetch incoming invoices)
+app.include_router(
+    incoming_invoices_router,
+    prefix="/api/v1",
+    tags=["Incoming Invoices"],
     dependencies=[Depends(require_permission("inventory:manage"))]
 )
 

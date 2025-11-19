@@ -74,6 +74,32 @@ class Settings(BaseSettings):
         description="URL of the Menu Service for inter-service communication"
     )
 
+    # NAV OSA API Configuration (Hungarian Tax Authority Online Invoice System)
+    nav_osa_username: str = Field(
+        default="mock_username",
+        description="NAV OSA technical user username for authentication"
+    )
+    nav_osa_password: str = Field(
+        default="mock_password",
+        description="NAV OSA technical user password for authentication"
+    )
+    nav_osa_tax_number: str = Field(
+        default="12345678",
+        description="Company tax number (8 digits) for NAV OSA authentication"
+    )
+    nav_osa_signature_key: str = Field(
+        default="mock_signature_key",
+        description="NAV OSA XML signature key for request signing"
+    )
+    nav_osa_exchange_key: str = Field(
+        default="mock_exchange_key",
+        description="NAV OSA AES exchange key for data encryption"
+    )
+    nav_osa_api_url: str = Field(
+        default="https://api-test.onlineszamla.nav.gov.hu/invoiceService/v3",
+        description="NAV OSA API base URL (test or production)"
+    )
+
     # Pydantic Settings Configuration
     model_config = SettingsConfigDict(
         env_file=".env",

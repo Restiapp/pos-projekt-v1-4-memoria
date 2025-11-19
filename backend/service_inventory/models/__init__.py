@@ -10,6 +10,7 @@ Importálás:
         InventoryItem,
         Recipe,
         SupplierInvoice,
+        IncomingInvoice,
         DailyInventorySheet,
         DailyInventoryCount,
         WasteLog
@@ -23,6 +24,7 @@ from backend.service_inventory.models.database import Base
 from backend.service_inventory.models.inventory_item import InventoryItem
 from backend.service_inventory.models.recipe import Recipe
 from backend.service_inventory.models.supplier_invoice import SupplierInvoice
+from backend.service_inventory.models.incoming_invoice import IncomingInvoice
 from backend.service_inventory.models.daily_inventory_sheet import (
     DailyInventorySheet,
     DailyInventoryCount,
@@ -36,6 +38,7 @@ __all__ = [
     'InventoryItem',
     'Recipe',
     'SupplierInvoice',
+    'IncomingInvoice',
     'DailyInventorySheet',
     'DailyInventoryCount',
     'daily_inventory_sheet_items',
