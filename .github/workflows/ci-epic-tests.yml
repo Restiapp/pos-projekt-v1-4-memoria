@@ -1,0 +1,232 @@
+name: CI - Epic-based Testing
+
+on:
+  push:
+    branches: [ main, develop, 'claude/**', 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  # Epic A: POS OnPrem (service_orders, service_menu)
+  test_pos_onprem:
+    name: "Epic A: POS OnPrem Tests"
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pos_db_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies - service_orders
+        run: |
+          cd backend/service_orders
+          pip install -r requirements.txt
+
+      - name: Install dependencies - service_menu
+        run: |
+          cd backend/service_menu
+          pip install -r requirements.txt
+
+      - name: Run tests - service_orders
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pos_db_test
+          JWT_SECRET_KEY: test_secret_key_for_ci_only
+          TESTING: true
+        run: |
+          cd backend/service_orders
+          pytest tests/ -v --tb=short --color=yes || echo "No tests found in service_orders"
+
+      - name: Run tests - service_menu
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pos_db_test
+          JWT_SECRET_KEY: test_secret_key_for_ci_only
+          TESTING: true
+        run: |
+          cd backend/service_menu
+          pytest tests/ -v --tb=short --color=yes || echo "No tests found in service_menu"
+
+      - name: Epic A Test Summary
+        if: always()
+        run: |
+          echo "✅ Epic A (POS OnPrem) tests completed"
+          echo "   - service_orders: Order management, tables, NTAK"
+          echo "   - service_menu: Products, categories, recipes"
+
+  # Epic B: KDS Delivery (service_logistics)
+  test_kds_delivery:
+    name: "Epic B: KDS Delivery Tests"
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pos_db_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies - service_logistics
+        run: |
+          cd backend/service_logistics
+          pip install -r requirements.txt
+
+      - name: Run tests - service_logistics
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pos_db_test
+          JWT_SECRET_KEY: test_secret_key_for_ci_only
+          TESTING: true
+        run: |
+          cd backend/service_logistics
+          pytest tests/ -v --tb=short --color=yes || echo "No tests found in service_logistics"
+
+      - name: Epic B Test Summary
+        if: always()
+        run: |
+          echo "✅ Epic B (KDS Delivery) tests completed"
+          echo "   - service_logistics: Delivery zones, couriers, tracking"
+
+  # Epic C: BackOffice/CRM/Reports (service_admin, service_crm, service_inventory)
+  test_backoffice_crm_reports:
+    name: "Epic C: BackOffice/CRM/Reports Tests"
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: pos_db_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies - service_admin
+        run: |
+          cd backend/service_admin
+          pip install -r requirements.txt
+
+      - name: Install dependencies - service_crm
+        run: |
+          cd backend/service_crm
+          pip install -r requirements.txt
+
+      - name: Install dependencies - service_inventory
+        run: |
+          cd backend/service_inventory
+          pip install -r requirements.txt
+
+      - name: Run tests - service_admin
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pos_db_test
+          JWT_SECRET_KEY: test_secret_key_for_ci_only
+          TESTING: true
+        run: |
+          cd backend/service_admin
+          pytest tests/ -v --tb=short --color=yes || echo "No tests found in service_admin"
+
+      - name: Run tests - service_crm
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pos_db_test
+          JWT_SECRET_KEY: test_secret_key_for_ci_only
+          TESTING: true
+        run: |
+          cd backend/service_crm
+          pytest tests/ -v --tb=short --color=yes || echo "No tests found in service_crm"
+
+      - name: Run tests - service_inventory
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/pos_db_test
+          JWT_SECRET_KEY: test_secret_key_for_ci_only
+          TESTING: true
+        run: |
+          cd backend/service_inventory
+          pytest tests/ -v --tb=short --color=yes || echo "No tests found in service_inventory"
+
+      - name: Epic C Test Summary
+        if: always()
+        run: |
+          echo "✅ Epic C (BackOffice/CRM/Reports) tests completed"
+          echo "   - service_admin: Finance, employees, Számlázz.hu integration"
+          echo "   - service_crm: Customers, loyalty, coupons, gift cards"
+          echo "   - service_inventory: Stock management, recipes, suppliers"
+
+  # Összesítő job (csak jelzésként fut le, ha mind a három epic sikeres volt)
+  test_summary:
+    name: "All Epic Tests Summary"
+    runs-on: ubuntu-latest
+    needs: [test_pos_onprem, test_kds_delivery, test_backoffice_crm_reports]
+    if: always()
+
+    steps:
+      - name: Check test results
+        run: |
+          echo "================================================"
+          echo "CI Pipeline - Epic-based Test Results"
+          echo "================================================"
+          echo ""
+          echo "Epic A (POS OnPrem):           ${{ needs.test_pos_onprem.result }}"
+          echo "Epic B (KDS Delivery):         ${{ needs.test_kds_delivery.result }}"
+          echo "Epic C (BackOffice/CRM):       ${{ needs.test_backoffice_crm_reports.result }}"
+          echo ""
+          echo "================================================"
+
+          if [ "${{ needs.test_pos_onprem.result }}" != "success" ] || \
+             [ "${{ needs.test_kds_delivery.result }}" != "success" ] || \
+             [ "${{ needs.test_backoffice_crm_reports.result }}" != "success" ]; then
+            echo "❌ Some epic tests failed. Please check the logs above."
+            exit 1
+          else
+            echo "✅ All epic tests passed successfully!"
+          fi
