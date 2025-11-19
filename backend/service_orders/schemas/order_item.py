@@ -10,6 +10,8 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field, ConfigDict
 
+from .discount import DiscountDetails
+
 
 class SelectedModifierSchema(BaseModel):
     """
@@ -107,6 +109,17 @@ class OrderItemBase(BaseModel):
         description="Kitchen Display System status for this item",
         examples=["VÁRAKOZIK", "KÉSZÜL", "KÉSZ", "KISZOLGÁLVA"]
     )
+    discount_details: Optional[DiscountDetails] = Field(
+        None,
+        description="Discount details applied to this order item (V3.0: Task A4)",
+        examples=[{
+            "type": "percentage",
+            "value": 10.00,
+            "reason": "Törzsvásárlói kedvezmény",
+            "applied_by_user_id": 5,
+            "applied_at": "2024-01-15T14:30:00Z"
+        }]
+    )
 
 
 class OrderItemCreate(OrderItemBase):
@@ -162,6 +175,10 @@ class OrderItemUpdate(BaseModel):
         None,
         max_length=50,
         description="KDS status"
+    )
+    discount_details: Optional[DiscountDetails] = Field(
+        None,
+        description="Discount details for this order item"
     )
 
 

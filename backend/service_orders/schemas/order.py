@@ -12,6 +12,8 @@ from typing import Optional, Dict, Any
 
 from pydantic import BaseModel, Field, ConfigDict
 
+from .discount import DiscountDetails
+
 
 class OrderTypeEnum(str, Enum):
     """Enumeration of order types for different service channels."""
@@ -81,6 +83,17 @@ class OrderBase(BaseModel):
         description="Notes for the order (V3.0)",
         examples=["Allergia: mogyoró", "Kérés: extra gyors kiszolgálás"]
     )
+    discount_details: Optional[DiscountDetails] = Field(
+        None,
+        description="Discount details applied to the entire order (V3.0: Task A4)",
+        examples=[{
+            "type": "percentage",
+            "value": 15.00,
+            "reason": "Törzsvásárlói kedvezmény",
+            "applied_by_user_id": 5,
+            "applied_at": "2024-01-15T14:30:00Z"
+        }]
+    )
 
 
 class OrderCreate(OrderBase):
@@ -127,6 +140,10 @@ class OrderUpdate(BaseModel):
     notes: Optional[str] = Field(
         None,
         description="Notes for the order"
+    )
+    discount_details: Optional[DiscountDetails] = Field(
+        None,
+        description="Discount details for the order"
     )
 
 

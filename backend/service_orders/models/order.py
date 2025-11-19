@@ -37,6 +37,7 @@ class Order(Base):
     final_vat_rate = Column(Numeric(4, 2), nullable=False, default=27.00)  # NTAK: 27.00 vagy 5.00
     ntak_data = Column(JSONB, nullable=True)  # NTAK 'Rendelésösszesítő' adatai
     notes = Column(Text, nullable=True)  # V3.0: Megjegyzések a rendeléshez
+    discount_details = Column(JSONB, nullable=True)  # V3.0 Task A4: Rendelés-szintű kedvezmények
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 

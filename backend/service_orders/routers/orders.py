@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from backend.service_orders.models.database import get_db
 from backend.service_orders.services.order_service import OrderService
 from backend.service_orders.services.payment_service import PaymentService
+from backend.service_orders.services.discount_service import DiscountService
 from backend.service_orders.schemas.order import (
     OrderCreate,
     OrderUpdate,
@@ -31,6 +32,14 @@ from backend.service_orders.schemas.payment import (
     PaymentResponse,
     SplitCheckResponse
 )
+from backend.service_orders.schemas.discount import (
+    ApplyOrderDiscountRequest,
+    OrderDiscountResponse
+)
+
+# RBAC imports
+from backend.service_admin.dependencies import get_current_user, require_permission
+from backend.service_admin.models.employee import Employee
 
 # Router létrehozása
 orders_router = APIRouter(
@@ -631,3 +640,148 @@ def change_order_type(
         new_type=request.new_order_type,
         message=f"Rendelés típusa sikeresen megváltoztatva: {previous_type} -> {request.new_order_type.value}"
     )
+
+
+# ============================================================================
+# DISCOUNT MANAGEMENT ENDPOINTS (V3.0 Task A4)
+# ============================================================================
+
+@orders_router.post(
+    "/{order_id}/apply-discount",
+    response_model=OrderDiscountResponse,
+    status_code=status.HTTP_200_OK,
+    summary="[V3.0] Apply discount to order",
+    description="""
+    **V3.0 Feature (Task A4)**: Apply a discount to an entire order.
+
+    This endpoint allows managers to apply percentage-based or fixed-amount discounts
+    to the entire order. The discount is applied after any item-level discounts.
+
+    **RBAC Requirement:**
+    - Only users with 'discounts:apply' permission (typically managers) can use this endpoint
+    - The employee ID is automatically captured from the authenticated user
+
+    **Discount Types:**
+    - `percentage`: Percentage discount (0-100%). Example: 10 = 10% off
+    - `fixed`: Fixed amount discount in HUF. Example: 500 = 500 HUF off
+
+    **Business Rules:**
+    - Order must be in NYITOTT (Open) status
+    - Discount cannot exceed the order total (automatically limited)
+    - Reason is required for audit trail
+    - Applied timestamp and user ID are automatically recorded
+
+    **Calculation Flow:**
+    1. Calculate subtotal of all items (with item-level discounts applied)
+    2. Apply order-level discount to the subtotal
+    3. Update order.total_amount with final discounted amount
+    """,
+    dependencies=[Depends(require_permission("discounts:apply"))]
+)
+def apply_order_discount(
+    order_id: int,
+    discount_request: ApplyOrderDiscountRequest,
+    db: Session = Depends(get_db),
+    current_user: Employee = Depends(get_current_user)
+) -> OrderDiscountResponse:
+    """
+    **[V3.0 TASK A4 ENDPOINT]**
+
+    Apply a discount to an entire order.
+
+    This endpoint is critical for promotional activities and customer service
+    operations. Only authorized managers can apply discounts.
+
+    Args:
+        order_id: The unique order identifier
+        discount_request: Discount details (type, value, reason)
+        db: Database session (injected)
+        current_user: Authenticated employee (injected, must have 'discounts:apply' permission)
+
+    Returns:
+        OrderDiscountResponse: Discount application result with calculation breakdown
+
+    Raises:
+        HTTPException 403: If user doesn't have 'discounts:apply' permission
+        HTTPException 404: If order is not found
+        HTTPException 400: If order is not in NYITOTT status or discount is invalid
+
+    Example request body (10% discount):
+        {
+            "discount_type": "percentage",
+            "discount_value": 10.0,
+            "reason": "Törzsvásárlói kedvezmény",
+            "coupon_code": "LOYAL10"
+        }
+
+    Example request body (500 HUF discount):
+        {
+            "discount_type": "fixed",
+            "discount_value": 500.0,
+            "reason": "Kompenzáció lassú kiszolgálás miatt"
+        }
+
+    Example success response:
+        {
+            "order_id": 42,
+            "message": "Kedvezmény sikeresen alkalmazva a rendelésre",
+            "calculation": {
+                "original_amount": 5000.00,
+                "discount_amount": 500.00,
+                "final_amount": 4500.00,
+                "discount_details": {
+                    "type": "percentage",
+                    "value": 10.0,
+                    "reason": "Törzsvásárlói kedvezmény",
+                    "applied_by_user_id": 5,
+                    "applied_at": "2024-01-15T14:30:00Z",
+                    "coupon_code": "LOYAL10"
+                }
+            },
+            "updated_total": 4500.00
+        }
+    """
+    return DiscountService.apply_order_discount(
+        db=db,
+        order_id=order_id,
+        discount_request=discount_request,
+        applied_by_user_id=current_user.id
+    )
+
+
+@orders_router.delete(
+    "/{order_id}/discount",
+    status_code=status.HTTP_200_OK,
+    summary="[V3.0] Remove discount from order",
+    description="""
+    **V3.0 Feature (Task A4)**: Remove discount from an order.
+
+    This endpoint allows managers to remove a previously applied order-level discount.
+
+    **RBAC Requirement:**
+    - Only users with 'discounts:apply' permission can use this endpoint
+    """,
+    dependencies=[Depends(require_permission("discounts:apply"))]
+)
+def remove_order_discount(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: Employee = Depends(get_current_user)
+):
+    """
+    Remove discount from an order.
+
+    Args:
+        order_id: The unique order identifier
+        db: Database session (injected)
+        current_user: Authenticated employee (injected)
+
+    Returns:
+        dict: Removal confirmation with previous discount details
+
+    Raises:
+        HTTPException 403: If user doesn't have permission
+        HTTPException 404: If order is not found
+        HTTPException 400: If no discount is applied
+    """
+    return DiscountService.remove_order_discount(db=db, order_id=order_id)

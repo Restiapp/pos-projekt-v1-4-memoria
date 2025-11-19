@@ -14,12 +14,21 @@ from sqlalchemy.orm import Session
 
 from backend.service_orders.models.database import get_db
 from backend.service_orders.services.order_item_service import OrderItemService
+from backend.service_orders.services.discount_service import DiscountService
 from backend.service_orders.schemas.order_item import (
     OrderItemCreate,
     OrderItemUpdate,
     OrderItemResponse,
     OrderItemListResponse
 )
+from backend.service_orders.schemas.discount import (
+    ApplyItemDiscountRequest,
+    ItemDiscountResponse
+)
+
+# RBAC imports
+from backend.service_admin.dependencies import get_current_user, require_permission
+from backend.service_admin.models.employee import Employee
 
 
 # Router létrehozása
@@ -471,3 +480,155 @@ def get_items_by_kds_station(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while retrieving KDS station items: {str(e)}"
         )
+
+
+# ============================================================================
+# DISCOUNT MANAGEMENT ENDPOINTS (V3.0 Task A4)
+# ============================================================================
+
+@router.post(
+    "/items/{item_id}/apply-discount",
+    response_model=ItemDiscountResponse,
+    status_code=status.HTTP_200_OK,
+    summary="[V3.0] Apply discount to order item",
+    description="""
+    **V3.0 Feature (Task A4)**: Apply a discount to a single order item.
+
+    This endpoint allows managers to apply percentage-based or fixed-amount discounts
+    to individual items within an order. Item-level discounts are applied before
+    order-level discounts.
+
+    **RBAC Requirement:**
+    - Only users with 'discounts:apply' permission (typically managers) can use this endpoint
+    - The employee ID is automatically captured from the authenticated user
+
+    **Discount Types:**
+    - `percentage`: Percentage discount (0-100%). Example: 10 = 10% off
+    - `fixed`: Fixed amount discount in HUF. Example: 500 = 500 HUF off
+
+    **Business Rules:**
+    - Order must be in NYITOTT (Open) status
+    - Discount is applied to (unit_price * quantity)
+    - Discount cannot exceed the item total (automatically limited)
+    - Reason is required for audit trail
+    - Applied timestamp and user ID are automatically recorded
+    - Order total is automatically recalculated
+
+    **Calculation Flow:**
+    1. Calculate item subtotal: unit_price * quantity
+    2. Apply item-level discount to the subtotal
+    3. Recalculate order total with all item discounts
+    4. Apply order-level discount if present
+    """,
+    dependencies=[Depends(require_permission("discounts:apply"))]
+)
+def apply_item_discount(
+    item_id: int,
+    discount_request: ApplyItemDiscountRequest,
+    db: Session = Depends(get_db),
+    current_user: Employee = Depends(get_current_user)
+) -> ItemDiscountResponse:
+    """
+    **[V3.0 TASK A4 ENDPOINT]**
+
+    Apply a discount to a single order item.
+
+    This endpoint is critical for item-specific promotions, price adjustments,
+    and customer service operations. Only authorized managers can apply discounts.
+
+    Args:
+        item_id: The unique order item identifier
+        discount_request: Discount details (type, value, reason)
+        db: Database session (injected)
+        current_user: Authenticated employee (injected, must have 'discounts:apply' permission)
+
+    Returns:
+        ItemDiscountResponse: Discount application result with calculation breakdown
+
+    Raises:
+        HTTPException 403: If user doesn't have 'discounts:apply' permission
+        HTTPException 404: If order item is not found
+        HTTPException 400: If order is not in NYITOTT status or discount is invalid
+
+    Example request body (10% discount):
+        {
+            "discount_type": "percentage",
+            "discount_value": 10.0,
+            "reason": "Hibás készítés",
+            "coupon_code": null
+        }
+
+    Example request body (500 HUF discount):
+        {
+            "discount_type": "fixed",
+            "discount_value": 500.0,
+            "reason": "Kompenzáció"
+        }
+
+    Example success response:
+        {
+            "item_id": 123,
+            "order_id": 42,
+            "message": "Kedvezmény sikeresen alkalmazva a tételre",
+            "calculation": {
+                "original_amount": 1200.00,
+                "discount_amount": 120.00,
+                "final_amount": 1080.00,
+                "discount_details": {
+                    "type": "percentage",
+                    "value": 10.0,
+                    "reason": "Hibás készítés",
+                    "applied_by_user_id": 5,
+                    "applied_at": "2024-01-15T14:30:00Z",
+                    "coupon_code": null
+                }
+            },
+            "updated_item_total": 1080.00,
+            "updated_order_total": 5380.00
+        }
+    """
+    return DiscountService.apply_item_discount(
+        db=db,
+        item_id=item_id,
+        discount_request=discount_request,
+        applied_by_user_id=current_user.id
+    )
+
+
+@router.delete(
+    "/items/{item_id}/discount",
+    status_code=status.HTTP_200_OK,
+    summary="[V3.0] Remove discount from order item",
+    description="""
+    **V3.0 Feature (Task A4)**: Remove discount from an order item.
+
+    This endpoint allows managers to remove a previously applied item-level discount.
+    The order total is automatically recalculated.
+
+    **RBAC Requirement:**
+    - Only users with 'discounts:apply' permission can use this endpoint
+    """,
+    dependencies=[Depends(require_permission("discounts:apply"))]
+)
+def remove_item_discount(
+    item_id: int,
+    db: Session = Depends(get_db),
+    current_user: Employee = Depends(get_current_user)
+):
+    """
+    Remove discount from an order item.
+
+    Args:
+        item_id: The unique order item identifier
+        db: Database session (injected)
+        current_user: Authenticated employee (injected)
+
+    Returns:
+        dict: Removal confirmation with previous discount details
+
+    Raises:
+        HTTPException 403: If user doesn't have permission
+        HTTPException 404: If order item is not found
+        HTTPException 400: If no discount is applied
+    """
+    return DiscountService.remove_item_discount(db=db, item_id=item_id)

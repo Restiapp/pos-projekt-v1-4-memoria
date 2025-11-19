@@ -72,6 +72,19 @@ from .payment import (
     SplitCheckResponse,
 )
 
+# Discount schemas (V3.0 Task A4)
+from .discount import (
+    DiscountTypeEnum,
+    DiscountDetails,
+    ApplyDiscountRequest,
+    ApplyOrderDiscountRequest,
+    ApplyItemDiscountRequest,
+    DiscountCalculationResult,
+    OrderDiscountResponse,
+    ItemDiscountResponse,
+    RemoveDiscountResponse,
+)
+
 __all__ = [
     # Table
     "TableBase",
@@ -110,4 +123,14 @@ __all__ = [
     "PaymentResponse",
     "SplitCheckItemSchema",
     "SplitCheckResponse",
+    # Discount
+    "DiscountTypeEnum",
+    "DiscountDetails",
+    "ApplyDiscountRequest",
+    "ApplyOrderDiscountRequest",
+    "ApplyItemDiscountRequest",
+    "DiscountCalculationResult",
+    "OrderDiscountResponse",
+    "ItemDiscountResponse",
+    "RemoveDiscountResponse",
 ]

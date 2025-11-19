@@ -18,6 +18,7 @@ from backend.service_orders.services.seat_service import SeatService, seat_servi
 from backend.service_orders.services.order_service import OrderService
 from backend.service_orders.services.order_item_service import OrderItemService
 from backend.service_orders.services.payment_service import PaymentService
+from backend.service_orders.services.discount_service import DiscountService
 
 __all__ = [
     # Table Service
@@ -36,4 +37,7 @@ __all__ = [
 
     # Payment Service (Module 4, Phase 4.6-4.8)
     'PaymentService',
+
+    # Discount Service (V3.0 Task A4)
+    'DiscountService',
 ]
