@@ -7,13 +7,52 @@ FastAPI dependency injection-höz használható get_db függvény.
 """
 
 import os
-from sqlalchemy import create_engine
+import json
+from sqlalchemy import create_engine, Text, TypeDecorator
 from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from sqlalchemy.pool import NullPool
-from typing import Generator
+from sqlalchemy.dialects.postgresql import JSONB
+from typing import Generator, Any
 
 # Declarative Base - Minden modellhez
 Base = declarative_base()
+
+
+class CompatibleJSON(TypeDecorator):
+    """
+    Cross-database compatible JSON type.
+
+    Uses JSONB for PostgreSQL (native JSON support with indexing)
+    and TEXT for SQLite (stores JSON as text string).
+
+    This allows tests to run on SQLite while production uses PostgreSQL.
+    """
+    impl = Text
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(JSONB())
+        else:
+            return dialect.type_descriptor(Text())
+
+    def process_bind_param(self, value: Any, dialect) -> str:
+        if value is None:
+            return value
+        if dialect.name == 'postgresql':
+            return value
+        else:
+            # For SQLite, serialize to JSON string
+            return json.dumps(value)
+
+    def process_result_value(self, value: Any, dialect) -> Any:
+        if value is None:
+            return value
+        if dialect.name == 'postgresql':
+            return value
+        else:
+            # For SQLite, deserialize from JSON string
+            return json.loads(value)
 
 # Database URL configuration
 # Környezeti változóból vagy default PostgreSQL URL

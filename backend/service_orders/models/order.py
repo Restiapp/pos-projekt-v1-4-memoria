@@ -7,11 +7,10 @@ A rendelések táblája, amely tartalmazza a rendelés típusát, státuszát,
 """
 
 from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, TIMESTAMP, Text
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
-from backend.service_orders.models.database import Base
+from backend.service_orders.models.database import Base, CompatibleJSON
 
 
 class Order(Base):
@@ -35,7 +34,7 @@ class Order(Base):
     customer_id = Column(Integer, index=True, nullable=True)  # V3.0: Ügyfél hivatkozás
     total_amount = Column(Numeric(10, 2), nullable=True)
     final_vat_rate = Column(Numeric(4, 2), nullable=False, default=27.00)  # NTAK: 27.00 vagy 5.00
-    ntak_data = Column(JSONB, nullable=True)  # NTAK 'Rendelésösszesítő' adatai
+    ntak_data = Column(CompatibleJSON, nullable=True)  # NTAK 'Rendelésösszesítő' adatai
     notes = Column(Text, nullable=True)  # V3.0: Megjegyzések a rendeléshez
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())

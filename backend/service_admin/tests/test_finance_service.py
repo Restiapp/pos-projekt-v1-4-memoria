@@ -14,7 +14,8 @@ from datetime import datetime, date, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 
-from backend.service_admin.models.database import Base
+from backend.service_admin.models.database import Base as AdminBase
+from backend.service_orders.models.database import Base as OrdersBase
 from backend.service_admin.models.finance import (
     CashMovement,
     CashMovementType,
@@ -35,13 +36,14 @@ from backend.service_orders.models.payment import Payment
 def db_session():
     """
     Creates an in-memory SQLite database for testing.
-    Each test gets a fresh database.
+    Each test gets a fresh database with both service_admin and service_orders tables.
     """
     # Create in-memory SQLite database
     engine = create_engine("sqlite:///:memory:")
 
-    # Create all tables
-    Base.metadata.create_all(bind=engine)
+    # Create all tables from both Base instances
+    AdminBase.metadata.create_all(bind=engine)
+    OrdersBase.metadata.create_all(bind=engine)
 
     # Create session
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -51,7 +53,8 @@ def db_session():
 
     # Cleanup
     session.close()
-    Base.metadata.drop_all(bind=engine)
+    AdminBase.metadata.drop_all(bind=engine)
+    OrdersBase.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")
