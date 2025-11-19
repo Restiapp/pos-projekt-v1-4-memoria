@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { createTable, updateTable } from '@/services/tableService';
 import type { Table, TableCreate, TableUpdate } from '@/types/table';
+import { notify } from '@/utils/notifications';
 import './TableEditor.css';
 
 interface TableEditorProps {
@@ -54,7 +55,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
 
     // Validáció
     if (!formData.table_number.trim()) {
-      alert('Az asztalszám kötelező!');
+      notify.warning('Az asztalszám kötelező!');
       return;
     }
 
@@ -70,7 +71,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
           capacity: formData.capacity === '' ? null : Number(formData.capacity),
         };
         await updateTable(table.id, updateData);
-        alert('Asztal sikeresen frissítve!');
+        notify.success('Asztal sikeresen frissítve!');
       } else {
         // Létrehozás
         const createData: TableCreate = {
@@ -80,7 +81,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
           capacity: formData.capacity === '' ? null : Number(formData.capacity),
         };
         await createTable(createData);
-        alert('Asztal sikeresen létrehozva!');
+        notify.success('Asztal sikeresen létrehozva!');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -88,7 +89,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
       console.error('Hiba az asztal mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni az asztalt!';
-      alert(errorMessage);
+      notify.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import { createEmployee, updateEmployee } from '@/services/employeeService';
 import type { Employee, Role, EmployeeCreate, EmployeeUpdate } from '@/types/employee';
+import { notify } from '@/utils/notifications';
 import './EmployeeEditor.css';
 
 interface EmployeeEditorProps {
@@ -71,35 +72,35 @@ export const EmployeeEditor = ({
 
     // Validáció
     if (!formData.full_name.trim()) {
-      alert('A teljes név kötelező!');
+      notify.warning('A teljes név kötelező!');
       return;
     }
 
     if (!formData.username.trim()) {
-      alert('A felhasználónév kötelező!');
+      notify.warning('A felhasználónév kötelező!');
       return;
     }
 
     if (!formData.email.trim()) {
-      alert('Az email cím kötelező!');
+      notify.warning('Az email cím kötelező!');
       return;
     }
 
     // Email formátum validáció (egyszerű)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Érvénytelen email formátum!');
+      notify.warning('Érvénytelen email formátum!');
       return;
     }
 
     // Jelszó validáció (csak új munkatársnál kötelező)
     if (!isEditing && !formData.password) {
-      alert('A jelszó (PIN kód) kötelező új munkatársnál!');
+      notify.warning('A jelszó (PIN kód) kötelező új munkatársnál!');
       return;
     }
 
     if (formData.password && formData.password.length < 4) {
-      alert('A jelszó (PIN kód) legalább 4 karakter hosszú legyen!');
+      notify.warning('A jelszó (PIN kód) legalább 4 karakter hosszú legyen!');
       return;
     }
 
@@ -122,7 +123,7 @@ export const EmployeeEditor = ({
         }
 
         await updateEmployee(employee.id, updateData);
-        alert('Munkatárs sikeresen frissítve!');
+        notify.success('Munkatárs sikeresen frissítve!');
       } else {
         // Létrehozás
         const createData: EmployeeCreate = {
@@ -135,7 +136,7 @@ export const EmployeeEditor = ({
         };
 
         await createEmployee(createData);
-        alert('Munkatárs sikeresen létrehozva!');
+        notify.success('Munkatárs sikeresen létrehozva!');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -143,7 +144,7 @@ export const EmployeeEditor = ({
       console.error('Hiba a munkatárs mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a munkatársat!';
-      alert(errorMessage);
+      notify.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

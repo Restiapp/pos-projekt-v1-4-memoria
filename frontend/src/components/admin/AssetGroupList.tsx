@@ -14,9 +14,12 @@ import { useState, useEffect } from 'react';
 import { getAssetGroups, deleteAssetGroup } from '@/services/assetService';
 import { AssetGroupEditor } from './AssetGroupEditor';
 import type { AssetGroup } from '@/types/asset';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './AssetGroupList.css';
 
 export const AssetGroupList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [assetGroups, setAssetGroups] = useState<AssetGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,7 +42,7 @@ export const AssetGroupList = () => {
       setAssetGroups(data);
     } catch (error) {
       console.error('Hiba az eszközcsoportok betöltésekor:', error);
-      alert('Nem sikerült betölteni az eszközcsoportokat!');
+      notify.error('Nem sikerült betölteni az eszközcsoportokat!');
     } finally {
       setIsLoading(false);
     }
@@ -47,8 +50,10 @@ export const AssetGroupList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchAssetGroups();
-  }, [showOnlyActive]);
+    if (isAuthenticated) {
+      fetchAssetGroups();
+    }
+  }, [showOnlyActive, isAuthenticated]);
 
   // Új eszközcsoport létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -72,11 +77,11 @@ export const AssetGroupList = () => {
 
     try {
       await deleteAssetGroup(group.id);
-      alert('Eszközcsoport sikeresen törölve!');
+      notify.success('Eszközcsoport sikeresen törölve!');
       fetchAssetGroups(); // Lista frissítése
     } catch (error) {
       console.error('Hiba az eszközcsoport törlésekor:', error);
-      alert('Nem sikerült törölni az eszközcsoportot!');
+      notify.error('Nem sikerült törölni az eszközcsoportot!');
     }
   };
 

@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import { createAsset, updateAsset } from '@/services/assetService';
 import type { Asset, AssetGroup, AssetCreate, AssetUpdate } from '@/types/asset';
+import { notify } from '@/utils/notifications';
 import './AssetEditor.css';
 
 interface AssetEditorProps {
@@ -68,12 +69,12 @@ export const AssetEditor = ({
 
     // Validáció
     if (!formData.name.trim()) {
-      alert('Az eszköz neve kötelező!');
+      notify.warning('Az eszköz neve kötelező!');
       return;
     }
 
     if (!formData.asset_group_id) {
-      alert('Az eszközcsoport választása kötelező!');
+      notify.warning('Az eszközcsoport választása kötelező!');
       return;
     }
 
@@ -105,7 +106,7 @@ export const AssetEditor = ({
         };
 
         await updateAsset(asset!.id, updateData);
-        alert('Eszköz sikeresen frissítve!');
+        notify.success('Eszköz sikeresen frissítve!');
       } else {
         const createData: AssetCreate = {
           asset_group_id: parseInt(formData.asset_group_id),
@@ -131,14 +132,14 @@ export const AssetEditor = ({
         };
 
         await createAsset(createData);
-        alert('Eszköz sikeresen létrehozva!');
+        notify.success('Eszköz sikeresen létrehozva!');
       }
 
       onClose(true);
     } catch (error: any) {
       console.error('Hiba az eszköz mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
-      alert(`Hiba: ${errorMsg}`);
+      notify.error(`Hiba: ${errorMsg}`);
     } finally {
       setIsSubmitting(false);
     }

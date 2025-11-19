@@ -15,9 +15,12 @@ import { useState, useEffect } from 'react';
 import { getVehicles, deleteVehicle } from '@/services/vehicleService';
 import { VehicleEditor } from './VehicleEditor';
 import type { Vehicle } from '@/types/vehicle';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './VehicleList.css';
 
 export const VehicleList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,7 +51,7 @@ export const VehicleList = () => {
       setVehicles(data);
     } catch (error) {
       console.error('Hiba a járművek betöltésekor:', error);
-      alert('Nem sikerült betölteni a járműveket!');
+      notify.error('Nem sikerült betölteni a járműveket!');
     } finally {
       setIsLoading(false);
     }
@@ -56,8 +59,10 @@ export const VehicleList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchVehicles();
-  }, [selectedStatus, selectedFuelType, showOnlyActive]);
+    if (isAuthenticated) {
+      fetchVehicles();
+    }
+  }, [selectedStatus, selectedFuelType, showOnlyActive, isAuthenticated]);
 
   // Új jármű létrehozása
   const handleCreate = () => {
@@ -81,11 +86,11 @@ export const VehicleList = () => {
 
     try {
       await deleteVehicle(vehicle.id);
-      alert('Jármű sikeresen törölve!');
+      notify.success('Jármű sikeresen törölve!');
       fetchVehicles();
     } catch (error) {
       console.error('Hiba a jármű törlésekor:', error);
-      alert('Nem sikerült törölni a járművet!');
+      notify.error('Nem sikerült törölni a járművet!');
     }
   };
 

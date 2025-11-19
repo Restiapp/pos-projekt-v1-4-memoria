@@ -22,6 +22,8 @@ import {
   closeOrder,
   getPaymentsForOrder,
 } from '@/services/paymentService';
+import { useAuthStore } from '@/stores/authStore';
+import { notify } from '@/utils/notifications';
 import './PaymentModal.css';
 
 interface PaymentModalProps {
@@ -35,6 +37,8 @@ export const PaymentModal = ({
   onClose,
   onPaymentSuccess,
 }: PaymentModalProps) => {
+  const { isAuthenticated } = useAuthStore();
+
   const [splitCheck, setSplitCheck] = useState<SplitCheckResponse | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,14 +64,16 @@ export const PaymentModal = ({
         setPayments(paymentsData);
       } catch (error) {
         console.error('Error loading payment data:', error);
-        alert('Hiba történt az adatok betöltése közben!');
+        notify.error('Hiba történt az adatok betöltése közben!');
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, [order.id]);
+    if (isAuthenticated) {
+      fetchData();
+    }
+  }, [isAuthenticated, order.id]);
 
   // Fizetés rögzítése
   const handlePayment = async (method: PaymentMethod, amount: number) => {
@@ -80,12 +86,12 @@ export const PaymentModal = ({
         amount,
       });
       setPayments((prev) => [...prev, payment]);
-      alert(`Fizetés rögzítve: ${amount} HUF (${method})`);
+      notify.success(`Fizetés rögzítve: ${amount} HUF (${method})`);
     } catch (error: any) {
       console.error('Payment recording failed:', error);
       const errorMsg =
         error.response?.data?.detail || 'Hiba történt a fizetés rögzítése közben!';
-      alert(errorMsg);
+      notify.error(errorMsg);
     } finally {
       setIsProcessing(false);
     }
@@ -95,7 +101,7 @@ export const PaymentModal = ({
   const handleCloseOrder = async () => {
     if (isProcessing) return;
     if (!isFullyPaid) {
-      alert('A rendelés még nincs teljesen kifizetve!');
+      notify.warning('A rendelés még nincs teljesen kifizetve!');
       return;
     }
 
@@ -107,14 +113,14 @@ export const PaymentModal = ({
     try {
       setIsProcessing(true);
       await closeOrder(order.id);
-      alert('Rendelés sikeresen lezárva!');
+      notify.success('Rendelés sikeresen lezárva!');
       onPaymentSuccess();
       onClose();
     } catch (error: any) {
       console.error('Order close failed:', error);
       const errorMsg =
         error.response?.data?.detail || 'Hiba történt a rendelés lezárása közben!';
-      alert(errorMsg);
+      notify.error(errorMsg);
     } finally {
       setIsProcessing(false);
     }

@@ -18,9 +18,12 @@ import {
 } from '@/services/assetService';
 import { AssetServiceEditor } from './AssetServiceEditor';
 import type { AssetService, Asset } from '@/types/asset';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './AssetServiceList.css';
 
 export const AssetServiceList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [services, setServices] = useState<AssetService[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +63,7 @@ export const AssetServiceList = () => {
       setServices(data);
     } catch (error) {
       console.error('Hiba a szerviz bejegyzések betöltésekor:', error);
-      alert('Nem sikerült betölteni a szerviz bejegyzéseket!');
+      notify.error('Nem sikerült betölteni a szerviz bejegyzéseket!');
     } finally {
       setIsLoading(false);
     }
@@ -68,12 +71,16 @@ export const AssetServiceList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchAssets();
-  }, []);
+    if (isAuthenticated) {
+      fetchAssets();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchServices();
-  }, [selectedAssetId, selectedServiceType]);
+    if (isAuthenticated) {
+      fetchServices();
+    }
+  }, [selectedAssetId, selectedServiceType, isAuthenticated]);
 
   // Új szerviz bejegyzés létrehozása
   const handleCreate = () => {
@@ -98,11 +105,11 @@ export const AssetServiceList = () => {
 
     try {
       await deleteAssetService(service.id);
-      alert('Szerviz bejegyzés sikeresen törölve!');
+      notify.success('Szerviz bejegyzés sikeresen törölve!');
       fetchServices();
     } catch (error) {
       console.error('Hiba a szerviz bejegyzés törlésekor:', error);
-      alert('Nem sikerült törölni a szerviz bejegyzést!');
+      notify.error('Nem sikerült törölni a szerviz bejegyzést!');
     }
   };
 

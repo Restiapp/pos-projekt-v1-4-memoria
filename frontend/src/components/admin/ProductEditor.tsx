@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react';
 import { createProduct, updateProduct } from '@/services/menuService';
 import type { Product, Category, ProductCreate, ProductUpdate } from '@/types/menu';
+import { notify } from '@/utils/notifications';
 import './ProductEditor.css';
 
 interface ProductEditorProps {
@@ -77,12 +78,12 @@ export const ProductEditor = ({
 
     // Validáció
     if (!formData.name.trim()) {
-      alert('A termék neve kötelező!');
+      notify.warning('A termék neve kötelező!');
       return;
     }
 
     if (formData.base_price < 0) {
-      alert('Az ár nem lehet negatív!');
+      notify.warning('Az ár nem lehet negatív!');
       return;
     }
 
@@ -100,7 +101,7 @@ export const ProductEditor = ({
           is_active: formData.is_active,
         };
         await updateProduct(product.id, updateData);
-        alert('Termék sikeresen frissítve!');
+        notify.success('Termék sikeresen frissítve!');
       } else {
         // Létrehozás
         const createData: ProductCreate = {
@@ -112,7 +113,7 @@ export const ProductEditor = ({
           is_active: formData.is_active,
         };
         await createProduct(createData);
-        alert('Termék sikeresen létrehozva!');
+        notify.success('Termék sikeresen létrehozva!');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -120,7 +121,7 @@ export const ProductEditor = ({
       console.error('Hiba a termék mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a terméket!';
-      alert(errorMessage);
+      notify.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

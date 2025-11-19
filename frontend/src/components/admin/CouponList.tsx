@@ -15,9 +15,12 @@ import { getCoupons, deleteCoupon } from '@/services/crmService';
 import { CouponEditor } from './CouponEditor';
 import type { Coupon } from '@/types/coupon';
 import { DiscountTypeEnum } from '@/types/coupon';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './CouponList.css';
 
 export const CouponList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -44,7 +47,7 @@ export const CouponList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a kuponok betöltésekor:', error);
-      alert('Nem sikerült betölteni a kuponokat!');
+      notify.error('Nem sikerült betölteni a kuponokat!');
     } finally {
       setIsLoading(false);
     }
@@ -52,8 +55,10 @@ export const CouponList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchCoupons();
-  }, [page, showOnlyActive]);
+    if (isAuthenticated) {
+      fetchCoupons();
+    }
+  }, [page, showOnlyActive, isAuthenticated]);
 
   // Új kupon létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -77,11 +82,11 @@ export const CouponList = () => {
 
     try {
       await deleteCoupon(coupon.id);
-      alert('Kupon sikeresen törölve!');
+      notify.success('Kupon sikeresen törölve!');
       fetchCoupons(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a kupon törlésekor:', error);
-      alert('Nem sikerült törölni a kupont!');
+      notify.error('Nem sikerült törölni a kupont!');
     }
   };
 

@@ -7,9 +7,13 @@ import { useState, useEffect } from 'react';
 import { getTables } from '@/services/tableService';
 import { TableIcon } from './TableIcon';
 import type { Table } from '@/types/table';
+import { useAuthStore } from '@/stores/authStore';
+import { notify } from '@/utils/notifications';
 import './TableMap.css';
 
 export const TableMap = () => {
+  const { isAuthenticated } = useAuthStore();
+
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,14 +34,16 @@ export const TableMap = () => {
       }
     };
 
-    fetchTables();
-  }, []);
+    if (isAuthenticated) {
+      fetchTables();
+    }
+  }, [isAuthenticated]);
 
   // Asztal kattintás kezelése
   const handleTableClick = (table: Table) => {
     console.log('Asztal kiválasztva:', table);
     // TODO: Navigáció a rendelés oldalra vagy részletek megjelenítése
-    alert(`Asztal: ${table.table_number} (ID: ${table.id})`);
+    notify.info(`Asztal: ${table.table_number} (ID: ${table.id})`);
   };
 
   if (loading) {

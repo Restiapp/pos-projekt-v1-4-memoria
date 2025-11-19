@@ -14,9 +14,12 @@ import { useState, useEffect } from 'react';
 import { getGiftCards, deleteGiftCard } from '@/services/crmService';
 import { GiftCardEditor } from './GiftCardEditor';
 import type { GiftCard } from '@/types/giftCard';
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './GiftCardList.css';
 
 export const GiftCardList = () => {
+  const { isAuthenticated } = useAuthStore();
   const [giftCards, setGiftCards] = useState<GiftCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -43,7 +46,7 @@ export const GiftCardList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba az ajándékkártyák betöltésekor:', error);
-      alert('Nem sikerült betölteni az ajándékkártyákat!');
+      notify.error('Nem sikerült betölteni az ajándékkártyákat!');
     } finally {
       setIsLoading(false);
     }
@@ -51,8 +54,10 @@ export const GiftCardList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchGiftCards();
-  }, [page, showOnlyActive]);
+    if (isAuthenticated) {
+      fetchGiftCards();
+    }
+  }, [page, showOnlyActive, isAuthenticated]);
 
   // Új ajándékkártya létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -76,11 +81,11 @@ export const GiftCardList = () => {
 
     try {
       await deleteGiftCard(giftCard.id);
-      alert('Ajándékkártya sikeresen törölve!');
+      notify.success('Ajándékkártya sikeresen törölve!');
       fetchGiftCards(); // Lista frissítése
     } catch (error) {
       console.error('Hiba az ajándékkártya törlésekor:', error);
-      alert('Nem sikerült törölni az ajándékkártyát!');
+      notify.error('Nem sikerült törölni az ajándékkártyát!');
     }
   };
 
