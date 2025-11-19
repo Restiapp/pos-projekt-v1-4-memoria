@@ -1,0 +1,307 @@
+/**
+ * CourierList stílusok
+ */
+
+.courier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1600px;
+}
+
+/* =====================================================
+   FEJLÉC
+   ===================================================== */
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.list-header h2 {
+  font-size: 24px;
+  margin: 0;
+  color: #333;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #666;
+  cursor: pointer;
+}
+
+.filter-checkbox input[type='checkbox'] {
+  cursor: pointer;
+}
+
+.refresh-btn,
+.create-btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #e0e0e0;
+}
+
+.refresh-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.create-btn {
+  background: #4a90e2;
+  color: white;
+}
+
+.create-btn:hover {
+  background: #357abd;
+}
+
+/* =====================================================
+   TÁBLÁZAT
+   ===================================================== */
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.couriers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.couriers-table thead {
+  background: #f8f9fa;
+}
+
+.couriers-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.couriers-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  font-size: 14px;
+}
+
+.couriers-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.courier-id {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.date-text {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Státusz badge-ek */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.status-available {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.status-on-delivery {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.status-offline {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.status-break {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+/* Aktív badge */
+.active-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.active-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.active-badge.inactive {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Státusz select */
+.status-select {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.status-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: transform 0.2s, opacity 0.2s;
+}
+
+.edit-btn {
+  background: #fff3cd;
+}
+
+.edit-btn:hover {
+  transform: scale(1.1);
+}
+
+.delete-btn {
+  background: #f8d7da;
+}
+
+.delete-btn:hover {
+  transform: scale(1.1);
+}
+
+/* =====================================================
+   ÁLLAPOTOK
+   ===================================================== */
+
+.loading-state,
+.empty-state {
+  padding: 48px;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+}
+
+/* =====================================================
+   LAPOZÁS
+   ===================================================== */
+
+.list-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-btn {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}

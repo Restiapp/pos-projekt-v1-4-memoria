@@ -133,11 +133,7 @@ export const PaymentModal = ({
         amount: remainingAmount,
       });
       setPayments((prev) => [...prev, payment]);
-<<<<<<< HEAD
-      alert(`Fizetés rögzítve: ${remainingAmount.toFixed(2)} HUF (${method})`);
-=======
-      notify.success(`Fizetés rögzítve: ${amount} HUF (${method})`);
->>>>>>> origin/claude/fix-alert-popups-01DoqcMZnPzPADz1FcQk2gix
+      notify.success(`Fizetés rögzítve: ${remainingAmount.toFixed(2)} HUF (${method})`);
     } catch (error: any) {
       console.error('Payment recording failed:', error);
       const errorMsg =

@@ -224,3 +224,21 @@ export const updateCourierStatus = async (
   );
   return response.data;
 };
+
+/**
+ * POST /api/logistics/couriers/{id}/assign-order - Rendelés hozzárendelése futárhoz
+ * Proxy Target: http://localhost:8006/api/v1/couriers/{id}/assign-order
+ */
+export const assignCourierToOrder = async (
+  courierId: number,
+  orderId: number
+): Promise<{ message: string; courier: Courier }> => {
+  const response = await apiClient.post<{ message: string; courier: Courier }>(
+    `/api/logistics/couriers/${courierId}/assign-order`,
+    null,
+    {
+      params: { order_id: orderId },
+    }
+  );
+  return response.data;
+};
