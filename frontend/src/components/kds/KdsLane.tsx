@@ -28,10 +28,11 @@ export const KdsLane = ({ station, items, onRefresh }: KdsLaneProps) => {
     }
   };
 
-  // Tételek szűrése státusz szerint (csak aktív tételek)
-  const pendingItems = items.filter((item) => item.kds_status === 'PENDING');
-  const preparingItems = items.filter((item) => item.kds_status === 'PREPARING');
-  const readyItems = items.filter((item) => item.kds_status === 'READY');
+  // Tételek szűrése státusz szerint (csak aktív tételek, SERVED kiszűrve)
+  const activeItems = items.filter((item) => item.kds_status !== 'SERVED');
+  const pendingItems = activeItems.filter((item) => item.kds_status === 'PENDING');
+  const preparingItems = activeItems.filter((item) => item.kds_status === 'PREPARING');
+  const readyItems = activeItems.filter((item) => item.kds_status === 'READY');
 
   return (
     <div className="kds-lane">
@@ -45,14 +46,14 @@ export const KdsLane = ({ station, items, onRefresh }: KdsLaneProps) => {
         </div>
       </div>
 
-      {/* Tételek listája */}
+      {/* Tételek listája (csak aktív tételek, SERVED kiszűrve) */}
       <div className="kds-lane-content">
-        {items.length === 0 ? (
+        {activeItems.length === 0 ? (
           <div className="empty-state">
             <p>✨ Nincs aktív tétel</p>
           </div>
         ) : (
-          items.map((item) => (
+          activeItems.map((item) => (
             <KdsCard key={item.id} item={item} onStatusChange={onRefresh} />
           ))
         )}

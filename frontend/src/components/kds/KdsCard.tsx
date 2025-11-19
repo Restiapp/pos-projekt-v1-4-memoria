@@ -42,6 +42,8 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
         return 'status-preparing';
       case 'READY':
         return 'status-ready';
+      case 'SERVED':
+        return 'status-served';
       default:
         return '';
     }
@@ -56,6 +58,8 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
         return 'Készül';
       case 'READY':
         return 'Kész';
+      case 'SERVED':
+        return 'Kiszolgálva';
       default:
         return item.kds_status;
     }
@@ -109,7 +113,16 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
           </button>
         )}
         {item.kds_status === 'READY' && (
-          <div className="btn-placeholder">Kész! ✨</div>
+          <button
+            onClick={() => handleStatusChange('SERVED')}
+            disabled={isUpdating}
+            className="btn btn-serve"
+          >
+            🍽️ Kiszolgálva
+          </button>
+        )}
+        {item.kds_status === 'SERVED' && (
+          <div className="btn-placeholder">Kiszolgálva! ✨</div>
         )}
       </div>
     </div>
