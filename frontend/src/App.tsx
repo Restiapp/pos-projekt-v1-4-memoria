@@ -32,6 +32,9 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
+// ÚJ IMPORT - Rendelésfelvétel UI
+import { OrderPage } from '@/pages/OrderPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -62,6 +65,16 @@ function App() {
           element={
             <ProtectedRoute>
               <TableMapPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ÚJ ROUTE: Rendelésfelvétel */}
+        <Route
+          path="/orders/new"
+          element={
+            <ProtectedRoute>
+              <OrderPage />
             </ProtectedRoute>
           }
         />

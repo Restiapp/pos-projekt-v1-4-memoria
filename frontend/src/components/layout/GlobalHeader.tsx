@@ -19,7 +19,7 @@ import './GlobalHeader.css';
 
 interface GlobalHeaderProps {
   /** Jelenlegi oldal azonosítója (highlighting) */
-  currentPage?: 'tables' | 'kds' | 'operator' | 'admin';
+  currentPage?: 'tables' | 'kds' | 'operator' | 'admin' | 'orders';
 }
 
 interface NavItem {
@@ -37,6 +37,13 @@ const NAV_ITEMS: NavItem[] = [
     icon: '🍽️',
     path: '/tables',
     description: 'Pincér módusz - Asztalok kezelése',
+  },
+  {
+    id: 'orders',
+    label: 'Rendelés',
+    icon: '📝',
+    path: '/orders/new',
+    description: 'Új rendelés felvétele',
   },
   {
     id: 'kds',
@@ -72,6 +79,7 @@ export const GlobalHeader = ({ currentPage }: GlobalHeaderProps) => {
 
     const path = location.pathname;
     if (path.startsWith('/tables')) return 'tables';
+    if (path.startsWith('/orders')) return 'orders';
     if (path.startsWith('/kds')) return 'kds';
     if (path.startsWith('/operator')) return 'operator';
     if (path.startsWith('/admin')) return 'admin';
