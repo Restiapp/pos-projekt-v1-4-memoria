@@ -42,6 +42,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/finance/, '/api/v1/finance')
       },
+      // ÚJ: Integrations API (Admin Service) - Számlázz.hu
+      '/api/integrations': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/integrations/, '/api/v1/integrations')
+      },
       // ÚJ: Assets API (Admin Service) - FÁZIS 3.3
       '/api/assets': {
         target: 'http://localhost:8008',
