@@ -9,11 +9,13 @@ import logging
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from sqlalchemy.orm import Session
+from fastapi import Depends
 import httpx
 
 from backend.service_inventory.services.recipe_service import RecipeService
 from backend.service_inventory.services.inventory_service import InventoryService
 from backend.service_inventory.config import settings
+from backend.service_inventory.models.database import get_db
 
 logger = logging.getLogger(__name__)
 
@@ -298,6 +300,6 @@ class StockDeductionService:
         }
 
 
-def get_stock_deduction_service(db: Session) -> StockDeductionService:
+def get_stock_deduction_service(db: Session = Depends(get_db)) -> StockDeductionService:
     """Dependency injection helper for StockDeductionService"""
     return StockDeductionService(db)
