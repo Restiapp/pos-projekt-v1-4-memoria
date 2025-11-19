@@ -36,6 +36,17 @@ class TableBase(BaseModel):
         description="Maximum seating capacity of the table",
         examples=[2, 4, 6, 8]
     )
+    section: Optional[str] = Field(
+        None,
+        max_length=100,
+        description="Section/area where the table is located",
+        examples=["Terasz", "Belső terem", "VIP"]
+    )
+    parent_table_id: Optional[int] = Field(
+        None,
+        description="Parent table ID if this table is merged with another",
+        examples=[1, 5, None]
+    )
 
 
 class TableCreate(TableBase):
@@ -64,6 +75,15 @@ class TableUpdate(BaseModel):
         None,
         ge=1,
         description="Table seating capacity"
+    )
+    section: Optional[str] = Field(
+        None,
+        max_length=100,
+        description="Section/area where the table is located"
+    )
+    parent_table_id: Optional[int] = Field(
+        None,
+        description="Parent table ID if this table is merged with another"
     )
 
 
@@ -136,4 +156,15 @@ class TableMergeRequest(BaseModel):
         min_length=1,
         description="List of secondary table IDs to merge into the primary table",
         examples=[[2, 3], [10, 11, 12]]
+    )
+
+
+class TableSplitRequest(BaseModel):
+    """Schema for splitting/unmerging tables (V3.0 - Phase 1)."""
+
+    table_ids: list[int] = Field(
+        ...,
+        min_length=1,
+        description="List of table IDs to split (unmerge) by setting parent_table_id to NULL",
+        examples=[[2, 3], [10]]
     )

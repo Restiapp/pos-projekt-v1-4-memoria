@@ -19,6 +19,7 @@ from backend.service_orders.schemas.table import (
     TableListResponse,
     TableMoveRequest,
     TableMergeRequest,
+    TableSplitRequest,
 )
 
 # APIRouter létrehozása
@@ -84,11 +85,14 @@ def create_table(
     status_code=status.HTTP_200_OK,
     summary="Asztalok listázása",
     description="""
-    Asztalok lekérdezése lapozással.
+    Asztalok lekérdezése lapozással és szűréssel.
 
     **Lapozási paraméterek:**
     - page: Oldal száma (1-től kezdődik)
     - page_size: Oldalméret (max 100)
+
+    **Szűrési paraméterek:**
+    - section: Opcionális szekció szűrő (pl. 'Terasz', 'Belső terem')
 
     **Visszatérési értékek:**
     - 200: Asztal lista sikeresen lekérdezve
@@ -99,14 +103,16 @@ def create_table(
 def get_tables(
     page: int = Query(1, ge=1, description="Oldal száma (1-től kezdődik)"),
     page_size: int = Query(20, ge=1, le=100, description="Oldalméret (max 100)"),
+    section: Optional[str] = Query(None, description="Szekció szűrő (opcionális)"),
     db: Session = Depends(get_db),
 ) -> TableListResponse:
     """
-    Asztalok listázása lapozással.
+    Asztalok listázása lapozással és szűréssel.
 
     Args:
         page: Oldal száma (1-től kezdődik)
         page_size: Oldalméret
+        section: Szekció szűrő (opcionális)
         db: Database session (dependency injection)
 
     Returns:
@@ -115,7 +121,7 @@ def get_tables(
     # Számítsuk ki a skip értéket a page alapján
     skip = (page - 1) * page_size
 
-    tables, total = TableService.list_tables(db=db, skip=skip, limit=page_size)
+    tables, total = TableService.list_tables(db=db, skip=skip, limit=page_size, section=section)
 
     return TableListResponse(
         items=[TableResponse.model_validate(t) for t in tables],
@@ -475,6 +481,61 @@ def merge_tables(
             secondary_table_ids=merge_request.secondary_table_ids
         )
         return TableResponse.model_validate(primary_table)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+
+
+@router.post(
+    "/split",
+    response_model=list[TableResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Asztalok szétválasztása",
+    description="""
+    Asztalok szétválasztása/összevonás visszavonása (V3.0 - Fázis 1).
+
+    **Használati esetek:**
+    - Korábban összevont asztalok szétválasztása
+    - Asztalok függetlenítése (parent_table_id NULL-ra állítása)
+    - Asztal konfiguráció visszaállítása
+
+    **Üzleti szabályok:**
+    - Minden megadott asztalnak léteznie kell
+    - A parent_table_id NULL-ra lesz állítva az összes megadott asztalnál
+
+    **Visszatérési értékek:**
+    - 200: Asztalok sikeresen szétválasztva
+    - 404: Egyik asztal nem található
+    - 400: Hibás szétválasztási kérés
+    """,
+    response_description="Szétválasztott asztalok adatai",
+)
+def split_tables(
+    split_request: TableSplitRequest,
+    db: Session = Depends(get_db),
+) -> list[TableResponse]:
+    """
+    Asztalok szétválasztása.
+
+    Args:
+        split_request: Szétválasztási kérés adatai (table IDs)
+        db: Database session (dependency injection)
+
+    Returns:
+        list[TableResponse]: Szétválasztott asztalok adatai
+
+    Raises:
+        HTTPException 404: Ha valamelyik asztal nem található
+        HTTPException 400: Ha a szétválasztási kérés hibás
+    """
+    try:
+        split_tables_result = TableService.split_tables(
+            db=db,
+            table_ids=split_request.table_ids
+        )
+        return [TableResponse.model_validate(t) for t in split_tables_result]
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
