@@ -5,6 +5,7 @@ This module defines the request and response schemas for order item operations
 in the Service Orders module (Module 1), including selected modifiers for each item.
 """
 
+from datetime import datetime
 from decimal import Decimal
 from typing import Optional, List
 
@@ -107,6 +108,11 @@ class OrderItemBase(BaseModel):
         description="Kitchen Display System status for this item",
         examples=["VÁRAKOZIK", "KÉSZÜL", "KÉSZ", "KISZOLGÁLVA"]
     )
+    promised_time: Optional[datetime] = Field(
+        None,
+        description="Estimated time when the item will be ready (KDS feature)",
+        examples=["2025-11-19T14:30:00", "2025-11-19T15:45:00"]
+    )
 
 
 class OrderItemCreate(OrderItemBase):
@@ -162,6 +168,10 @@ class OrderItemUpdate(BaseModel):
         None,
         max_length=50,
         description="KDS status"
+    )
+    promised_time: Optional[datetime] = Field(
+        None,
+        description="Estimated time when the item will be ready"
     )
 
 

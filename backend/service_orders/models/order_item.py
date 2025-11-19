@@ -6,7 +6,8 @@ A rendeléstételek táblája, amely tartalmazza a rendeléshez tartozó
 termékeket, mennyiségeket, árakat és a kiválasztott módosítókat.
 """
 
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text, DateTime
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
@@ -40,6 +41,7 @@ class OrderItem(Base):
     discount_details = Column(JSONB, nullable=True)  # V3.0: Kedvezmény részletek {'type': 'percentage', 'value': 10}
     kds_station = Column(String(50), nullable=True)  # 'Konyha', 'Pizza', 'Pult'
     kds_status = Column(String(50), nullable=False, default='VÁRAKOZIK')  # 'VÁRAKOZIK', 'KÉSZÜL', 'KÉSZ'
+    promised_time = Column(DateTime, nullable=True)  # V3.0: KDS - Estimated time when item will be ready
 
     # Relationships
     order = relationship('Order', back_populates='order_items')
