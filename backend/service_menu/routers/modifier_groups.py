@@ -34,7 +34,7 @@ from backend.service_menu.schemas.modifier import (
 # ============================================================================
 
 router = APIRouter(
-    prefix="/api/v1",
+    prefix="/modifier-groups",
     tags=["Modifier Groups & Modifiers"],
     responses={
         404: {"description": "Resource not found"},
