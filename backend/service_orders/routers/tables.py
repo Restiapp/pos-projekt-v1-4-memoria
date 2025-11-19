@@ -70,7 +70,7 @@ def create_table(
     """
     try:
         table = TableService.create_table(db=db, table_data=table_data)
-        return table
+        return TableResponse.model_validate(table)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -118,7 +118,7 @@ def get_tables(
     tables, total = TableService.list_tables(db=db, skip=skip, limit=page_size)
 
     return TableListResponse(
-        items=tables,
+        items=[TableResponse.model_validate(t) for t in tables],
         total=total,
         page=page,
         page_size=page_size
@@ -167,7 +167,7 @@ def get_table_by_number(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Asztal '{table_number}' nem található"
         )
-    return table
+    return TableResponse.model_validate(table)
 
 
 @router.get(
@@ -201,7 +201,8 @@ def get_tables_by_capacity(
     Returns:
         list[TableResponse]: Asztalok listája
     """
-    return TableService.get_tables_with_capacity(db=db, min_capacity=min_capacity)
+    tables = TableService.get_tables_with_capacity(db=db, min_capacity=min_capacity)
+    return [TableResponse.model_validate(t) for t in tables]
 
 
 @router.get(
@@ -246,7 +247,7 @@ def get_table(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Asztal (ID: {table_id}) nem található"
         )
-    return table
+    return TableResponse.model_validate(table)
 
 
 @router.put(
@@ -300,7 +301,7 @@ def update_table(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Asztal (ID: {table_id}) nem található"
             )
-        return table
+        return TableResponse.model_validate(table)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -415,7 +416,7 @@ def move_table(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Asztal (ID: {table_id}) nem található"
             )
-        return table
+        return TableResponse.model_validate(table)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -473,7 +474,7 @@ def merge_tables(
             primary_table_id=merge_request.primary_table_id,
             secondary_table_ids=merge_request.secondary_table_ids
         )
-        return primary_table
+        return TableResponse.model_validate(primary_table)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
