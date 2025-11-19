@@ -116,7 +116,7 @@ def create_product(
             translation_service=translation_service
         )
 
-        return product
+        return ProductResponse.model_validate(product)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -197,7 +197,7 @@ def get_products(
         page = (skip // limit) + 1 if limit > 0 else 1
 
         return ProductListResponse(
-            items=products,
+            items=[ProductResponse.model_validate(prod) for prod in products],
             total=total,
             page=page,
             page_size=limit
@@ -251,7 +251,7 @@ def get_product(
             detail=f"Product with ID {product_id} not found"
         )
 
-    return product
+    return ProductResponse.model_validate(product)
 
 
 @router.put(
@@ -331,7 +331,7 @@ def update_product(
                 translation_service=translation_service
             )
 
-        return product
+        return ProductResponse.model_validate(product)
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

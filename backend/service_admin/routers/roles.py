@@ -96,7 +96,7 @@ def create_role(
     """
     try:
         role = service.create_role(role_data)
-        return role
+        return RoleResponse.model_validate(role)
     except HTTPException:
         # Re-raise HTTPException from service
         raise
@@ -176,7 +176,7 @@ def get_roles(
         page = (skip // limit) + 1 if limit > 0 else 1
 
         return RoleListResponse(
-            items=roles,
+            items=[RoleResponse.model_validate(role) for role in roles],
             total=total,
             page=page,
             page_size=limit
@@ -229,7 +229,7 @@ def get_role(
     """
     try:
         role = service.get_role(role_id)
-        return role
+        return RoleWithPermissionsResponse.model_validate(role)
     except HTTPException:
         # Re-raise HTTPException from service
         raise
@@ -294,7 +294,7 @@ def update_role(
     """
     try:
         role = service.update_role(role_id, role_data)
-        return role
+        return RoleResponse.model_validate(role)
     except HTTPException:
         # Re-raise HTTPException from service
         raise
