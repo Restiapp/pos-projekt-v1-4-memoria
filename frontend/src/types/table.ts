@@ -3,12 +3,20 @@
  * Backend API sémáknak megfelelően
  */
 
+// Asztal státuszok
+export type TableStatus = 'free' | 'occupied' | 'payment' | 'cleaning';
+
+// Terem szekciók
+export type TableSection = 'Terasz' | 'Galéria' | 'Kert';
+
 export interface Table {
   id: number;
   table_number: string;
   position_x: number | null;
   position_y: number | null;
   capacity: number | null;
+  section?: TableSection; // Terem szekció
+  status?: TableStatus;    // Asztal állapot
 }
 
 export interface Seat {
