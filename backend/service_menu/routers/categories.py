@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from backend.service_menu.database import get_db_connection
+from backend.service_menu.models import Category
 from backend.service_menu.services.category_service import CategoryService
 from backend.service_menu.schemas import (
     CategoryCreate,
@@ -111,11 +112,30 @@ def get_categories(
     Returns:
         CategoryListResponse: Kategória lista metaadatokkal (total, page, page_size)
     """
-    return CategoryService.get_categories(
-        db=db,
-        skip=skip,
-        limit=limit,
-        parent_id=parent_id,
+    # Build query
+    query = db.query(Category)
+
+    # Szűrés parent_id alapján
+    if parent_id is not None:
+        if parent_id == 0:
+            # Root kategóriák (nincs szülő)
+            query = query.filter(Category.parent_id.is_(None))
+        else:
+            # Adott parent alatt lévő kategóriák
+            query = query.filter(Category.parent_id == parent_id)
+
+    # Összes elem száma a szűrés után
+    total = query.count()
+
+    # Lapozás és lekérdezés
+    categories = query.offset(skip).limit(limit).all()
+
+    # Explicit Pydantic konverzió a router szinten
+    return CategoryListResponse(
+        items=[CategoryResponse.model_validate(cat) for cat in categories],
+        total=total,
+        page=(skip // limit) + 1 if limit > 0 else 1,
+        page_size=limit
     )
 
 
