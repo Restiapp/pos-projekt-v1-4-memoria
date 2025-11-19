@@ -7,8 +7,22 @@ in the Service Orders module (Module 1), including selected modifiers for each i
 
 from decimal import Decimal
 from typing import Optional, List
+from enum import Enum
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
+
+
+class CourseType(str, Enum):
+    """
+    Enum for valid course types.
+
+    Defines the allowed values for the 'course' field in order items.
+    """
+    STARTER = "starter"
+    MAIN = "main"
+    DESSERT = "dessert"
+    DRINK = "drink"
+    OTHER = "other"
 
 
 class SelectedModifierSchema(BaseModel):
@@ -84,11 +98,10 @@ class OrderItemBase(BaseModel):
             }
         ]]
     )
-    course: Optional[str] = Field(
+    course: Optional[CourseType] = Field(
         None,
-        max_length=50,
-        description="Course type (V3.0: e.g., 'Előétel', 'Főétel', 'Desszert')",
-        examples=["Előétel", "Főétel", "Desszert", "Levesek"]
+        description="Course type (V3.0: starter, main, dessert, drink, other)",
+        examples=["starter", "main", "dessert", "drink"]
     )
     notes: Optional[str] = Field(
         None,
@@ -144,10 +157,9 @@ class OrderItemUpdate(BaseModel):
         None,
         description="Selected modifiers list"
     )
-    course: Optional[str] = Field(
+    course: Optional[CourseType] = Field(
         None,
-        max_length=50,
-        description="Course type"
+        description="Course type (starter, main, dessert, drink, other)"
     )
     notes: Optional[str] = Field(
         None,

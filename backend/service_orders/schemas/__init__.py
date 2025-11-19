@@ -54,6 +54,7 @@ from .order import (
 
 # Order item schemas
 from .order_item import (
+    CourseType,
     SelectedModifierSchema,
     OrderItemBase,
     OrderItemCreate,
@@ -97,6 +98,7 @@ __all__ = [
     "OrderResponse",
     "OrderListResponse",
     # OrderItem
+    "CourseType",
     "SelectedModifierSchema",
     "OrderItemBase",
     "OrderItemCreate",

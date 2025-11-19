@@ -70,7 +70,7 @@ class OrderItemService:
                 quantity=order_item_data.quantity,
                 unit_price=order_item_data.unit_price,
                 selected_modifiers=selected_modifiers_dict,
-                course=order_item_data.course,
+                course=order_item_data.course.value if order_item_data.course else None,
                 notes=order_item_data.notes,
                 kds_station=order_item_data.kds_station,
                 kds_status=order_item_data.kds_status or 'VÁRAKOZIK'
@@ -181,6 +181,10 @@ class OrderItemService:
                 update_dict['selected_modifiers'] = [
                     modifier.model_dump() for modifier in update_data.selected_modifiers
                 ]
+
+            # Course enum konvertálása string formátumra (ha van)
+            if 'course' in update_dict and update_dict['course'] is not None:
+                update_dict['course'] = update_data.course.value
 
             # Mezők frissítése
             for field, value in update_dict.items():
