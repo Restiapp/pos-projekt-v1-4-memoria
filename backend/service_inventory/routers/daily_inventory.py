@@ -226,7 +226,7 @@ def update_daily_inventory_sheet(
 
 @sheet_router.delete(
     "/{sheet_id}",
-    response_model=dict,
+    response_model=None,
     status_code=status.HTTP_200_OK,
     summary="Leltárív törlése",
     description="""
@@ -463,7 +463,7 @@ def update_daily_inventory_count(
 
 @count_router.delete(
     "/{count_id}",
-    response_model=dict,
+    response_model=None,
     status_code=status.HTTP_200_OK,
     summary="Leltárszámlálás törlése",
     description="""

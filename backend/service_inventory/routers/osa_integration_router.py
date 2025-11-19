@@ -147,6 +147,7 @@ def send_invoice_to_nav(
 
 @osa_router.get(
     "/invoice-status/{transaction_id}",
+    response_model=None,
     summary="NAV számla státusz lekérdezése",
     description="""
     **MOCK IMPLEMENTATION** - Query invoice processing status from NAV.
@@ -201,6 +202,7 @@ def query_invoice_status(
 
 @osa_router.post(
     "/validate-tax-number/{tax_number}",
+    response_model=None,
     summary="Adószám ellenőrzése NAV-on keresztül",
     description="""
     **MOCK IMPLEMENTATION** - Validate Hungarian tax number via NAV API.

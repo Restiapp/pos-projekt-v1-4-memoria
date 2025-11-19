@@ -183,6 +183,7 @@ def update_inventory_item(
 
 @router.delete(
     "/{item_id}",
+    response_model=None,
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete inventory item",
     description="Delete an inventory item by its ID"
