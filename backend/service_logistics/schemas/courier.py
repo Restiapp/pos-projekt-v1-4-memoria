@@ -41,6 +41,20 @@ class CourierBase(BaseModel):
         description="Current status of the courier",
         examples=["available", "on_delivery", "offline", "break"]
     )
+    current_location_lat: Optional[float] = Field(
+        None,
+        ge=-90.0,
+        le=90.0,
+        description="Current latitude of the courier's location",
+        examples=[47.4979, 47.5012]
+    )
+    current_location_lng: Optional[float] = Field(
+        None,
+        ge=-180.0,
+        le=180.0,
+        description="Current longitude of the courier's location",
+        examples=[19.0402, 19.0512]
+    )
     is_active: bool = Field(
         default=True,
         description="Whether this courier is active in the system"
@@ -74,6 +88,18 @@ class CourierUpdate(BaseModel):
     status: Optional[CourierStatus] = Field(
         None,
         description="Courier status"
+    )
+    current_location_lat: Optional[float] = Field(
+        None,
+        ge=-90.0,
+        le=90.0,
+        description="Current latitude of the courier's location"
+    )
+    current_location_lng: Optional[float] = Field(
+        None,
+        ge=-180.0,
+        le=180.0,
+        description="Current longitude of the courier's location"
     )
     is_active: Optional[bool] = Field(
         None,
@@ -130,4 +156,29 @@ class CourierListResponse(BaseModel):
         le=100,
         description="Number of items per page",
         examples=[20]
+    )
+
+
+class AssignOrderRequest(BaseModel):
+    """Schema for assigning an order to a courier."""
+
+    order_id: int = Field(
+        ...,
+        gt=0,
+        description="Order ID to assign to the courier",
+        examples=[123, 456, 789]
+    )
+
+
+class AssignOrderResponse(BaseModel):
+    """Schema for assign-order response."""
+
+    courier: CourierResponse = Field(
+        ...,
+        description="Updated courier data"
+    )
+    message: str = Field(
+        ...,
+        description="Success message",
+        examples=["Order 123 successfully assigned to courier 'Kovács János'"]
     )
