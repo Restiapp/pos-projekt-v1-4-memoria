@@ -18,13 +18,27 @@ export const TableMap = () => {
   useEffect(() => {
     const fetchTables = async () => {
       try {
+        console.log('[TableMap] Fetching tables...');
         setLoading(true);
         const data = await getTables();
+        console.log('[TableMap] ✅ Tables loaded:', data.length, 'tables');
         setTables(data);
         setError(null);
-      } catch (err) {
-        console.error('Failed to fetch tables:', err);
-        setError('Nem sikerült betölteni az asztalokat. Kérjük, próbálja újra.');
+      } catch (err: any) {
+        console.error('[TableMap] ❌ Failed to fetch tables:', err);
+        let errorMessage = 'Nem sikerült betölteni az asztalokat.';
+
+        if (err.response?.status === 401) {
+          errorMessage = '❌ Nincs bejelentkezve. Kérjük jelentkezzen be újra.';
+        } else if (err.response?.status === 403) {
+          errorMessage = '❌ Nincs jogosultsága az asztalok megtekintéséhez. Szükséges jogosultság: orders:manage';
+        } else if (err.response?.data?.detail) {
+          errorMessage = `❌ ${err.response.data.detail}`;
+        } else if (err.message) {
+          errorMessage = `❌ ${err.message}`;
+        }
+
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }

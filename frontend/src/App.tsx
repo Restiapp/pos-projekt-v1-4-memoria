@@ -33,12 +33,14 @@ import { AssetsPage } from '@/pages/AssetsPage';
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
 function App() {
-  const { loadUserFromStorage } = useAuth();
+  const { loadUserFromStorage, isAuthenticated, user } = useAuth();
 
   // Komponens mount-kor: storage-ból betöltjük a user-t (ha van)
   useEffect(() => {
+    console.log('[App] Initializing auth from storage...');
     loadUserFromStorage();
-  }, [loadUserFromStorage]);
+    console.log('[App] Auth initialized:', { isAuthenticated, user: user?.username });
+  }, []); // Remove loadUserFromStorage from deps to avoid re-runs
 
   return (
     <BrowserRouter>
