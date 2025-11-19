@@ -260,21 +260,224 @@
   font-size: 0.85rem;
 }
 
+/* NTAK Badge */
+.ntak-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-left: 10px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.ntak-badge.ntak-green {
+  background: #4caf50;
+}
+
+.ntak-badge.ntak-blue {
+  background: #2196f3;
+}
+
+.ntak-badge.ntak-orange {
+  background: #ff9800;
+}
+
+.ntak-badge.ntak-gray {
+  background: #757575;
+}
+
+/* Section Header (használható több helyen) */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.toggle-btn {
+  padding: 8px 16px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.toggle-btn:hover:not(:disabled) {
+  background: #5568d3;
+}
+
+.toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Discount Section */
+.discount-section {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f9fafb;
+}
+
+.discount-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-top: 15px;
+}
+
+.form-row {
+  margin-bottom: 15px;
+}
+
+.form-row label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.discount-type-select,
+.discount-input,
+.payment-method-select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.discount-type-select:focus,
+.discount-input:focus,
+.payment-method-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.apply-discount-btn {
+  width: 100%;
+  padding: 12px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+
+.apply-discount-btn:hover:not(:disabled) {
+  background: #45a049;
+}
+
+.apply-discount-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Split Payment Section */
+.split-payment-section {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.split-payment-form {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  margin-top: 15px;
+}
+
+.split-payment-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.split-payment-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.split-payment-btn {
+  width: 100%;
+  padding: 12px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 10px;
+}
+
+.split-payment-btn:hover:not(:disabled) {
+  background: #1976d2;
+}
+
+.split-payment-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Footer */
 .payment-modal-footer {
   padding: 20px;
-  text-align: center;
+  display: flex;
+  gap: 12px;
 }
 
+.invoice-btn,
 .close-order-btn {
-  width: 100%;
+  flex: 1;
   padding: 15px;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s;
+}
+
+.invoice-btn.enabled {
+  background: #ff9800;
+  color: white;
+}
+
+.invoice-btn.enabled:hover {
+  background: #f57c00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.4);
+}
+
+.invoice-btn.disabled {
+  background: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
 }
 
 .close-order-btn.enabled {
@@ -292,4 +495,24 @@
   background: #e0e0e0;
   color: #999;
   cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .payment-modal {
+    max-width: 95%;
+  }
+
+  .payment-methods-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .payment-modal-footer {
+    flex-direction: column;
+  }
+
+  .invoice-btn,
+  .close-order-btn {
+    width: 100%;
+  }
 }
