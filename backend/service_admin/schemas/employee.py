@@ -19,7 +19,7 @@ class EmployeeBase(BaseModel):
         ...,
         min_length=3,
         max_length=50,
-        pattern="^[a-zA-Z0-9_\\-]+$",
+        pattern=r"^[a-zA-Z0-9_\-]+$",
         description="Unique username for login",
         examples=["jkovacs", "mnagy", "admin"]
     )
@@ -66,7 +66,7 @@ class EmployeeUpdate(BaseModel):
         None,
         min_length=3,
         max_length=50,
-        pattern="^[a-zA-Z0-9_\\-]+$",
+        pattern=r"^[a-zA-Z0-9_\-]+$",
         description="Unique username for login"
     )
     email: Optional[EmailStr] = Field(
