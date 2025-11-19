@@ -7,10 +7,10 @@ termékeket, mennyiségeket, árakat és a kiválasztott módosítókat.
 """
 
 from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from backend.service_orders.models.database import Base
+from backend.service_orders.models.order import CompatibleJSON
 
 
 class OrderItem(Base):
@@ -34,10 +34,10 @@ class OrderItem(Base):
     seat_id = Column(Integer, ForeignKey('seats.id'), nullable=True)
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)
-    selected_modifiers = Column(JSONB, nullable=True)  # [{'group_name': 'Zsemle', 'modifier_name': 'Szezamos', 'price': 0.00}]
+    selected_modifiers = Column(CompatibleJSON, nullable=True)  # [{'group_name': 'Zsemle', 'modifier_name': 'Szezamos', 'price': 0.00}] (JSONB in PostgreSQL, JSON in SQLite)
     course = Column(String(50), nullable=True)  # V3.0: Fogás (pl. 'Előétel', 'Főétel', 'Desszert')
     notes = Column(Text, nullable=True)  # V3.0: Tétel szintű megjegyzések
-    discount_details = Column(JSONB, nullable=True)  # V3.0: Kedvezmény részletek {'type': 'percentage', 'value': 10}
+    discount_details = Column(CompatibleJSON, nullable=True)  # V3.0: Kedvezmény részletek {'type': 'percentage', 'value': 10} (JSONB in PostgreSQL, JSON in SQLite)
     kds_station = Column(String(50), nullable=True)  # 'Konyha', 'Pizza', 'Pult'
     kds_status = Column(String(50), nullable=False, default='VÁRAKOZIK')  # 'VÁRAKOZIK', 'KÉSZÜL', 'KÉSZ'
 

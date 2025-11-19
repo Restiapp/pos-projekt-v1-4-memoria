@@ -6,12 +6,29 @@ A rendelések táblája, amely tartalmazza a rendelés típusát, státuszát,
 összegét, ÁFA kulcsát és NTAK adatokat.
 """
 
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, TIMESTAMP, Text
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, TIMESTAMP, Text, JSON, TypeDecorator
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from backend.service_orders.models.database import Base
+
+
+class CompatibleJSON(TypeDecorator):
+    """
+    Custom JSON type that uses JSONB for PostgreSQL and JSON for other databases (e.g., SQLite).
+
+    This ensures compatibility with in-memory SQLite databases used in unit tests
+    while maintaining JSONB performance benefits in production PostgreSQL.
+    """
+    impl = JSON
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(JSONB())
+        else:
+            return dialect.type_descriptor(JSON())
 
 
 class Order(Base):
@@ -38,7 +55,7 @@ class Order(Base):
     guest_count = Column(Integer, nullable=True)  # V3.0: Vendégek száma
     total_amount = Column(Numeric(10, 2), nullable=True)
     final_vat_rate = Column(Numeric(4, 2), nullable=False, default=27.00)  # NTAK: 27.00 vagy 5.00
-    ntak_data = Column(JSONB, nullable=True)  # NTAK 'Rendelésösszesítő' adatai
+    ntak_data = Column(CompatibleJSON, nullable=True)  # NTAK 'Rendelésösszesítő' adatai (JSONB in PostgreSQL, JSON in SQLite)
     notes = Column(Text, nullable=True)  # V3.0: Megjegyzések a rendeléshez
     created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
