@@ -1,5 +1,6 @@
 /**
  * TableIcon stílusok
+ * Frissítve: 4 státusz támogatás (free, occupied, payment, cleaning)
  */
 
 .table-icon {
@@ -9,43 +10,111 @@
   justify-content: center;
   width: 120px;
   height: 120px;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  border: 2px solid transparent;
 }
 
 .table-icon:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
+.table-icon:focus {
+  outline: 2px solid #2196f3;
+  outline-offset: 2px;
+}
+
+/* Státusz színek */
+.table-icon.status-free {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+}
+
+.table-icon.status-occupied {
+  background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+  color: white;
+}
+
+.table-icon.status-payment {
+  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+  color: white;
+}
+
+.table-icon.status-cleaning {
+  background: linear-gradient(135deg, #9e9e9e 0%, #bdbdbd 100%);
+  color: white;
+}
+
+/* Visszafelé kompatibilitás a régi osztályokkal */
 .table-icon.available {
-  background-color: #4caf50; /* Zöld */
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
   color: white;
 }
 
 .table-icon.occupied {
-  background-color: #f44336; /* Piros */
+  background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
   color: white;
 }
 
 .table-number {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
   margin-bottom: 8px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .table-info {
   font-size: 14px;
   margin-bottom: 4px;
+  opacity: 0.95;
 }
 
 .table-status {
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   opacity: 0.9;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
 .capacity {
   display: inline-block;
+}
+
+/* Reszponzív dizájn */
+@media (max-width: 768px) {
+  .table-icon {
+    width: 100px;
+    height: 100px;
+  }
+
+  .table-number {
+    font-size: 22px;
+  }
+
+  .table-info {
+    font-size: 12px;
+  }
+
+  .table-status {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-icon {
+    width: 90px;
+    height: 90px;
+  }
+
+  .table-number {
+    font-size: 20px;
+  }
 }

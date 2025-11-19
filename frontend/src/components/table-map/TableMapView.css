@@ -1,0 +1,310 @@
+/**
+ * TableMapView stílusok
+ * Task A9: Vendégtér UI (Asztaltérkép)
+ */
+
+.table-map-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #f5f5f5;
+}
+
+/* ===== FEJLÉC ===== */
+.map-header {
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.map-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 0 16px 0;
+  color: #333;
+}
+
+/* ===== SZEKCIÓ FÜLEK ===== */
+.section-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.section-tab {
+  padding: 10px 24px;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: #555;
+  transition: all 0.3s ease;
+}
+
+.section-tab:hover {
+  background-color: #d0d0d0;
+}
+
+.section-tab.active {
+  background-color: #2196f3;
+  color: white;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.section-tab:focus {
+  outline: 2px solid #1976d2;
+  outline-offset: 2px;
+}
+
+/* ===== STATISZTIKÁK ===== */
+.section-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.stat {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 16px;
+  background-color: #f5f5f5;
+}
+
+.stat-total {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.stat-free {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+
+.stat-occupied {
+  background-color: #ffebee;
+  color: #d32f2f;
+}
+
+.stat-payment {
+  background-color: #fff3e0;
+  color: #f57c00;
+}
+
+.stat-cleaning {
+  background-color: #f5f5f5;
+  color: #616161;
+}
+
+/* ===== FŐ TARTALOM ===== */
+.map-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.empty-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  text-align: center;
+}
+
+.empty-section p {
+  font-size: 16px;
+  color: #757575;
+}
+
+/* ===== JELMAGYARÁZAT ===== */
+.map-legend {
+  background-color: white;
+  padding: 16px 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.map-legend h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  color: #555;
+}
+
+.legend-items {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+}
+
+.legend-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.legend-color.status-free {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+}
+
+.legend-color.status-occupied {
+  background: linear-gradient(135deg, #f44336 0%, #e57373 100%);
+}
+
+.legend-color.status-payment {
+  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+}
+
+.legend-color.status-cleaning {
+  background: linear-gradient(135deg, #9e9e9e 0%, #bdbdbd 100%);
+}
+
+/* ===== RESZPONZÍV DIZÁJN ===== */
+
+/* Tablet (768px és kisebb) */
+@media (max-width: 768px) {
+  .map-header {
+    padding: 16px;
+  }
+
+  .map-title {
+    font-size: 20px;
+  }
+
+  .section-tabs {
+    gap: 6px;
+  }
+
+  .section-tab {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .section-stats {
+    gap: 12px;
+  }
+
+  .stat {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .map-content {
+    padding: 16px;
+  }
+
+  .table-grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 16px;
+  }
+
+  .map-legend {
+    padding: 12px 16px;
+  }
+
+  .legend-items {
+    gap: 16px;
+  }
+
+  .legend-item {
+    font-size: 12px;
+  }
+
+  .legend-color {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Mobil (480px és kisebb) */
+@media (max-width: 480px) {
+  .map-header {
+    padding: 12px;
+  }
+
+  .map-title {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  .section-tabs {
+    gap: 4px;
+  }
+
+  .section-tab {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .section-stats {
+    gap: 8px;
+  }
+
+  .stat {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .map-content {
+    padding: 12px;
+  }
+
+  .table-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: 12px;
+  }
+
+  .map-legend {
+    padding: 10px 12px;
+  }
+
+  .legend-items {
+    gap: 12px;
+  }
+
+  .legend-item {
+    font-size: 11px;
+  }
+
+  .legend-color {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Nagyon kis képernyők (360px és kisebb) */
+@media (max-width: 360px) {
+  .table-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+  }
+
+  .section-tab {
+    flex: 1 1 auto;
+    min-width: 80px;
+  }
+}
