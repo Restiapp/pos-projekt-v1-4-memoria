@@ -31,10 +31,18 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState({
+    card_code: '',
+    initial_balance: '',
+    pin_code: '',
+  });
 
   // Form mező változás
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
+
+    // Hibaüzenet törlése gépeléskor
+    setErrors((prev) => ({ ...prev, [name]: '' }));
 
     // Checkbox kezelés
     if (type === 'checkbox') {
@@ -56,15 +64,29 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
   // Form submit (létrehozás / frissítés)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({ card_code: '', initial_balance: '', pin_code: '' }); // Reset errors
 
-    // Validáció
+    let hasError = false;
+
+    // Kártyakód validáció
     if (!formData.card_code.trim()) {
-      alert('A kártyakód kötelező!');
-      return;
+      setErrors((prev) => ({ ...prev, card_code: 'A kártyakód kötelező!' }));
+      hasError = true;
     }
 
+    // Egyenleg validáció (csak létrehozáskor)
     if (formData.initial_balance <= 0 && !isEditing) {
-      alert('A kezdeti egyenleg nagyobb kell legyen nullánál!');
+      setErrors((prev) => ({ ...prev, initial_balance: 'Az egyenlegnek nullánál nagyobbnak kell lennie!' }));
+      hasError = true;
+    }
+
+    // PIN kód validálása (ha meg van adva)
+    if (formData.pin_code && !/^\d{4,10}$/.test(formData.pin_code)) {
+      setErrors((prev) => ({ ...prev, pin_code: 'A PIN kód 4-10 számjegyből állhat!' }));
+      hasError = true;
+    }
+
+    if (hasError) {
       return;
     }
 
@@ -150,6 +172,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
               disabled={isEditing} // Szerkesztésnél nem lehet változtatni
               className={isEditing ? 'readonly-input' : ''}
             />
+            {errors.card_code && <div className="error-message">{errors.card_code}</div>}
           </div>
 
           {/* PIN kód */}
@@ -164,6 +187,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
               placeholder="pl. 1234"
               maxLength={10}
             />
+            {errors.pin_code && <div className="error-message">{errors.pin_code}</div>}
             <small>Opcionális biztonsági PIN kód a kártya használatához</small>
           </div>
 
@@ -183,6 +207,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
                 step={100}
                 required
               />
+              {errors.initial_balance && <div className="error-message">{errors.initial_balance}</div>}
             </div>
           )}
 
