@@ -6,11 +6,20 @@ A rendeléstételek táblája, amely tartalmazza a rendeléshez tartozó
 termékeket, mennyiségeket, árakat és a kiválasztott módosítókat.
 """
 
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text
+import enum
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 
 from backend.service_orders.models.database import Base
+
+
+class KDSStatus(str, enum.Enum):
+    """Kitchen Display System status enumeration for order items."""
+    WAITING = "WAITING"
+    PREPARING = "PREPARING"
+    READY = "READY"
+    SERVED = "SERVED"
 
 
 class OrderItem(Base):
@@ -38,8 +47,8 @@ class OrderItem(Base):
     course = Column(String(50), nullable=True)  # V3.0: Fogás (pl. 'Előétel', 'Főétel', 'Desszert')
     notes = Column(Text, nullable=True)  # V3.0: Tétel szintű megjegyzések
     discount_details = Column(JSONB, nullable=True)  # V3.0: Kedvezmény részletek {'type': 'percentage', 'value': 10}
-    kds_station = Column(String(50), nullable=True)  # 'Konyha', 'Pizza', 'Pult'
-    kds_status = Column(String(50), nullable=False, default='VÁRAKOZIK')  # 'VÁRAKOZIK', 'KÉSZÜL', 'KÉSZ'
+    kds_station = Column(String(50), nullable=True)  # Kitchen station: 'GRILL', 'COLD', 'BAR', etc.
+    kds_status = Column(SQLEnum(KDSStatus, native_enum=False), nullable=False, default=KDSStatus.WAITING, index=True)  # Kitchen Display System status
 
     # Relationships
     order = relationship('Order', back_populates='order_items')

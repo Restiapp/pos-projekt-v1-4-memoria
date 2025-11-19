@@ -6,9 +6,19 @@ in the Service Orders module (Module 1), including selected modifiers for each i
 """
 
 from decimal import Decimal
+from enum import Enum
 from typing import Optional, List
 
 from pydantic import BaseModel, Field, ConfigDict
+
+
+class KDSStatusEnum(str, Enum):
+    """Enumeration of Kitchen Display System (KDS) statuses for order items."""
+
+    WAITING = "WAITING"       # Item is waiting to be prepared
+    PREPARING = "PREPARING"   # Item is currently being prepared
+    READY = "READY"           # Item is ready to be served
+    SERVED = "SERVED"         # Item has been served to customer
 
 
 class SelectedModifierSchema(BaseModel):
@@ -98,14 +108,13 @@ class OrderItemBase(BaseModel):
     kds_station: Optional[str] = Field(
         None,
         max_length=50,
-        description="Kitchen Display System station assignment (e.g., 'Konyha', 'Pizza', 'Pult')",
-        examples=["Konyha", "Pizza", "Pult", "Desszert"]
+        description="Kitchen Display System station assignment (e.g., 'GRILL', 'COLD', 'BAR')",
+        examples=["GRILL", "COLD", "BAR", "DESSERT"]
     )
-    kds_status: Optional[str] = Field(
-        "VÁRAKOZIK",
-        max_length=50,
+    kds_status: Optional[KDSStatusEnum] = Field(
+        KDSStatusEnum.WAITING,
         description="Kitchen Display System status for this item",
-        examples=["VÁRAKOZIK", "KÉSZÜL", "KÉSZ", "KISZOLGÁLVA"]
+        examples=["WAITING", "PREPARING", "READY", "SERVED"]
     )
 
 
@@ -158,9 +167,8 @@ class OrderItemUpdate(BaseModel):
         max_length=50,
         description="KDS station assignment"
     )
-    kds_status: Optional[str] = Field(
+    kds_status: Optional[KDSStatusEnum] = Field(
         None,
-        max_length=50,
         description="KDS status"
     )
 
