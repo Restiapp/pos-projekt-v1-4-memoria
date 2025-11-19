@@ -21,7 +21,8 @@ from backend.service_orders.routers import (
     tables_router,
     seats_router,
     orders_router,
-    order_items_router
+    order_items_router,
+    kds_router
 )
 
 # Create FastAPI application
@@ -65,6 +66,12 @@ app.include_router(
     order_items_router,
     prefix="/api/v1",
     tags=["Order Items"],
+    dependencies=[Depends(require_permission("orders:manage"))]
+)
+app.include_router(
+    kds_router,
+    prefix="/api/v1",
+    tags=["KDS"],
     dependencies=[Depends(require_permission("orders:manage"))]
 )
 
