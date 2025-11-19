@@ -141,7 +141,7 @@ def deduct_stock_for_order(
                 f"{len(result['errors'])} errors"
             )
 
-        return StockDeductionResponse(**result)
+        return result
 
     except ValueError as e:
         # Business logic error (e.g., order not found)
