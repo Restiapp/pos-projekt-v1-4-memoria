@@ -93,24 +93,32 @@ class TableService:
     def list_tables(
         db: Session,
         skip: int = 0,
-        limit: int = 100
+        limit: int = 100,
+        section: Optional[str] = None
     ) -> tuple[List[Table], int]:
         """
-        Összes asztal listázása pagináció támogatással.
+        Összes asztal listázása pagináció és szűrés támogatással.
 
         Args:
             db: SQLAlchemy session
             skip: Hány rekordot ugorjunk át (offset)
             limit: Maximum hány rekordot adjunk vissza (page size)
+            section: Opcionális szekció szűrő
 
         Returns:
             tuple: (asztalok listája, összes asztal száma)
         """
-        # Összes asztal számának lekérdezése
-        total = db.query(Table).count()
+        # Query építése szűréssel
+        query = db.query(Table)
+
+        if section:
+            query = query.filter(Table.section == section)
+
+        # Összes asztal számának lekérdezése (szűrt)
+        total = query.count()
 
         # Paginált lista lekérdezése
-        tables = db.query(Table).offset(skip).limit(limit).all()
+        tables = query.offset(skip).limit(limit).all()
 
         return tables, total
 
@@ -295,6 +303,44 @@ class TableService:
         db.refresh(primary_table)
 
         return primary_table
+
+    @staticmethod
+    def split_tables(
+        db: Session,
+        table_ids: List[int]
+    ) -> List[Table]:
+        """
+        Asztalok szétválasztása (V3.0 - Fázis 1).
+
+        A table_ids listában szereplő asztalok parent_table_id-ja NULL-ra lesz állítva.
+
+        Args:
+            db: SQLAlchemy session
+            table_ids: Szétválasztandó asztalok azonosítói (lista)
+
+        Returns:
+            List[Table]: A szétválasztott asztalok objektumai
+
+        Raises:
+            ValueError: Ha valamelyik asztal nem található
+        """
+        split_tables = []
+
+        for table_id in table_ids:
+            table = db.query(Table).filter(Table.id == table_id).first()
+            if not table:
+                raise ValueError(f"Asztal (ID: {table_id}) nem található")
+
+            table.parent_table_id = None
+            split_tables.append(table)
+
+        db.commit()
+
+        # Refresh all split tables
+        for table in split_tables:
+            db.refresh(table)
+
+        return split_tables
 
 
 # Singleton példány exportálása
