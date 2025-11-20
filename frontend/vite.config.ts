@@ -60,7 +60,7 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/vehicles/, '/api/v1/vehicles')
       },
-      // ÚJ: Reports API (Admin Service) - FE-REP
+      // ÚJ: Reports API (Admin Service) - Dashboard Analytics
       '/api/reports': {
         target: 'http://localhost:8008',
         changeOrigin: true,

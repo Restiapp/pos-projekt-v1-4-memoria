@@ -1,24 +1,23 @@
 """
-Reports Router - Analytics & Reporting API endpoints
-Module 8: Admin - Reporting & Analytics
+Reports Router - Dashboard Analitika API végpontok
 
-This router provides endpoints for business intelligence and analytics:
-- Sales reports with daily breakdown and payment method analysis
-- Top products by quantity sold
-- Inventory consumption tracking
+Ez a router felelős a dashboard analitikai végpontok kezeléséért:
+- Értékesítési statisztikák (napi bontás)
+- Top termékek elemzése
+- Készletfogyási riportok
 """
 
 from typing import Optional
-from datetime import date
+from datetime import date, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from backend.service_admin.models.database import get_db
 from backend.service_admin.models.employee import Employee
-from backend.service_admin.services.reporting_service import ReportingService
-from backend.service_admin.schemas.report import (
+from backend.service_admin.services.reports_service import ReportsService
+from backend.service_admin.schemas.reports import (
     SalesReportResponse,
-    TopProductsReportResponse,
+    TopProductsResponse,
     ConsumptionReportResponse
 )
 from backend.service_admin.dependencies import require_permission, get_current_user
@@ -30,8 +29,25 @@ from backend.service_admin.dependencies import require_permission, get_current_u
 
 reports_router = APIRouter(
     prefix="/reports",
-    tags=["Reports & Analytics"]
+    tags=["Reports"]
 )
+
+
+# ============================================================================
+# Dependencies
+# ============================================================================
+
+def get_reports_service(db: Session = Depends(get_db)) -> ReportsService:
+    """
+    Dependency injection a ReportsService-hez.
+
+    Args:
+        db: SQLAlchemy Session dependency
+
+    Returns:
+        ReportsService: Inicializált service instance
+    """
+    return ReportsService(db)
 
 
 # ============================================================================
@@ -42,228 +58,254 @@ reports_router = APIRouter(
     "/sales",
     response_model=SalesReportResponse,
     status_code=status.HTTP_200_OK,
-    summary="Értékesítési riport",
-    description="Napi bontású értékesítési riport bevétellel, rendelésszámmal és átlagos kosárértékkel. Bontás fizetési mód szerint (CASH, CARD).",
+    summary="Értékesítési statisztikák (napi bontás)",
+    description="Értékesítési riport lekérése napi bontásban, cash/card bontással.",
     dependencies=[Depends(require_permission("reports:view"))]
 )
 async def get_sales_report(
-    start_date: date = Query(
-        ...,
-        description="Kezdő dátum (YYYY-MM-DD)",
-        example="2024-01-01"
+    start_date: Optional[date] = Query(
+        None,
+        description="Kezdő dátum (YYYY-MM-DD). Default: 30 nappal ezelőtt"
     ),
-    end_date: date = Query(
-        ...,
-        description="Befejező dátum (YYYY-MM-DD)",
-        example="2024-01-31"
+    end_date: Optional[date] = Query(
+        None,
+        description="Záró dátum (YYYY-MM-DD). Default: ma"
     ),
     current_user: Employee = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    service: ReportsService = Depends(get_reports_service)
 ) -> SalesReportResponse:
     """
-    Értékesítési riport generálása dátumtartományra.
+    Értékesítési statisztikák lekérése napi bontásban.
 
     **Jogosultság:** `reports:view`
 
-    A riport tartalmazza:
-    - Napi bontású bevétel, rendelésszám, átlagos kosárérték
-    - Fizetési mód szerinti bontás (készpénz/kártya)
-    - Összesítő statisztikák az időszakra
+    **Visszaadott adatok:**
+    - Napi bevételek (összesített, cash, card)
+    - Napi rendelésszámok
+    - Átlagos rendelésérték naponta
+    - Időszak összesítők
 
     Args:
-        start_date: Kezdő dátum
-        end_date: Befejező dátum
+        start_date: Kezdő dátum (opcionális)
+        end_date: Záró dátum (opcionális)
         current_user: Bejelentkezett felhasználó (dependency)
-        db: Adatbázis session (dependency)
+        service: ReportsService instance (dependency)
 
     Returns:
-        SalesReportResponse: Értékesítési riport adatai
+        SalesReportResponse: Napi bontású értékesítési adatok
 
     Raises:
-        HTTPException 400: Ha a dátumtartomány érvénytelen
+        HTTPException 400: Ha a dátumok hibásak
         HTTPException 403: Ha nincs jogosultság
+        HTTPException 503: Ha a service_orders nem elérhető
     """
-    # Validate date range
-    if start_date > end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A kezdő dátum nem lehet későbbi a befejező dátumnál"
-        )
-
     try:
-        report_data = await ReportingService.get_sales_report(
-            db=db,
+        # Dátumok validálása
+        if start_date and end_date and start_date > end_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A kezdő dátum nem lehet későbbi mint a záró dátum"
+            )
+
+        # Maximum 365 napos intervallum
+        if start_date and end_date:
+            delta = (end_date - start_date).days
+            if delta > 365:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Maximum 365 napos időszakot lehet lekérdezni"
+                )
+
+        report = await service.get_sales_report(
             start_date=start_date,
             end_date=end_date
         )
-        return report_data
+
+        return report
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Hiba történt a riport generálása során: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Hiba történt az értékesítési adatok lekérdezése során: {str(e)}"
         )
 
 
 # ============================================================================
-# Top Products Report Endpoints
+# Top Products Endpoints
 # ============================================================================
 
 @reports_router.get(
     "/top-products",
-    response_model=TopProductsReportResponse,
+    response_model=TopProductsResponse,
     status_code=status.HTTP_200_OK,
-    summary="Top termékek riport",
-    description="Legtöbbet eladott termékek listája mennyiség alapján, opcionális dátumszűréssel.",
+    summary="Top termékek elemzése",
+    description="Legnépszerűbb termékek eladott mennyiség és bevétel alapján.",
     dependencies=[Depends(require_permission("reports:view"))]
 )
-async def get_top_products_report(
-    limit: int = Query(
-        10,
-        description="Maximum hány terméket listázzon",
-        ge=1,
-        le=100,
-        example=10
-    ),
+async def get_top_products(
     start_date: Optional[date] = Query(
         None,
-        description="Kezdő dátum (opcionális, YYYY-MM-DD)",
-        example="2024-01-01"
+        description="Kezdő dátum (YYYY-MM-DD). Default: 30 nappal ezelőtt"
     ),
     end_date: Optional[date] = Query(
         None,
-        description="Befejező dátum (opcionális, YYYY-MM-DD)",
-        example="2024-01-31"
+        description="Záró dátum (YYYY-MM-DD). Default: ma"
+    ),
+    limit: int = Query(
+        10,
+        ge=1,
+        le=100,
+        description="Maximum hány terméket adjunk vissza (default: 10)"
     ),
     current_user: Employee = Depends(get_current_user),
-    db: Session = Depends(get_db)
-) -> TopProductsReportResponse:
+    service: ReportsService = Depends(get_reports_service)
+) -> TopProductsResponse:
     """
-    Top termékek riport generálása.
+    Top termékek elemzése eladott mennyiség alapján.
 
     **Jogosultság:** `reports:view`
 
-    A riport tartalmazza:
-    - Termék azonosító és név
-    - Összes eladott mennyiség
+    **Visszaadott adatok:**
+    - Termék név és kategória
+    - Eladott mennyiség (db)
     - Összes bevétel a termékből
-    - Hány rendelésben szerepelt
     - Átlagos eladási ár
 
     Args:
-        limit: Maximum hány terméket adjon vissza
-        start_date: Opcionális kezdő dátum szűréshez
-        end_date: Opcionális befejező dátum szűréshez
+        start_date: Kezdő dátum (opcionális)
+        end_date: Záró dátum (opcionális)
+        limit: Maximum eredmények száma (1-100)
         current_user: Bejelentkezett felhasználó (dependency)
-        db: Adatbázis session (dependency)
+        service: ReportsService instance (dependency)
 
     Returns:
-        TopProductsReportResponse: Top termékek riport adatai
+        TopProductsResponse: Top termékek listája
 
     Raises:
-        HTTPException 400: Ha a dátumtartomány érvénytelen
+        HTTPException 400: Ha a dátumok vagy limit hibás
         HTTPException 403: Ha nincs jogosultság
+        HTTPException 503: Ha a service_orders vagy service_menu nem elérhető
     """
-    # Validate date range if both dates are provided
-    if start_date and end_date and start_date > end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A kezdő dátum nem lehet későbbi a befejező dátumnál"
-        )
-
-    # Both dates must be provided together
-    if (start_date and not end_date) or (end_date and not start_date):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A kezdő és befejező dátumot együtt kell megadni"
-        )
-
     try:
-        report_data = await ReportingService.get_top_products_report(
-            db=db,
-            limit=limit,
+        # Dátumok validálása
+        if start_date and end_date and start_date > end_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A kezdő dátum nem lehet későbbi mint a záró dátum"
+            )
+
+        report = await service.get_top_products(
             start_date=start_date,
-            end_date=end_date
+            end_date=end_date,
+            limit=limit
         )
-        return report_data
+
+        return report
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Hiba történt a riport generálása során: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Hiba történt a top termékek lekérdezése során: {str(e)}"
         )
 
 
 # ============================================================================
-# Consumption Report Endpoints
+# Inventory Consumption Endpoints
 # ============================================================================
 
 @reports_router.get(
     "/consumption",
     response_model=ConsumptionReportResponse,
     status_code=status.HTTP_200_OK,
-    summary="Készletfogyás riport",
-    description="Készletcikkek fogyásának elemzése aktuális készlet alapján.",
+    summary="Készletfogyási riport",
+    description="Alapanyag/készletcikkek fogyási adatai az időszakban.",
     dependencies=[Depends(require_permission("reports:view"))]
 )
 async def get_consumption_report(
     start_date: Optional[date] = Query(
         None,
-        description="Kezdő dátum (opcionális, jövőbeli használatra)",
-        example="2024-01-01"
+        description="Kezdő dátum (YYYY-MM-DD). Default: 30 nappal ezelőtt"
     ),
     end_date: Optional[date] = Query(
         None,
-        description="Befejező dátum (opcionális, jövőbeli használatra)",
-        example="2024-01-31"
+        description="Záró dátum (YYYY-MM-DD). Default: ma"
     ),
     current_user: Employee = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    service: ReportsService = Depends(get_reports_service)
 ) -> ConsumptionReportResponse:
     """
-    Készletfogyás riport generálása.
+    Készletfogyási riport lekérése.
 
     **Jogosultság:** `reports:view`
 
-    A riport tartalmazza:
-    - Készletcikk azonosító és név
-    - Nyitó készlet (becsült)
-    - Jelenlegi készlet
-    - Felhasznált mennyiség
-    - Fogyás százalékban
-    - Becsült fogyás értéke
-
-    **Megjegyzés:** A jelenlegi implementáció az aktuális készletet
-    használja alapként. Részletesebb elemzéshez történeti adatok
-    (napi leltárak) szükségesek.
+    **Visszaadott adatok:**
+    - Alapanyag/készletcikk neve
+    - Fogyott mennyiség és egység
+    - Becsült költség
 
     Args:
-        start_date: Kezdő dátum (jövőbeli használatra)
-        end_date: Befejező dátum (jövőbeli használatra)
+        start_date: Kezdő dátum (opcionális)
+        end_date: Záró dátum (opcionális)
         current_user: Bejelentkezett felhasználó (dependency)
-        db: Adatbázis session (dependency)
+        service: ReportsService instance (dependency)
 
     Returns:
-        ConsumptionReportResponse: Készletfogyás riport adatai
+        ConsumptionReportResponse: Készletfogyási adatok
 
     Raises:
-        HTTPException 400: Ha a dátumtartomány érvénytelen
+        HTTPException 400: Ha a dátumok hibásak
         HTTPException 403: Ha nincs jogosultság
+        HTTPException 503: Ha a service_inventory nem elérhető
     """
-    # Validate date range if both dates are provided
-    if start_date and end_date and start_date > end_date:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A kezdő dátum nem lehet későbbi a befejező dátumnál"
-        )
-
     try:
-        report_data = await ReportingService.get_consumption_report(
-            db=db,
+        # Dátumok validálása
+        if start_date and end_date and start_date > end_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A kezdő dátum nem lehet későbbi mint a záró dátum"
+            )
+
+        report = await service.get_consumption_report(
             start_date=start_date,
             end_date=end_date
         )
-        return report_data
+
+        return report
+
+    except HTTPException:
+        raise
     except Exception as e:
+        # Graceful degradation: log error but don't fail
+        # (consumption report is nice-to-have, not critical)
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Hiba történt a riport generálása során: {str(e)}"
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Hiba történt a készletfogyási adatok lekérdezése során: {str(e)}"
         )
+
+
+# ============================================================================
+# Health Check Endpoint (for testing)
+# ============================================================================
+
+@reports_router.get(
+    "/health",
+    status_code=status.HTTP_200_OK,
+    summary="Reports service health check",
+    description="Ellenőrzi hogy a reports service működik-e."
+)
+async def health_check():
+    """
+    Egyszerű health check endpoint tesztelésre.
+
+    Returns:
+        dict: Status üzenet
+    """
+    return {
+        "status": "healthy",
+        "service": "reports",
+        "message": "Reports service is running"
+    }

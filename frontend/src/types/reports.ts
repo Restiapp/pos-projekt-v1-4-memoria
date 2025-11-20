@@ -1,51 +1,82 @@
 /**
- * Reports Types - Analytics Dashboard
- * TypeScript típusok a riportok és analytics rendszerhez
+ * Reports (Riportok/Analitika) típusdefiníciók
+ * Dashboard Analytics API sémáknak megfelelően
+ * Backend: backend/service_admin/schemas/reports.py
  */
 
-export interface DateRange {
-  start_date: string; // ISO format: YYYY-MM-DD
-  end_date: string;   // ISO format: YYYY-MM-DD
-}
-
-export interface SalesMetrics {
+/**
+ * Napi értékesítési adatok (egy napra)
+ * Backend: DailySalesData schema
+ */
+export interface DailySalesData {
+  date: string; // ISO date string (YYYY-MM-DD)
   total_revenue: number;
-  total_orders: number;
-  average_basket: number;
   cash_revenue: number;
   card_revenue: number;
-  other_revenue: number;
-}
-
-export interface DailySales {
-  date: string; // YYYY-MM-DD
-  revenue_cash: number;
-  revenue_card: number;
-  revenue_total: number;
   order_count: number;
+  average_order_value: number;
 }
 
-export interface TopProduct {
+/**
+ * Értékesítési riport válasz (GET /api/v1/reports/sales)
+ * Backend: SalesReportResponse schema
+ */
+export interface SalesReportResponse {
+  sales_data: DailySalesData[];
+  total_revenue: number;
+  total_orders: number;
+  average_daily_revenue: number;
+}
+
+/**
+ * Top termék adatok (egy termékre)
+ * Backend: TopProductData schema
+ */
+export interface TopProductData {
   product_id: number;
   product_name: string;
   quantity_sold: number;
   total_revenue: number;
-  percentage: number;
+  average_price: number;
+  category_name?: string | null;
 }
 
-export interface IngredientConsumption {
+/**
+ * Top termékek riport válasz (GET /api/v1/reports/top-products)
+ * Backend: TopProductsResponse schema
+ */
+export interface TopProductsResponse {
+  products: TopProductData[];
+  total_products_analyzed: number;
+}
+
+/**
+ * Készletfogyási adatok (egy alapanyagra)
+ * Backend: InventoryConsumptionData schema
+ */
+export interface InventoryConsumptionData {
   ingredient_id: number;
   ingredient_name: string;
-  unit: string;
   quantity_consumed: number;
-  cost: number;
+  unit: string;
+  estimated_cost?: number | null;
 }
 
-export interface ReportsResponse {
-  metrics: SalesMetrics;
-  daily_sales: DailySales[];
-  top_products: TopProduct[];
-  ingredient_consumption: IngredientConsumption[];
+/**
+ * Készletfogyási riport válasz (GET /api/v1/reports/consumption)
+ * Backend: ConsumptionReportResponse schema
+ */
+export interface ConsumptionReportResponse {
+  consumption_data: InventoryConsumptionData[];
+  total_items: number;
+  total_estimated_cost?: number | null;
 }
 
-export type DateRangePreset = 'today' | 'week' | 'month' | 'custom';
+/**
+ * Riport lekérdezési paraméterek
+ */
+export interface ReportQueryParams {
+  start_date?: string; // ISO date string (YYYY-MM-DD)
+  end_date?: string; // ISO date string (YYYY-MM-DD)
+  limit?: number; // Only for top-products
+}

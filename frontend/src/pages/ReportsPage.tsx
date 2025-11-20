@@ -1,351 +1,299 @@
 /**
- * ReportsPage - Analytics Dashboard
- * Látványos vezetői nézet értékesítési és készletadatokkal
+ * ReportsPage - Dashboard Analitika és Riportok oldal
+ *
+ * Főbb funkciók:
+ *   - Tab navigáció a különböző riportok között
+ *   - Értékesítési statisztikák (napi bontás)
+ *   - Top termékek elemzése
+ *   - Készletfogyási riportok
  */
 
 import { useState, useEffect } from 'react';
 import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
-import reportsService from '@/services/reportsService';
-import type { ReportsResponse, DateRange, DateRangePreset } from '@/types/reports';
+  getSalesReport,
+  getTopProducts,
+  getConsumptionReport,
+  getDateRangePresets,
+} from '@/services/reportsService';
+import type {
+  SalesReportResponse,
+  TopProductsResponse,
+  ConsumptionReportResponse,
+} from '@/types/reports';
 import './ReportsPage.css';
 
-// Színek a grafikonokhoz
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+type TabType = 'sales' | 'top-products' | 'consumption';
+type PresetType = 'today' | 'yesterday' | 'last7Days' | 'last30Days' | 'thisMonth' | 'lastMonth';
 
 export const ReportsPage = () => {
-  const [loading, setLoading] = useState<boolean>(true);
+  const [activeTab, setActiveTab] = useState<TabType>('sales');
+  const [selectedPreset, setSelectedPreset] = useState<PresetType>('last30Days');
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<ReportsResponse | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'consumption'>('overview');
 
-  // Dátumszűrő állapot
-  const [dateRangePreset, setDateRangePreset] = useState<DateRangePreset>('week');
-  const [customDateRange] = useState<DateRange>({
-    start_date: '',
-    end_date: '',
-  });
+  // Report data
+  const [salesReport, setSalesReport] = useState<SalesReportResponse | null>(null);
+  const [topProductsReport, setTopProductsReport] = useState<TopProductsResponse | null>(null);
+  const [consumptionReport, setConsumptionReport] = useState<ConsumptionReportResponse | null>(null);
 
-  /**
-   * Dátumtartomány kiszámítása a preset alapján
-   */
-  const getDateRangeFromPreset = (preset: DateRangePreset): DateRange => {
-    const today = new Date();
-    const endDate = today.toISOString().split('T')[0];
+  const presets = getDateRangePresets();
 
-    let startDate: string;
+  // Fetch data when tab or preset changes
+  useEffect(() => {
+    fetchData();
+  }, [activeTab, selectedPreset]);
 
-    switch (preset) {
-      case 'today':
-        startDate = endDate;
-        break;
-      case 'week':
-        const weekAgo = new Date(today);
-        weekAgo.setDate(today.getDate() - 7);
-        startDate = weekAgo.toISOString().split('T')[0];
-        break;
-      case 'month':
-        const monthAgo = new Date(today);
-        monthAgo.setMonth(today.getMonth() - 1);
-        startDate = monthAgo.toISOString().split('T')[0];
-        break;
-      case 'custom':
-        return customDateRange;
-      default:
-        startDate = endDate;
-    }
-
-    return { start_date: startDate, end_date: endDate };
-  };
-
-  /**
-   * Riport adatok betöltése
-   */
-  const loadReportsData = async () => {
+  const fetchData = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const dateRange = getDateRangeFromPreset(dateRangePreset);
-      const reportsData = await reportsService.getReportsData(dateRange);
-      setData(reportsData);
+      const params = presets[selectedPreset];
+
+      if (activeTab === 'sales') {
+        const data = await getSalesReport(params);
+        setSalesReport(data);
+      } else if (activeTab === 'top-products') {
+        const data = await getTopProducts({ ...params, limit: 10 });
+        setTopProductsReport(data);
+      } else if (activeTab === 'consumption') {
+        const data = await getConsumptionReport(params);
+        setConsumptionReport(data);
+      }
     } catch (err: any) {
-      console.error('Hiba a riport betöltésekor:', err);
-      setError(err?.response?.data?.detail || 'Hiba történt a riport betöltésekor');
+      console.error('Error fetching report data:', err);
+      setError(err.response?.data?.detail || 'Hiba történt az adatok lekérdezése során');
     } finally {
       setLoading(false);
     }
   };
 
-  // Első betöltés és dátumszűrő változáskor újratöltés
-  useEffect(() => {
-    loadReportsData();
-  }, [dateRangePreset]);
-
-  /**
-   * Szám formázása (ezer elválasztó, 2 tizedesjegy)
-   */
-  const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat('hu-HU', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(num);
-  };
-
-  /**
-   * Pénz formázása (HUF)
-   */
-  const formatCurrency = (num: number): string => {
+  const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('hu-HU', {
       style: 'currency',
       currency: 'HUF',
       minimumFractionDigits: 0,
-    }).format(num);
+    }).format(value);
   };
 
-  if (loading) {
-    return (
-      <div className="reports-page">
-        <div className="loading-container">
-          <div className="spinner"></div>
-          <p>Riport betöltése...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="reports-page">
-        <div className="error-container">
-          <h2>Hiba történt</h2>
-          <p>{error}</p>
-          <button onClick={loadReportsData} className="btn-retry">
-            Újrapróbálkozás
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="reports-page">
-        <p>Nincs elérhető adat</p>
-      </div>
-    );
-  }
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('hu-HU', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    }).format(date);
+  };
 
   return (
     <div className="reports-page">
+      {/* Fejléc */}
       <header className="reports-header">
-        <h1>📊 Analytics Dashboard</h1>
-
-        {/* Date Range Picker */}
-        <div className="date-range-picker">
-          <button
-            className={`preset-btn ${dateRangePreset === 'today' ? 'active' : ''}`}
-            onClick={() => setDateRangePreset('today')}
-          >
-            Ma
-          </button>
-          <button
-            className={`preset-btn ${dateRangePreset === 'week' ? 'active' : ''}`}
-            onClick={() => setDateRangePreset('week')}
-          >
-            Hét
-          </button>
-          <button
-            className={`preset-btn ${dateRangePreset === 'month' ? 'active' : ''}`}
-            onClick={() => setDateRangePreset('month')}
-          >
-            Hónap
-          </button>
-          {/* TODO: Egyedi dátumtartomány választó */}
-        </div>
+        <h1>📊 Dashboard Analitika</h1>
+        <p className="reports-description">
+          Értékesítési statisztikák, top termékek és készletfogyási riportok
+        </p>
       </header>
 
-      {/* Tabok: Áttekintés | Fogyás */}
-      <div className="tabs">
-        <button
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
+      {/* Időszak választó */}
+      <div className="date-preset-selector">
+        <label>Időszak:</label>
+        <select
+          value={selectedPreset}
+          onChange={(e) => setSelectedPreset(e.target.value as PresetType)}
+          className="preset-select"
         >
-          Áttekintés
-        </button>
-        <button
-          className={`tab-btn ${activeTab === 'consumption' ? 'active' : ''}`}
-          onClick={() => setActiveTab('consumption')}
-        >
-          Alapanyag Fogyás
+          <option value="today">Ma</option>
+          <option value="yesterday">Tegnap</option>
+          <option value="last7Days">Utolsó 7 nap</option>
+          <option value="last30Days">Utolsó 30 nap</option>
+          <option value="thisMonth">Ez a hónap</option>
+          <option value="lastMonth">Előző hónap</option>
+        </select>
+        <button onClick={fetchData} className="refresh-button">
+          🔄 Frissítés
         </button>
       </div>
 
-      {/* === ÁTTEKINTÉS TAB === */}
-      {activeTab === 'overview' && (
-        <div className="overview-tab">
-          {/* Key Metrics Cards */}
-          <div className="metrics-cards">
-            <div className="metric-card">
-              <div className="metric-icon">💰</div>
-              <div className="metric-content">
-                <h3>Összbevétel</h3>
-                <p className="metric-value">{formatCurrency(data.metrics.total_revenue)}</p>
-                <span className="metric-detail">
-                  Készpénz: {formatCurrency(data.metrics.cash_revenue)} | Kártya:{' '}
-                  {formatCurrency(data.metrics.card_revenue)}
-                </span>
+      {/* Tab navigáció */}
+      <nav className="reports-tabs">
+        <button
+          className={`tab-button ${activeTab === 'sales' ? 'active' : ''}`}
+          onClick={() => setActiveTab('sales')}
+        >
+          💰 Értékesítés
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'top-products' ? 'active' : ''}`}
+          onClick={() => setActiveTab('top-products')}
+        >
+          🏆 Top Termékek
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'consumption' ? 'active' : ''}`}
+          onClick={() => setActiveTab('consumption')}
+        >
+          📦 Készletfogyás
+        </button>
+      </nav>
+
+      {/* Tartalom */}
+      <div className="reports-content">
+        {loading && (
+          <div className="loading-message">
+            <p>⏳ Adatok betöltése...</p>
+          </div>
+        )}
+
+        {error && (
+          <div className="error-message">
+            <p>❌ {error}</p>
+          </div>
+        )}
+
+        {!loading && !error && activeTab === 'sales' && salesReport && (
+          <div className="sales-report">
+            <div className="summary-cards">
+              <div className="summary-card">
+                <h3>Összesített bevétel</h3>
+                <p className="big-number">{formatCurrency(salesReport.total_revenue)}</p>
+              </div>
+              <div className="summary-card">
+                <h3>Összes rendelés</h3>
+                <p className="big-number">{salesReport.total_orders}</p>
+              </div>
+              <div className="summary-card">
+                <h3>Átlagos napi bevétel</h3>
+                <p className="big-number">{formatCurrency(salesReport.average_daily_revenue)}</p>
               </div>
             </div>
 
-            <div className="metric-card">
-              <div className="metric-icon">🛒</div>
-              <div className="metric-content">
-                <h3>Rendelések száma</h3>
-                <p className="metric-value">{formatNumber(data.metrics.total_orders)}</p>
+            <h2>Napi bontás</h2>
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Dátum</th>
+                    <th>Összesített bevétel</th>
+                    <th>Készpénz</th>
+                    <th>Kártya</th>
+                    <th>Rendelések</th>
+                    <th>Átlag rendelés</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salesReport.sales_data.map((day, index) => (
+                    <tr key={index}>
+                      <td>{formatDate(day.date)}</td>
+                      <td className="currency">{formatCurrency(day.total_revenue)}</td>
+                      <td className="currency">{formatCurrency(day.cash_revenue)}</td>
+                      <td className="currency">{formatCurrency(day.card_revenue)}</td>
+                      <td>{day.order_count}</td>
+                      <td className="currency">{formatCurrency(day.average_order_value)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {!loading && !error && activeTab === 'top-products' && topProductsReport && (
+          <div className="top-products-report">
+            <div className="summary-cards">
+              <div className="summary-card">
+                <h3>Elemzett termékek</h3>
+                <p className="big-number">{topProductsReport.total_products_analyzed}</p>
+              </div>
+              <div className="summary-card">
+                <h3>Top termékek</h3>
+                <p className="big-number">{topProductsReport.products.length}</p>
               </div>
             </div>
 
-            <div className="metric-card">
-              <div className="metric-icon">📈</div>
-              <div className="metric-content">
-                <h3>Átlagos kosár</h3>
-                <p className="metric-value">{formatCurrency(data.metrics.average_basket)}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Sales Chart - Stacked Bar Chart (CASH vs CARD) */}
-          <div className="chart-section">
-            <h2>Napi bevételek (Készpénz vs Kártya)</h2>
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={data.daily_sales}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                <Legend />
-                <Bar dataKey="revenue_cash" stackId="a" fill="#4CAF50" name="Készpénz" />
-                <Bar dataKey="revenue_card" stackId="a" fill="#2196F3" name="Kártya" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Sales Trend Line Chart */}
-          <div className="chart-section">
-            <h2>Bevételi trend</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={data.daily_sales}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="revenue_total"
-                  stroke="#8884d8"
-                  strokeWidth={2}
-                  name="Összes bevétel"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Top Products - Pie Chart & List */}
-          <div className="top-products-section">
             <h2>Top termékek</h2>
-            <div className="top-products-container">
-              {/* Pie Chart */}
-              <div className="top-products-chart">
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={data.top_products as any[]}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={(entry: any) => `${entry.product_name} (${entry.percentage?.toFixed(0) || '0'}%)`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="total_revenue"
-                    >
-                      {data.top_products.map((_entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="table-container">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Termék név</th>
+                    <th>Kategória</th>
+                    <th>Eladott db</th>
+                    <th>Összes bevétel</th>
+                    <th>Átlag ár</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topProductsReport.products.map((product, index) => (
+                    <tr key={product.product_id}>
+                      <td className="rank">
+                        {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                      </td>
+                      <td className="product-name">{product.product_name}</td>
+                      <td>{product.category_name || '-'}</td>
+                      <td>{product.quantity_sold}</td>
+                      <td className="currency">{formatCurrency(product.total_revenue)}</td>
+                      <td className="currency">{formatCurrency(product.average_price)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-              {/* Lista */}
-              <div className="top-products-list">
-                <table>
+        {!loading && !error && activeTab === 'consumption' && consumptionReport && (
+          <div className="consumption-report">
+            <div className="summary-cards">
+              <div className="summary-card">
+                <h3>Fogyó tételek</h3>
+                <p className="big-number">{consumptionReport.total_items}</p>
+              </div>
+              <div className="summary-card">
+                <h3>Becsült költség</h3>
+                <p className="big-number">
+                  {consumptionReport.total_estimated_cost
+                    ? formatCurrency(consumptionReport.total_estimated_cost)
+                    : 'N/A'}
+                </p>
+              </div>
+            </div>
+
+            <h2>Készletfogyás</h2>
+            {consumptionReport.consumption_data.length === 0 ? (
+              <div className="empty-message">
+                <p>Nincs készletfogyási adat az adott időszakban</p>
+              </div>
+            ) : (
+              <div className="table-container">
+                <table className="data-table">
                   <thead>
                     <tr>
-                      <th>#</th>
-                      <th>Termék</th>
-                      <th>Eladott</th>
-                      <th>Bevétel</th>
+                      <th>Alapanyag név</th>
+                      <th>Fogyott mennyiség</th>
+                      <th>Egység</th>
+                      <th>Becsült költség</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {data.top_products.map((product, index) => (
-                      <tr key={product.product_id}>
-                        <td>{index + 1}</td>
-                        <td>{product.product_name}</td>
-                        <td>{formatNumber(product.quantity_sold)} db</td>
-                        <td>{formatCurrency(product.total_revenue)}</td>
+                    {consumptionReport.consumption_data.map((item) => (
+                      <tr key={item.ingredient_id}>
+                        <td className="ingredient-name">{item.ingredient_name}</td>
+                        <td>{item.quantity_consumed.toFixed(2)}</td>
+                        <td>{item.unit}</td>
+                        <td className="currency">
+                          {item.estimated_cost ? formatCurrency(item.estimated_cost) : 'N/A'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-      )}
-
-      {/* === ALAPANYAG FOGYÁS TAB === */}
-      {activeTab === 'consumption' && (
-        <div className="consumption-tab">
-          <h2>Alapanyag felhasználás</h2>
-          <table className="consumption-table">
-            <thead>
-              <tr>
-                <th>Alapanyag</th>
-                <th>Felhasznált mennyiség</th>
-                <th>Egység</th>
-                <th>Költség</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.ingredient_consumption.map((ingredient) => (
-                <tr key={ingredient.ingredient_id}>
-                  <td>{ingredient.ingredient_name}</td>
-                  <td>{formatNumber(ingredient.quantity_consumed)}</td>
-                  <td>{ingredient.unit}</td>
-                  <td>{formatCurrency(ingredient.cost)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

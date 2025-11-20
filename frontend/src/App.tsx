@@ -32,8 +32,8 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
-// ÚJ IMPORT - Reservation Calendar
-// TEMP DISABLED: import ReservationsPage from '@/pages/ReservationsPage';
+// ÚJ IMPORT - Dashboard Analytics (Reports)
+import { ReportsPage } from '@/pages/ReportsPage';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -165,6 +165,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="vehicles:manage">
                 <VehiclesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/reports - Dashboard Analytics */}
+          <Route
+            path="reports"
+            element={
+              <ProtectedRoute requiredPermission="reports:view">
+                <ReportsPage />
               </ProtectedRoute>
             }
           />

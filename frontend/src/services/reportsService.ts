@@ -1,123 +1,153 @@
 /**
- * Reports Service - Analytics & Reporting API
- * Szolgáltatás a riportok és statisztikák lekérdezéséhez
+ * Reports Service - Dashboard Analytics API hívások
+ *
+ * Backend endpoints (service_admin:8008):
+ *   - GET /api/v1/reports/sales
+ *   - GET /api/v1/reports/top-products
+ *   - GET /api/v1/reports/consumption
+ *
+ * Frontend hívások:
+ *   - GET /api/reports/sales → Vite proxy → http://localhost:8008/api/v1/reports/sales
+ *   - stb.
  */
 
 import apiClient from './api';
-import type { ReportsResponse, DateRange } from '@/types/reports';
+import type {
+  SalesReportResponse,
+  TopProductsResponse,
+  ConsumptionReportResponse,
+  ReportQueryParams,
+} from '@/types/reports';
+
+// ============================================================================
+// Sales Report Operations
+// ============================================================================
 
 /**
- * Analitikai adatok lekérdezése dátumtartományra
- *
- * @param dateRange - Kezdő és záró dátum
- * @returns ReportsResponse - Teljes riport adatok
+ * Értékesítési statisztikák lekérése (napi bontás)
+ * GET /api/reports/sales
+ * Proxy Target: http://localhost:8008/api/v1/reports/sales
  */
-export async function getReportsData(dateRange: DateRange): Promise<ReportsResponse> {
-  const params = new URLSearchParams({
-    start_date: dateRange.start_date,
-    end_date: dateRange.end_date,
-  });
-
-  const response = await apiClient.get<ReportsResponse>(
-    `/api/reports?${params.toString()}`
-  );
-
-  return response.data;
-}
-
-/**
- * Napi értékesítési adatok lekérdezése
- *
- * @param dateRange - Kezdő és záró dátum
- * @returns Napi bontású értékesítési adatok
- */
-export async function getDailySales(dateRange: DateRange) {
-  const params = new URLSearchParams({
-    start_date: dateRange.start_date,
-    end_date: dateRange.end_date,
-  });
-
-  const response = await apiClient.get(
-    `/api/reports/daily-sales?${params.toString()}`
-  );
-
-  return response.data;
-}
-
-/**
- * Top termékek lekérdezése
- *
- * @param dateRange - Kezdő és záró dátum
- * @param limit - Maximum termékek száma (alapértelmezett: 10)
- * @returns Top termékek listája
- */
-export async function getTopProducts(dateRange: DateRange, limit: number = 10) {
-  const params = new URLSearchParams({
-    start_date: dateRange.start_date,
-    end_date: dateRange.end_date,
-    limit: limit.toString(),
-  });
-
-  const response = await apiClient.get(
-    `/api/reports/top-products?${params.toString()}`
-  );
-
-  return response.data;
-}
-
-/**
- * Alapanyag-felhasználás lekérdezése
- *
- * @param dateRange - Kezdő és záró dátum
- * @returns Alapanyag-felhasználási adatok
- */
-export async function getIngredientConsumption(dateRange: DateRange) {
-  const params = new URLSearchParams({
-    start_date: dateRange.start_date,
-    end_date: dateRange.end_date,
-  });
-
-  const response = await apiClient.get(
-    `/api/reports/ingredient-consumption?${params.toString()}`
-  );
-
-  return response.data;
-}
-
-/**
- * Exportálási funkció (CSV, Excel)
- *
- * @param dateRange - Kezdő és záró dátum
- * @param format - Export formátum ('csv' | 'excel')
- */
-export async function exportReport(dateRange: DateRange, format: 'csv' | 'excel') {
-  const params = new URLSearchParams({
-    start_date: dateRange.start_date,
-    end_date: dateRange.end_date,
-    format,
-  });
-
-  const response = await apiClient.get(
-    `/api/reports/export?${params.toString()}`,
-    { responseType: 'blob' }
-  );
-
-  // Fájl letöltése
-  const blob = new Blob([response.data]);
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `report_${dateRange.start_date}_${dateRange.end_date}.${format}`;
-  link.click();
-  window.URL.revokeObjectURL(url);
-}
-
-const reportsService = {
-  getReportsData,
-  getDailySales,
-  getTopProducts,
-  getIngredientConsumption,
-  exportReport,
+export const getSalesReport = async (
+  params?: ReportQueryParams
+): Promise<SalesReportResponse> => {
+  try {
+    const response = await apiClient.get<SalesReportResponse>(
+      '/api/reports/sales',
+      { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching sales report:', error);
+    throw error;
+  }
 };
 
-export default reportsService;
+// ============================================================================
+// Top Products Report Operations
+// ============================================================================
+
+/**
+ * Top termékek lekérése eladott mennyiség alapján
+ * GET /api/reports/top-products
+ * Proxy Target: http://localhost:8008/api/v1/reports/top-products
+ */
+export const getTopProducts = async (
+  params?: ReportQueryParams
+): Promise<TopProductsResponse> => {
+  try {
+    const response = await apiClient.get<TopProductsResponse>(
+      '/api/reports/top-products',
+      { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching top products:', error);
+    throw error;
+  }
+};
+
+// ============================================================================
+// Consumption Report Operations
+// ============================================================================
+
+/**
+ * Készletfogyási riport lekérése
+ * GET /api/reports/consumption
+ * Proxy Target: http://localhost:8008/api/v1/reports/consumption
+ */
+export const getConsumptionReport = async (
+  params?: ReportQueryParams
+): Promise<ConsumptionReportResponse> => {
+  try {
+    const response = await apiClient.get<ConsumptionReportResponse>(
+      '/api/reports/consumption',
+      { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching consumption report:', error);
+    throw error;
+  }
+};
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Formázza a dátumot YYYY-MM-DD formátumba
+ */
+export const formatDateForAPI = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+/**
+ * Előre definiált időszakok generálása
+ */
+export const getDateRangePresets = () => {
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const last7Days = new Date(today);
+  last7Days.setDate(last7Days.getDate() - 7);
+
+  const last30Days = new Date(today);
+  last30Days.setDate(last30Days.getDate() - 30);
+
+  const thisMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const lastMonthStart = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+  const lastMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+
+  return {
+    today: {
+      start_date: formatDateForAPI(today),
+      end_date: formatDateForAPI(today),
+    },
+    yesterday: {
+      start_date: formatDateForAPI(yesterday),
+      end_date: formatDateForAPI(yesterday),
+    },
+    last7Days: {
+      start_date: formatDateForAPI(last7Days),
+      end_date: formatDateForAPI(today),
+    },
+    last30Days: {
+      start_date: formatDateForAPI(last30Days),
+      end_date: formatDateForAPI(today),
+    },
+    thisMonth: {
+      start_date: formatDateForAPI(thisMonthStart),
+      end_date: formatDateForAPI(today),
+    },
+    lastMonth: {
+      start_date: formatDateForAPI(lastMonthStart),
+      end_date: formatDateForAPI(lastMonthEnd),
+    },
+  };
+};
