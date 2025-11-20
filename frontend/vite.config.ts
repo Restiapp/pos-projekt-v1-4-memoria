@@ -54,6 +54,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/vehicles/, '/api/v1/vehicles')
       },
+      // ÚJ: Reports API (Admin Service) - FE-REP
+      '/api/reports': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/reports/, '/api/v1/reports')
+      },
 
       // ========================================
       // Orders Service (Port 8002)

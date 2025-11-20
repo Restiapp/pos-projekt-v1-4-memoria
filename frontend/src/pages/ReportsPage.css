@@ -1,0 +1,403 @@
+/**
+ * ReportsPage Styles - Analytics Dashboard
+ */
+
+.reports-page {
+  padding: 2rem;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* ==============================
+   HEADER & DATE RANGE PICKER
+   ============================== */
+
+.reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reports-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #2c3e50;
+}
+
+.date-range-picker {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.preset-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e0e0e0;
+  background-color: white;
+  color: #555;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.preset-btn:hover {
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+.preset-btn.active {
+  background-color: #2196f3;
+  color: white;
+  border-color: #2196f3;
+}
+
+/* ==============================
+   TABS
+   ============================== */
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tab-btn {
+  padding: 0.75rem 2rem;
+  border: none;
+  background-color: white;
+  color: #666;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tab-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.tab-btn.active {
+  background-color: #2196f3;
+  color: white;
+}
+
+/* ==============================
+   KEY METRICS CARDS
+   ============================== */
+
+.metrics-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.metric-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.metric-detail {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+/* ==============================
+   CHART SECTIONS
+   ============================== */
+
+.chart-section {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chart-section h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+/* ==============================
+   TOP PRODUCTS SECTION
+   ============================== */
+
+.top-products-section {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.top-products-section h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.top-products-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .top-products-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.top-products-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.top-products-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.top-products-list table thead {
+  background-color: #f5f7fa;
+}
+
+.top-products-list table th,
+.top-products-list table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.top-products-list table th {
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.top-products-list table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.top-products-list table td:last-child {
+  font-weight: 600;
+  color: #4caf50;
+}
+
+/* ==============================
+   CONSUMPTION TABLE
+   ============================== */
+
+.consumption-tab {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.consumption-tab h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: #2c3e50;
+}
+
+.consumption-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.consumption-table thead {
+  background-color: #2196f3;
+  color: white;
+}
+
+.consumption-table th,
+.consumption-table td {
+  padding: 1rem 1.5rem;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.consumption-table th {
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.consumption-table tbody tr:hover {
+  background-color: #f5f7fa;
+}
+
+.consumption-table tbody tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.consumption-table tbody tr:nth-child(even):hover {
+  background-color: #f0f3f5;
+}
+
+.consumption-table td:last-child {
+  font-weight: 600;
+  color: #ff9800;
+}
+
+/* ==============================
+   LOADING & ERROR STATES
+   ============================== */
+
+.loading-container,
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #2196f3;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.error-container h2 {
+  color: #f44336;
+  margin-bottom: 1rem;
+}
+
+.error-container p {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.btn-retry {
+  padding: 0.75rem 2rem;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btn-retry:hover {
+  background-color: #1976d2;
+}
+
+/* ==============================
+   RESPONSIVE
+   ============================== */
+
+@media (max-width: 768px) {
+  .reports-page {
+    padding: 1rem;
+  }
+
+  .reports-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .reports-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .date-range-picker {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .preset-btn {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .metrics-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+  }
+
+  .chart-section,
+  .top-products-section,
+  .consumption-tab {
+    padding: 1rem;
+  }
+
+  .consumption-table th,
+  .consumption-table td {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+}

@@ -32,6 +32,9 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
+// ÚJ IMPORT - Analytics Dashboard (FE-REP)
+import { ReportsPage } from '@/pages/ReportsPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -202,6 +205,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="menu:manage">
                 <LogisticsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/reports - Analytics Dashboard (FE-REP) */}
+          <Route
+            path="reports"
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <ReportsPage />
               </ProtectedRoute>
             }
           />
