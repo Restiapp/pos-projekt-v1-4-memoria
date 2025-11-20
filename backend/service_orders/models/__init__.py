@@ -18,6 +18,8 @@ from backend.service_orders.models.seat import Seat
 from backend.service_orders.models.order import Order
 from backend.service_orders.models.order_item import OrderItem
 from backend.service_orders.models.payment import Payment
+from backend.service_orders.models.reservation import Reservation, ReservationStatus, ReservationSource
+from backend.service_orders.models.opening_hours import OpeningHours
 
 # Export all models
 __all__ = [
@@ -27,4 +29,8 @@ __all__ = [
     'Order',
     'OrderItem',
     'Payment',
+    'Reservation',
+    'ReservationStatus',
+    'ReservationSource',
+    'OpeningHours',
 ]
