@@ -21,6 +21,7 @@ import {
   recordPayment,
   closeOrder,
   getPaymentsForOrder,
+  printReceipt,
 } from '@/services/paymentService';
 import './PaymentModal.css';
 
@@ -91,6 +92,24 @@ export const PaymentModal = ({
     }
   };
 
+  // Blokk nyomtatása
+  const handlePrintReceipt = async () => {
+    if (isProcessing) return;
+
+    try {
+      setIsProcessing(true);
+      const result = await printReceipt(order.id);
+      alert(result.message || 'Blokk sikeresen kinyomtatva!');
+    } catch (error: any) {
+      console.error('Receipt printing failed:', error);
+      const errorMsg =
+        error.response?.data?.detail || 'Hiba történt a blokk nyomtatása közben!';
+      alert(errorMsg);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // Rendelés lezárása
   const handleCloseOrder = async () => {
     if (isProcessing) return;
@@ -108,6 +127,16 @@ export const PaymentModal = ({
       setIsProcessing(true);
       await closeOrder(order.id);
       alert('Rendelés sikeresen lezárva!');
+
+      // Automatikus nyomtatás sikeres fizetés után
+      try {
+        const result = await printReceipt(order.id);
+        console.log('Receipt printed automatically:', result.message);
+      } catch (printError) {
+        console.error('Auto-print failed:', printError);
+        // Nem dobunk hibát, csak logoljuk
+      }
+
       onPaymentSuccess();
       onClose();
     } catch (error: any) {
@@ -223,8 +252,15 @@ export const PaymentModal = ({
               </div>
             )}
 
-            {/* Rendelés lezárása gomb */}
+            {/* Rendelés lezárása és blokk nyomtatása gombok */}
             <div className="payment-modal-footer">
+              <button
+                onClick={handlePrintReceipt}
+                disabled={isProcessing}
+                className="print-receipt-btn"
+              >
+                {isProcessing ? 'Nyomtatás...' : '🖨️ Blokk nyomtatása'}
+              </button>
               <button
                 onClick={handleCloseOrder}
                 disabled={!isFullyPaid || isProcessing}
