@@ -1,76 +1,70 @@
 /**
- * InventoryPage - Raktárkezelés Dashboard
+ * InventoryPage - Raktárkezelés oldal
  *
- * Tabbed interface for inventory management:
- * - Készlet (Stock): Current inventory levels
- * - Bevételezés (Invoices): Incoming supplier invoices
- * - Készletnapló (Movements): Stock movement history
- * - Selejt (Waste): Waste logging
+ * Főbb funkciók:
+ *   - Tab navigáció: Raktári tételek, Számlák (OCR), Leltár, Selejt
+ *   - InventoryItemsList komponens (raktári tételek kezelése)
+ *   - InvoicesList komponens (számlák OCR feldolgozása és véglegesítése)
+ *   - StocktakingList komponens (leltár számlálások eltérés megjelenítéssel)
+ *   - WasteRecordingModal komponens (selejt rögzítése)
  */
 
 import { useState } from 'react';
-import { InventoryStock } from '@/components/admin/inventory/InventoryStock';
-import { IncomingInvoices } from '@/components/admin/inventory/IncomingInvoices';
-import { StockMovements } from '@/components/admin/inventory/StockMovements';
-import { WasteLogs } from '@/components/admin/inventory/WasteLogs';
+import { InventoryItemsList } from '@/components/inventory/InventoryItemsList';
+import { InvoicesList } from '@/components/inventory/InvoicesList';
+import { StocktakingList } from '@/components/inventory/StocktakingList';
+import { WasteRecordingList } from '@/components/inventory/WasteRecordingList';
 import './InventoryPage.css';
 
-type TabType = 'stock' | 'invoices' | 'movements' | 'waste';
-
-interface Tab {
-  id: TabType;
-  label: string;
-  icon: string;
-}
-
-const TABS: Tab[] = [
-  { id: 'stock', label: 'Készlet', icon: '📦' },
-  { id: 'invoices', label: 'Bevételezés', icon: '📋' },
-  { id: 'movements', label: 'Készletnapló', icon: '📊' },
-  { id: 'waste', label: 'Selejt', icon: '🗑️' },
-];
+type TabType = 'items' | 'invoices' | 'stocktaking' | 'waste';
 
 export const InventoryPage = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('stock');
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'stock':
-        return <InventoryStock />;
-      case 'invoices':
-        return <IncomingInvoices />;
-      case 'movements':
-        return <StockMovements />;
-      case 'waste':
-        return <WasteLogs />;
-      default:
-        return null;
-    }
-  };
+  const [activeTab, setActiveTab] = useState<TabType>('items');
 
   return (
     <div className="inventory-page">
-      <div className="inventory-header">
+      {/* Fejléc */}
+      <header className="inventory-header">
         <h1>📦 Raktárkezelés</h1>
-      </div>
+        <p className="inventory-description">
+          Készlet, számlák, leltár és selejt kezelése
+        </p>
+      </header>
 
-      {/* Tab Navigation */}
-      <div className="inventory-tabs">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            <span className="tab-icon">{tab.icon}</span>
-            <span className="tab-label">{tab.label}</span>
-          </button>
-        ))}
-      </div>
+      {/* Tab navigáció */}
+      <nav className="inventory-tabs">
+        <button
+          className={`tab-button ${activeTab === 'items' ? 'active' : ''}`}
+          onClick={() => setActiveTab('items')}
+        >
+          📦 Raktári tételek
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'invoices' ? 'active' : ''}`}
+          onClick={() => setActiveTab('invoices')}
+        >
+          📄 Számlák (OCR)
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'stocktaking' ? 'active' : ''}`}
+          onClick={() => setActiveTab('stocktaking')}
+        >
+          📋 Leltár
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'waste' ? 'active' : ''}`}
+          onClick={() => setActiveTab('waste')}
+        >
+          🗑️ Selejt
+        </button>
+      </nav>
 
-      {/* Tab Content */}
+      {/* Tab tartalom */}
       <div className="inventory-content">
-        {renderTabContent()}
+        {activeTab === 'items' && <InventoryItemsList />}
+        {activeTab === 'invoices' && <InvoicesList />}
+        {activeTab === 'stocktaking' && <StocktakingList />}
+        {activeTab === 'waste' && <WasteRecordingList />}
       </div>
     </div>
   );

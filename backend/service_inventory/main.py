@@ -23,6 +23,7 @@ from backend.service_inventory.routers import (
     invoice_router,
     recipes_router,
     daily_inventory_router,
+    waste_router,
     internal_router,
     osa_router,
     incoming_invoices_router,
@@ -111,6 +112,14 @@ app.include_router(
     daily_inventory_router,
     prefix="/api/v1/inventory",
     tags=["Daily Inventory"],
+    dependencies=[Depends(require_permission("inventory:manage"))]
+)
+
+# Waste Logging Router (with RBAC)
+app.include_router(
+    waste_router,
+    prefix="/api/v1",
+    tags=["Waste Logging"],
     dependencies=[Depends(require_permission("inventory:manage"))]
 )
 

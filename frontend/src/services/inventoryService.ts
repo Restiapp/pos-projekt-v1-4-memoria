@@ -1,358 +1,435 @@
 /**
- * Inventory Service - API calls for inventory management
+ * Inventory Service - Raktár API hívások
  *
- * Provides methods for:
- * - Inventory items CRUD
- * - Incoming invoices management
- * - Stock movements tracking
- * - Waste logging
+ * Backend endpoints (service_inventory:8007):
+ *   - GET/POST/PATCH/DELETE /api/v1/inventory/items
+ *   - POST /api/v1/invoices/upload
+ *   - POST /api/v1/invoices/{id}/finalize
+ *   - GET/POST/PUT/DELETE /api/v1/inventory/daily-counts
+ *   - POST /api/v1/inventory/waste
+ *
+ * Frontend hívások:
+ *   - /api/inventory/* → Vite proxy → http://localhost:8007/api/v1/inventory/*
+ *   - /api/invoices/* → Vite proxy → http://localhost:8007/api/v1/invoices/*
  */
 
 import apiClient from './api';
+import type {
+  InventoryItem,
+  InventoryItemCreateRequest,
+  InventoryItemUpdateRequest,
+  StockUpdateRequest,
+  SupplierInvoice,
+  FinalizeInvoiceRequest,
+  DailyInventorySheet,
+  DailyInventoryCount,
+  DailyInventoryCountCreateRequest,
+  DailyInventoryCountUpdateRequest,
+  WasteLog,
+  WasteLogCreateRequest,
+  LowStockItem,
+  InventoryValueResponse,
+} from '@/types/inventory';
 
-// ===== TYPES =====
+// ============================================================================
+// Inventory Items Operations (Raktári tételek)
+// ============================================================================
 
-export interface InventoryItem {
-  id: number;
-  name: string;
-  unit: string;
-  current_stock_perpetual: number;
-  last_cost_per_unit: number | null;
-}
-
-export interface InventoryItemCreate {
-  name: string;
-  unit: string;
-  current_stock_perpetual?: number;
-  last_cost_per_unit?: number;
-}
-
-export interface InventoryItemUpdate {
-  name?: string;
-  unit?: string;
-  current_stock_perpetual?: number;
-  last_cost_per_unit?: number;
-}
-
-export interface InventoryItemListResponse {
-  items: InventoryItem[];
-  total: number;
-  page: number;
-  page_size: number;
-}
-
-export interface OCRLineItem {
-  item_name?: string;
-  quantity?: number;
-  unit?: string;
-  unit_price?: number;
-  total_price?: number;
-}
-
-export interface OCRData {
-  raw_text?: string;
-  supplier_name?: string;
-  invoice_number?: string;
-  invoice_date?: string;
-  total_amount?: number;
-  line_items?: OCRLineItem[];
-  confidence_score?: number;
-  additional_data?: Record<string, any>;
-}
-
-export interface SupplierInvoice {
-  id: number;
-  supplier_name: string | null;
-  invoice_date: string | null;
-  total_amount: number | null;
-  status: string;
-  ocr_data?: OCRData | null;
-}
-
-export interface SupplierInvoiceCreate {
-  supplier_name?: string;
-  invoice_date?: string;
-  total_amount?: number;
-  status?: string;
-  ocr_data?: OCRData;
-}
-
-export interface SupplierInvoiceListResponse {
-  items: SupplierInvoice[];
-  total: number;
-  page: number;
-  page_size: number;
-}
-
-export interface StockMovement {
-  id: number;
-  inventory_item_id: number;
-  inventory_item_name?: string;
-  quantity_change: number;
-  reason: string;
-  movement_date: string;
-  user_name?: string;
-  notes?: string;
-}
-
-export interface WasteLog {
-  id: number;
-  inventory_item_id: number;
-  inventory_item_name?: string;
-  quantity: number;
-  reason: string;
-  waste_date: string;
-  noted_by?: string;
-  notes?: string;
-}
-
-export interface WasteLogCreate {
-  inventory_item_id: number;
-  quantity: number;
-  reason: string;
-  waste_date?: string;
-  noted_by?: string;
-  notes?: string;
-}
-
-// ===== INVENTORY ITEMS API =====
-
-export const getInventoryItems = async (
-  page = 1,
-  limit = 20,
-  nameFilter?: string
-): Promise<InventoryItemListResponse> => {
-  const params: Record<string, any> = {
-    skip: (page - 1) * limit,
-    limit,
-  };
-
-  if (nameFilter) {
-    params.name_filter = nameFilter;
+/**
+ * Raktári tételek listázása
+ * GET /api/inventory/items
+ */
+export const getInventoryItems = async (params?: {
+  category?: string;
+  search?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<InventoryItem[]> => {
+  try {
+    const response = await apiClient.get<InventoryItem[]>(
+      '/api/inventory/items',
+      { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching inventory items:', error);
+    throw error;
   }
-
-  const response = await apiClient.get('/api/inventory/items', { params });
-  return response.data;
 };
 
-export const getInventoryItem = async (id: number): Promise<InventoryItem> => {
-  const response = await apiClient.get(`/api/inventory/items/${id}`);
-  return response.data;
+/**
+ * Raktári tétel lekérdezése ID alapján
+ * GET /api/inventory/items/{id}
+ */
+export const getInventoryItemById = async (
+  itemId: number
+): Promise<InventoryItem> => {
+  try {
+    const response = await apiClient.get<InventoryItem>(
+      `/api/inventory/items/${itemId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching inventory item ${itemId}:`, error);
+    throw error;
+  }
 };
 
+/**
+ * Új raktári tétel létrehozása
+ * POST /api/inventory/items
+ */
 export const createInventoryItem = async (
-  data: InventoryItemCreate
+  request: InventoryItemCreateRequest
 ): Promise<InventoryItem> => {
-  const response = await apiClient.post('/api/inventory/items', data);
-  return response.data;
+  try {
+    const response = await apiClient.post<InventoryItem>(
+      '/api/inventory/items',
+      request
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating inventory item:', error);
+    throw error;
+  }
 };
 
+/**
+ * Raktári tétel frissítése
+ * PATCH /api/inventory/items/{id}
+ */
 export const updateInventoryItem = async (
-  id: number,
-  data: InventoryItemUpdate
+  itemId: number,
+  request: InventoryItemUpdateRequest
 ): Promise<InventoryItem> => {
-  const response = await apiClient.patch(`/api/inventory/items/${id}`, data);
-  return response.data;
-};
-
-export const deleteInventoryItem = async (id: number): Promise<void> => {
-  await apiClient.delete(`/api/inventory/items/${id}`);
-};
-
-export const updateItemStock = async (
-  id: number,
-  quantityChange: number,
-  newCostPerUnit?: number
-): Promise<InventoryItem> => {
-  const response = await apiClient.post(`/api/inventory/items/${id}/stock`, {
-    quantity_change: quantityChange,
-    new_cost_per_unit: newCostPerUnit,
-  });
-  return response.data;
-};
-
-export const getLowStockItems = async (
-  threshold = 10.0
-): Promise<InventoryItem[]> => {
-  const response = await apiClient.get('/api/inventory/items/reports/low-stock', {
-    params: { threshold },
-  });
-  return response.data;
-};
-
-export const getTotalInventoryValue = async (): Promise<{
-  total_value: number;
-  currency: string;
-}> => {
-  const response = await apiClient.get('/api/inventory/items/reports/total-value');
-  return response.data;
-};
-
-// ===== SUPPLIER INVOICES API =====
-
-export const getSupplierInvoices = async (
-  page = 1,
-  limit = 20
-): Promise<SupplierInvoiceListResponse> => {
-  // Note: This endpoint might need to be implemented in backend
-  const params = {
-    skip: (page - 1) * limit,
-    limit,
-  };
-
   try {
-    const response = await apiClient.get('/api/inventory/invoices', { params });
+    const response = await apiClient.patch<InventoryItem>(
+      `/api/inventory/items/${itemId}`,
+      request
+    );
     return response.data;
-  } catch (error: any) {
-    // If endpoint doesn't exist yet, return mock data
-    if (error.response?.status === 404) {
-      return {
-        items: [],
-        total: 0,
-        page,
-        page_size: limit,
-      };
-    }
+  } catch (error) {
+    console.error(`Error updating inventory item ${itemId}:`, error);
     throw error;
   }
 };
 
-export const getSupplierInvoice = async (id: number): Promise<SupplierInvoice> => {
-  const response = await apiClient.get(`/api/inventory/invoices/${id}`);
-  return response.data;
+/**
+ * Raktári tétel törlése
+ * DELETE /api/inventory/items/{id}
+ */
+export const deleteInventoryItem = async (itemId: number): Promise<void> => {
+  try {
+    await apiClient.delete(`/api/inventory/items/${itemId}`);
+  } catch (error) {
+    console.error(`Error deleting inventory item ${itemId}:`, error);
+    throw error;
+  }
 };
 
-export const createSupplierInvoice = async (
-  data: SupplierInvoiceCreate
-): Promise<SupplierInvoice> => {
-  const response = await apiClient.post('/api/inventory/invoices', data);
-  return response.data;
+/**
+ * Készlet módosítása (növelés/csökkentés)
+ * POST /api/inventory/items/{id}/stock
+ */
+export const updateStock = async (
+  itemId: number,
+  request: StockUpdateRequest
+): Promise<InventoryItem> => {
+  try {
+    const response = await apiClient.post<InventoryItem>(
+      `/api/inventory/items/${itemId}/stock`,
+      request
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating stock for item ${itemId}:`, error);
+    throw error;
+  }
 };
 
+/**
+ * Alacsony készletű tételek lekérdezése
+ * GET /api/inventory/items/reports/low-stock
+ */
+export const getLowStockItems = async (): Promise<LowStockItem[]> => {
+  try {
+    const response = await apiClient.get<LowStockItem[]>(
+      '/api/inventory/items/reports/low-stock'
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching low stock items:', error);
+    throw error;
+  }
+};
+
+/**
+ * Összes készlet érték lekérdezése
+ * GET /api/inventory/items/reports/total-value
+ */
+export const getTotalInventoryValue = async (): Promise<InventoryValueResponse> => {
+  try {
+    const response = await apiClient.get<InventoryValueResponse>(
+      '/api/inventory/items/reports/total-value'
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching total inventory value:', error);
+    throw error;
+  }
+};
+
+// ============================================================================
+// Supplier Invoices Operations (Szállítói számlák - OCR)
+// ============================================================================
+
+/**
+ * Számla feltöltése OCR feldolgozásra
+ * POST /api/invoices/upload
+ */
 export const uploadInvoice = async (file: File): Promise<SupplierInvoice> => {
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await apiClient.post('/api/inventory/invoices/upload', formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  });
-  return response.data;
-};
-
-export const finalizeInvoice = async (id: number): Promise<SupplierInvoice> => {
-  // Note: This endpoint might need to be implemented in backend
   try {
-    const response = await apiClient.post(`/api/inventory/invoices/${id}/finalize`);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await apiClient.post<SupplierInvoice>(
+      '/api/invoices/upload',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
     return response.data;
-  } catch (error: any) {
-    // If endpoint doesn't exist, just update status
-    if (error.response?.status === 404) {
-      const response = await apiClient.patch(`/api/inventory/invoices/${id}`, {
-        status: 'VÉGLEGESÍTVE',
-      });
-      return response.data;
-    }
+  } catch (error) {
+    console.error('Error uploading invoice:', error);
     throw error;
   }
 };
 
-export const updateSupplierInvoice = async (
-  id: number,
-  data: Partial<SupplierInvoiceCreate>
+/**
+ * Számla véglegesítése
+ * POST /api/invoices/{id}/finalize
+ */
+export const finalizeInvoice = async (
+  invoiceId: number,
+  request?: FinalizeInvoiceRequest
 ): Promise<SupplierInvoice> => {
-  const response = await apiClient.patch(`/api/inventory/invoices/${id}`, data);
-  return response.data;
-};
-
-export const deleteSupplierInvoice = async (id: number): Promise<void> => {
-  await apiClient.delete(`/api/inventory/invoices/${id}`);
-};
-
-// ===== STOCK MOVEMENTS API =====
-
-export const getStockMovements = async (
-  page = 1,
-  limit = 20,
-  itemId?: number,
-  reason?: string
-): Promise<{
-  items: StockMovement[];
-  total: number;
-  page: number;
-  page_size: number;
-}> => {
-  // Note: This endpoint might need to be implemented in backend
-  const params: Record<string, any> = {
-    skip: (page - 1) * limit,
-    limit,
-  };
-
-  if (itemId) params.item_id = itemId;
-  if (reason) params.reason = reason;
-
   try {
-    const response = await apiClient.get('/api/inventory/movements', { params });
+    const response = await apiClient.post<SupplierInvoice>(
+      `/api/invoices/${invoiceId}/finalize`,
+      request || {}
+    );
     return response.data;
-  } catch (error: any) {
-    // If endpoint doesn't exist yet, return mock data
-    if (error.response?.status === 404) {
-      return {
-        items: [],
-        total: 0,
-        page,
-        page_size: limit,
-      };
-    }
+  } catch (error) {
+    console.error(`Error finalizing invoice ${invoiceId}:`, error);
     throw error;
   }
 };
 
-// ===== WASTE LOGS API =====
-
-export const getWasteLogs = async (
-  page = 1,
-  limit = 20,
-  itemId?: number
-): Promise<{
-  items: WasteLog[];
-  total: number;
-  page: number;
-  page_size: number;
-}> => {
-  // Note: This endpoint might need to be implemented in backend
-  const params: Record<string, any> = {
-    skip: (page - 1) * limit,
-    limit,
-  };
-
-  if (itemId) params.item_id = itemId;
-
+/**
+ * Számlák listázása
+ * GET /api/invoices
+ */
+export const getInvoices = async (params?: {
+  ocr_status?: string;
+  finalized?: boolean;
+  limit?: number;
+  offset?: number;
+}): Promise<SupplierInvoice[]> => {
   try {
-    const response = await apiClient.get('/api/inventory/waste', { params });
+    const response = await apiClient.get<SupplierInvoice[]>(
+      '/api/invoices',
+      { params }
+    );
     return response.data;
-  } catch (error: any) {
-    // If endpoint doesn't exist yet, return mock data
-    if (error.response?.status === 404) {
-      return {
-        items: [],
-        total: 0,
-        page,
-        page_size: limit,
-      };
-    }
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
     throw error;
   }
 };
 
+// ============================================================================
+// Daily Inventory Counts Operations (Leltár - Napi számlálások)
+// ============================================================================
+
+/**
+ * Leltár sablonok listázása
+ * GET /api/inventory/daily-sheets
+ */
+export const getDailyInventorySheets = async (params?: {
+  is_active?: boolean;
+  limit?: number;
+  offset?: number;
+}): Promise<DailyInventorySheet[]> => {
+  try {
+    const response = await apiClient.get<DailyInventorySheet[]>(
+      '/api/inventory/daily-sheets',
+      { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching daily inventory sheets:', error);
+    throw error;
+  }
+};
+
+/**
+ * Leltár számlálások listázása
+ * GET /api/inventory/daily-counts
+ */
+export const getDailyInventoryCounts = async (params?: {
+  sheet_id?: number;
+  start_date?: string;
+  end_date?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<DailyInventoryCount[]> => {
+  try {
+    const response = await apiClient.get<DailyInventoryCount[]>(
+      '/api/inventory/daily-counts',
+      { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching daily inventory counts:', error);
+    throw error;
+  }
+};
+
+/**
+ * Leltár számlálás lekérdezése ID alapján
+ * GET /api/inventory/daily-counts/{id}
+ */
+export const getDailyInventoryCountById = async (
+  countId: number
+): Promise<DailyInventoryCount> => {
+  try {
+    const response = await apiClient.get<DailyInventoryCount>(
+      `/api/inventory/daily-counts/${countId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching daily inventory count ${countId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Új leltár számlálás létrehozása
+ * POST /api/inventory/daily-counts
+ */
+export const createDailyInventoryCount = async (
+  request: DailyInventoryCountCreateRequest
+): Promise<DailyInventoryCount> => {
+  try {
+    const response = await apiClient.post<DailyInventoryCount>(
+      '/api/inventory/daily-counts',
+      request
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating daily inventory count:', error);
+    throw error;
+  }
+};
+
+/**
+ * Leltár számlálás frissítése
+ * PUT /api/inventory/daily-counts/{id}
+ */
+export const updateDailyInventoryCount = async (
+  countId: number,
+  request: DailyInventoryCountUpdateRequest
+): Promise<DailyInventoryCount> => {
+  try {
+    const response = await apiClient.put<DailyInventoryCount>(
+      `/api/inventory/daily-counts/${countId}`,
+      request
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating daily inventory count ${countId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Leltár számlálás törlése
+ * DELETE /api/inventory/daily-counts/{id}
+ */
+export const deleteDailyInventoryCount = async (countId: number): Promise<void> => {
+  try {
+    await apiClient.delete(`/api/inventory/daily-counts/${countId}`);
+  } catch (error) {
+    console.error(`Error deleting daily inventory count ${countId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Leltár véglegesítése (státusz frissítés)
+ * PUT /api/inventory/daily-counts/{id}
+ */
+export const finalizeInventoryCount = async (
+  countId: number
+): Promise<DailyInventoryCount> => {
+  try {
+    const response = await apiClient.put<DailyInventoryCount>(
+      `/api/inventory/daily-counts/${countId}`,
+      { status: 'finalized' }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(`Error finalizing inventory count ${countId}:`, error);
+    throw error;
+  }
+};
+
+// ============================================================================
+// Waste Logging Operations (Selejt naplózás)
+// ============================================================================
+
+/**
+ * Selejt naplók listázása
+ * GET /api/inventory/waste
+ */
+export const getWasteLogs = async (params?: {
+  inventory_item_id?: number;
+  start_date?: string;
+  end_date?: string;
+  limit?: number;
+  offset?: number;
+}): Promise<WasteLog[]> => {
+  try {
+    const response = await apiClient.get<WasteLog[]>(
+      '/api/inventory/waste',
+      { params }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching waste logs:', error);
+    throw error;
+  }
+};
+
+/**
+ * Új selejt bejegyzés létrehozása
+ * POST /api/inventory/waste
+ */
 export const createWasteLog = async (
-  data: WasteLogCreate
+  request: WasteLogCreateRequest
 ): Promise<WasteLog> => {
-  const response = await apiClient.post('/api/inventory/waste', data);
-  return response.data;
-};
-
-export const deleteWasteLog = async (id: number): Promise<void> => {
-  await apiClient.delete(`/api/inventory/waste/${id}`);
+  try {
+    const response = await apiClient.post<WasteLog>(
+      '/api/inventory/waste',
+      request
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error creating waste log:', error);
+    throw error;
+  }
 };

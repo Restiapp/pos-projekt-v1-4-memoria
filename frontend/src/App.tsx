@@ -35,6 +35,9 @@ import { VehiclesPage } from '@/pages/VehiclesPage';
 // ÚJ IMPORT - Dashboard Analytics (Reports)
 import { ReportsPage } from '@/pages/ReportsPage';
 
+// ÚJ IMPORT - Fázis 4 (Inventory)
+import { InventoryPage } from '@/pages/InventoryPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -219,17 +222,15 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/reservations - Reservation Calendar */}
-          {/* TEMP DISABLED:
+          {/* ÚJ: Nested Route: /admin/inventory - Raktárkezelés - FÁZIS 4 */}
           <Route
-            path="reservations"
+            path="inventory"
             element={
-              <ProtectedRoute requiredPermission="orders:manage">
-                <ReservationsPage />
+              <ProtectedRoute requiredPermission="inventory:manage">
+                <InventoryPage />
               </ProtectedRoute>
             }
           />
-          */}
 
           {/* TODO: További admin modulok (kategóriák, stb.) */}
           {/* <Route path="categories" element={<CategoryList />} /> */}
