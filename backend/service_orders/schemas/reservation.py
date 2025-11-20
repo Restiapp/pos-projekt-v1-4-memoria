@@ -6,7 +6,9 @@ in the Service Orders module (Module 1).
 """
 
 from typing import Optional
-from datetime import datetime, date, time
+from datetime import datetime
+from datetime import date as DateType
+from datetime import time as TimeType
 from pydantic import BaseModel, Field, ConfigDict, EmailStr, field_validator
 
 from backend.service_orders.models.reservation import ReservationStatus, ReservationSource
@@ -184,7 +186,7 @@ class ReservationListResponse(BaseModel):
 class AvailabilityQuery(BaseModel):
     """Schema for availability query parameters."""
 
-    date: date = Field(
+    date: DateType = Field(
         ...,
         description="Date to check availability",
         examples=["2025-01-20"]
@@ -208,7 +210,7 @@ class AvailabilityQuery(BaseModel):
 class TimeSlot(BaseModel):
     """Schema for a single available time slot."""
 
-    time: time = Field(
+    time: TimeType = Field(
         ...,
         description="Available time slot",
         examples=["18:00:00", "19:30:00"]
@@ -223,7 +225,7 @@ class TimeSlot(BaseModel):
 class AvailabilityResponse(BaseModel):
     """Schema for availability check response."""
 
-    date: date = Field(
+    date: DateType = Field(
         ...,
         description="Date queried"
     )
