@@ -7,7 +7,7 @@ in the Menu Service (Module 0), including multi-language support and channel vis
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 
@@ -155,7 +155,11 @@ class ProductInDB(ProductBase):
 
 class ProductResponse(ProductInDB):
     """Schema for product API responses."""
-    pass
+    # Import the AllergenResponse at runtime to avoid circular imports
+    allergens: List[Any] = Field(
+        default_factory=list,
+        description="List of allergens associated with this product"
+    )
 
 
 class ProductDetailResponse(ProductResponse):

@@ -78,6 +78,17 @@ from .image_asset import (
     ImageProcessingEvent,
 )
 
+# Allergen schemas
+from .allergen import (
+    AllergenBase,
+    AllergenCreate,
+    AllergenUpdate,
+    AllergenInDB,
+    AllergenResponse,
+    AllergenListResponse,
+    ProductAllergenAssignment,
+)
+
 __all__ = [
     # Category
     "CategoryBase",
@@ -128,4 +139,12 @@ __all__ = [
     "SignedUploadUrlRequest",
     "ImageProcessingStatus",
     "ImageProcessingEvent",
+    # Allergen
+    "AllergenBase",
+    "AllergenCreate",
+    "AllergenUpdate",
+    "AllergenInDB",
+    "AllergenResponse",
+    "AllergenListResponse",
+    "ProductAllergenAssignment",
 ]

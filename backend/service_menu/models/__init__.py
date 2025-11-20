@@ -17,7 +17,11 @@ from backend.service_menu.models.product import Product
 from backend.service_menu.models.image_asset import ImageAsset
 from backend.service_menu.models.modifier_group import ModifierGroup
 from backend.service_menu.models.modifier import Modifier
-from backend.service_menu.models.associations import product_modifier_group_associations
+from backend.service_menu.models.allergen import Allergen
+from backend.service_menu.models.associations import (
+    product_modifier_group_associations,
+    product_allergen_associations
+)
 from backend.service_menu.models.channel_visibility import ChannelVisibility
 
 # Export all models
@@ -28,6 +32,8 @@ __all__ = [
     'ImageAsset',
     'ModifierGroup',
     'Modifier',
+    'Allergen',
     'product_modifier_group_associations',
+    'product_allergen_associations',
     'ChannelVisibility',
 ]
