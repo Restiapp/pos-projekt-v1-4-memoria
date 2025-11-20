@@ -117,3 +117,25 @@ export const getPaymentsForOrder = async (
     throw error;
   }
 };
+
+/**
+ * Blokk nyomtatása egy rendeléshez
+ * @param orderId - Rendelés azonosító
+ * @returns Nyomtatás eredménye
+ */
+export const printReceipt = async (
+  orderId: number
+): Promise<{ success: boolean; message: string; file_path: string; order_id: number }> => {
+  try {
+    const response = await apiClient.post<{
+      success: boolean;
+      message: string;
+      file_path: string;
+      order_id: number;
+    }>(`/api/orders/${orderId}/print-receipt`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error printing receipt for order ${orderId}:`, error);
+    throw error;
+  }
+};

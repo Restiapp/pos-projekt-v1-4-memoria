@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from backend.service_orders.models.database import get_db
 from backend.service_orders.services.order_service import OrderService
 from backend.service_orders.services.payment_service import PaymentService
+from backend.service_orders.services.printer_service import PrinterService
 from backend.service_orders.schemas.order import (
     OrderCreate,
     OrderUpdate,
@@ -631,3 +632,69 @@ def change_order_type(
         new_type=request.new_order_type,
         message=f"Rendelés típusa sikeresen megváltoztatva: {previous_type} -> {request.new_order_type.value}"
     )
+
+
+# ============================================================================
+# RECEIPT PRINTING ENDPOINT ([D-PRN] - Thermal Receipt Printing)
+# ============================================================================
+
+@orders_router.post(
+    "/{order_id}/print-receipt",
+    status_code=status.HTTP_200_OK,
+    summary="Print receipt for an order",
+    description="""
+    **[D-PRN] Thermal Receipt Printing Feature**: Print a formatted receipt for a completed order.
+
+    This endpoint generates a formatted text receipt containing:
+    - Restaurant information (name, address, tax ID)
+    - Order details (number, type, date)
+    - Order items with quantities and prices
+    - Modifiers and notes for each item
+    - Total amount with VAT breakdown
+    - Payment methods and amounts
+    - "Thank you" footer
+
+    The receipt is saved to a text file in the `printer_output/` directory and
+    also printed to the console (for development purposes).
+
+    In production, this can be replaced with an ESC/POS driver for actual
+    thermal printer integration.
+
+    **Important notes:**
+    - Receipt files are named: `receipt_{order_id}_{timestamp}.txt`
+    - All amounts are displayed in HUF currency
+    - VAT breakdown is calculated based on the order's final_vat_rate
+    """
+)
+async def print_receipt(
+    order_id: int,
+    db: Session = Depends(get_db)
+) -> dict:
+    """
+    Blokk nyomtatása egy rendeléshez.
+
+    Args:
+        order_id: A rendelés azonosítója
+        db: Database session (injected)
+
+    Returns:
+        dict: Nyomtatás eredménye (success, message, file_path, order_id)
+
+    Raises:
+        HTTPException 404: Ha a rendelés nem található
+        HTTPException 400: Ha a nyomtatás sikertelen
+
+    Example:
+        POST /orders/42/print-receipt
+
+    Example success response:
+        {
+            "success": true,
+            "message": "Blokk sikeresen kinyomtatva: receipt_42_20240115_143000.txt",
+            "file_path": "/path/to/printer_output/receipt_42_20240115_143000.txt",
+            "order_id": 42
+        }
+    """
+    printer_service = PrinterService()
+    result = await printer_service.print_receipt(db, order_id)
+    return result
