@@ -45,6 +45,13 @@ const MENU_ITEMS: MenuItem[] = [
     permission: 'orders:manage',
   },
   {
+    id: 'reservations',
+    label: 'Foglalások',
+    icon: '📅',
+    path: '/admin/reservations',
+    permission: 'orders:manage',
+  },
+  {
     id: 'employees',
     label: 'Munkavállalók',
     icon: '👥',

@@ -18,7 +18,6 @@ import { RoleList } from '@/components/admin/RoleList';
 import { CustomerList } from '@/components/admin/CustomerList';
 import { CouponList } from '@/components/admin/CouponList';
 import { GiftCardList } from '@/components/admin/GiftCardList';
-import { LoyaltySettings } from '@/components/admin/LoyaltySettings';
 
 // ÚJ IMPORTOK - V3.0 Hullám 10
 import { OperatorPage } from '@/pages/OperatorPage';
@@ -33,24 +32,16 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
-// ÚJ IMPORT - Rendelésfelvétel UI
-import { OrderPage } from '@/pages/OrderPage';
-
-// ÚJ IMPORT - Module 5 (Inventory)
-import { InventoryPage } from '@/pages/InventoryPage';
-
-// ÚJ IMPORT - Analytics Dashboard (FE-REP)
-import { ReportsPage } from '@/pages/ReportsPage';
+// ÚJ IMPORT - Reservation Calendar
+import ReservationsPage from '@/pages/ReservationsPage';
 
 function App() {
-  const { loadUserFromStorage, isAuthenticated, user } = useAuth();
+  const { loadUserFromStorage } = useAuth();
 
   // Komponens mount-kor: storage-ból betöltjük a user-t (ha van)
   useEffect(() => {
-    console.log('[App] Initializing auth from storage...');
     loadUserFromStorage();
-    console.log('[App] Auth initialized:', { isAuthenticated, user: user?.username });
-  }, []); // Remove loadUserFromStorage from deps to avoid re-runs
+  }, [loadUserFromStorage]);
 
   return (
     <BrowserRouter>
@@ -74,16 +65,6 @@ function App() {
           element={
             <ProtectedRoute>
               <TableMapPage />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* ÚJ ROUTE: Rendelésfelvétel */}
-        <Route
-          path="/orders/new"
-          element={
-            <ProtectedRoute>
-              <OrderPage />
             </ProtectedRoute>
           }
         />
@@ -218,16 +199,6 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/loyalty - CRM Hűségprogram beállítások */}
-          <Route
-            path="loyalty"
-            element={
-              <ProtectedRoute requiredPermission="menu:manage">
-                <LoyaltySettings />
-              </ProtectedRoute>
-            }
-          />
-
           {/* ÚJ: Nested Route: /admin/logistics - Logisztikai Adminisztráció */}
           <Route
             path="logistics"
@@ -238,22 +209,12 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/inventory - Raktárkezelés - MODULE 5 */}
+          {/* ÚJ: Nested Route: /admin/reservations - Reservation Calendar */}
           <Route
-            path="inventory"
+            path="reservations"
             element={
-              <ProtectedRoute requiredPermission="menu:manage">
-                <InventoryPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ÚJ: Nested Route: /admin/reports - Analytics Dashboard (FE-REP) */}
-          <Route
-            path="reports"
-            element={
-              <ProtectedRoute requiredPermission="menu:manage">
-                <ReportsPage />
+              <ProtectedRoute requiredPermission="orders:manage">
+                <ReservationsPage />
               </ProtectedRoute>
             }
           />
