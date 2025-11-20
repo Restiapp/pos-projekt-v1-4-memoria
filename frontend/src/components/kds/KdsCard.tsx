@@ -77,6 +77,19 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
 
       {/* Termék neve + mennyiség */}
       <div className="kds-card-body">
+        {item.course && (
+          <span className="course-badge" style={{
+            display: 'inline-block',
+            padding: '2px 8px',
+            fontSize: '0.75rem',
+            backgroundColor: '#f0f0f0',
+            borderRadius: '4px',
+            marginBottom: '8px',
+            fontWeight: 500
+          }}>
+            {item.course}
+          </span>
+        )}
         <h3 className="product-name">{item.product_name}</h3>
         <p className="quantity">Mennyiség: {item.quantity}x</p>
         {item.notes && <p className="notes">📝 {item.notes}</p>}

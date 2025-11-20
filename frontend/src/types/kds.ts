@@ -23,6 +23,7 @@ export interface KdsItem {
   station: KdsStation;     // Melyik állomáshoz tartozik
   created_at: string;      // Létrehozás időpontja (ISO datetime)
   notes: string | null;    // Megjegyzések (ha van)
+  course: string | null;   // Fogás típus (pl. "Előétel", "Főétel", "Desszert")
   table_number?: string;   // Asztalszám (opcionális, ha rendeléshez tartozik)
 }
 
