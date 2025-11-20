@@ -107,6 +107,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/modifier_groups/, '/api/v1/modifier_groups')
       },
+      '/api/modifier-groups': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/modifier-groups/, '/api/v1/modifier-groups')
+      },
       '/api/images': {
         target: 'http://localhost:8001',
         changeOrigin: true,
