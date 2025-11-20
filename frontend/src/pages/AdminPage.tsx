@@ -82,6 +82,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/vehicles',
     permission: 'vehicles:manage', // TODO: Add vehicles:manage permission to RBAC
   },
+  // ÚJ MENÜPONT - Dashboard Analytics (Reports)
+  {
+    id: 'reports',
+    label: 'Riportok',
+    icon: '📊',
+    path: '/admin/reports',
+    permission: 'reports:view', // TODO: Add reports:view permission to RBAC
+  },
   // CRM menüpontok
   {
     id: 'customers',
