@@ -112,6 +112,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/logistics',
     permission: 'menu:manage', // TODO: Add logistics:manage permission
   },
+  // ÚJ MENÜPONT - MODULE 5 (Inventory)
+  {
+    id: 'inventory',
+    label: 'Raktárkezelés',
+    icon: '📦',
+    path: '/admin/inventory',
+    permission: 'menu:manage', // TODO: Add inventory:manage permission
+  },
 ];
 
 export const AdminPage = () => {

@@ -1,0 +1,217 @@
+/* IncomingInvoices.css */
+
+.incoming-invoices {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header Section */
+.invoices-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.invoices-header h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.invoices-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Table */
+.invoices-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.invoices-table thead {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.invoices-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 0.9rem;
+}
+
+.invoices-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.invoices-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.numeric {
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem !important;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.status-badge.status-pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.status-finalized {
+  background-color: #d1e7dd;
+  color: #0f5132;
+}
+
+.status-badge.status-draft {
+  background-color: #e2e3e5;
+  color: #41464b;
+}
+
+.status-badge.status-approved {
+  background-color: #cfe2ff;
+  color: #084298;
+}
+
+.status-badge.status-default {
+  background-color: #f8f9fa;
+  color: #495057;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-icon:hover {
+  background-color: #e9ecef;
+}
+
+.btn-icon.success:hover {
+  background-color: #d1e7dd;
+}
+
+.btn-icon.danger:hover {
+  background-color: #fee;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.page-info {
+  font-size: 0.95rem;
+  color: #495057;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .invoices-header {
+    flex-direction: column;
+  }
+
+  .invoices-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .invoices-table {
+    font-size: 0.85rem;
+  }
+
+  .invoices-table th,
+  .invoices-table td {
+    padding: 0.5rem;
+  }
+}
