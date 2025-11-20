@@ -159,7 +159,8 @@ from backend.service_admin.routers import (
     finance_router,
     integrations_router,
     asset_router,
-    vehicle_router
+    vehicle_router,
+    reports_router
 )
 
 # Register internal API router (V. Fázis - NTAK és Audit)
@@ -215,6 +216,13 @@ app.include_router(
     vehicle_router,
     prefix="/api/v1",
     tags=["Vehicles"]
+)
+
+# Register Reporting & Analytics router with /api/v1 prefix
+app.include_router(
+    reports_router,
+    prefix="/api/v1",
+    tags=["Reports & Analytics"]
 )
 
 
