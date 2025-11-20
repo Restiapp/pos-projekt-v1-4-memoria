@@ -6,7 +6,7 @@ operations in the Service Admin module, including sales reports, product analyti
 and inventory consumption tracking.
 """
 
-from datetime import date, datetime
+from datetime import date as DateType, datetime
 from typing import Optional, List
 from decimal import Decimal
 
@@ -22,7 +22,7 @@ class DailySalesData(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    date: date = Field(
+    date: DateType = Field(
         ...,
         description="Nap dátuma",
         examples=["2024-01-15", "2024-02-20"]
