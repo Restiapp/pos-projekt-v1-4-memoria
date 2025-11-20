@@ -14,6 +14,7 @@ from backend.service_orders.routers.orders import orders_router
 from backend.service_orders.routers.order_items import router as order_items_router
 from backend.service_orders.routers.kds import router as kds_router
 from .reservations import router as reservations_router
+from backend.service_orders.routers.reports import reports_router
 
 __all__ = [
     "tables_router",
@@ -22,4 +23,5 @@ __all__ = [
     "order_items_router",
     "kds_router",
     "reservations_router",
+    "reports_router",
 ]

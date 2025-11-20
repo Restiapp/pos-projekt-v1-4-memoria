@@ -23,7 +23,8 @@ from backend.service_orders.routers import (
     orders_router,
     order_items_router,
     kds_router,
-    reservations_router
+    reservations_router,
+    reports_router
 )
 
 # Create FastAPI application
@@ -80,6 +81,12 @@ app.include_router(
     prefix="/api/v1",
     tags=["Reservations"],
     dependencies=[Depends(require_permission("orders:manage"))]
+)
+
+# Register reports router WITHOUT RBAC (internal endpoint for service_admin)
+app.include_router(
+    reports_router,
+    tags=["Reports"]
 )
 
 

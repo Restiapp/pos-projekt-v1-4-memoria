@@ -6,7 +6,7 @@ in the Service Admin module, including cash drawer operations and daily closures
 """
 
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict
 from decimal import Decimal
 
 from pydantic import BaseModel, Field, ConfigDict
@@ -184,25 +184,10 @@ class DailyClosureResponse(BaseModel):
         None,
         description="Eltérés"
     )
-    total_cash: Optional[Decimal] = Field(
+    payment_summary: Optional[Dict[str, float]] = Field(
         None,
-        description="Készpénzes fizetések összege",
-        examples=[50000.00, 125000.50]
-    )
-    total_card: Optional[Decimal] = Field(
-        None,
-        description="Bankkártyás fizetések összege",
-        examples=[75000.00, 200000.00]
-    )
-    total_szep_card: Optional[Decimal] = Field(
-        None,
-        description="SZÉP kártya fizetések összege",
-        examples=[25000.00, 50000.00]
-    )
-    total_revenue: Optional[Decimal] = Field(
-        None,
-        description="Összes bevétel",
-        examples=[150000.00, 375000.50]
+        description="Fizetési módok szerinti összegzés",
+        examples=[{"KESZPENZ": 10000.00, "KARTYA": 5000.00, "SZEP_KARTYA": 2000.00}]
     )
     notes: Optional[str] = Field(
         None,
