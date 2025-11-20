@@ -107,6 +107,16 @@ from .finance import (
     SzamlazzHuInvoiceResponse,
 )
 
+# Report schemas
+from .report import (
+    SalesByDateResponse,
+    SalesReportResponse,
+    TopProductResponse,
+    TopProductsReportResponse,
+    InventoryConsumptionItem,
+    ConsumptionReportResponse,
+)
+
 __all__ = [
     # NTAK
     "NTAKLineItem",
@@ -156,4 +166,11 @@ __all__ = [
     "SzamlazzHuInvoiceItem",
     "SzamlazzHuInvoiceRequest",
     "SzamlazzHuInvoiceResponse",
+    # Reports
+    "SalesByDateResponse",
+    "SalesReportResponse",
+    "TopProductResponse",
+    "TopProductsReportResponse",
+    "InventoryConsumptionItem",
+    "ConsumptionReportResponse",
 ]
