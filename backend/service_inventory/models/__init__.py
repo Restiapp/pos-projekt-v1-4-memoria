@@ -12,7 +12,12 @@ Importálás:
         SupplierInvoice,
         DailyInventorySheet,
         DailyInventoryCount,
-        WasteLog
+        WasteLog,
+        IncomingInvoice,
+        IncomingInvoiceItem,
+        InvoiceStatus,
+        StockMovement,
+        MovementReason
     )
 """
 
@@ -29,6 +34,15 @@ from backend.service_inventory.models.daily_inventory_sheet import (
     daily_inventory_sheet_items
 )
 from backend.service_inventory.models.waste_log import WasteLog
+from backend.service_inventory.models.incoming_invoice import (
+    IncomingInvoice,
+    IncomingInvoiceItem,
+    InvoiceStatus
+)
+from backend.service_inventory.models.stock_movement import (
+    StockMovement,
+    MovementReason
+)
 
 # Export all models
 __all__ = [
@@ -40,4 +54,9 @@ __all__ = [
     'DailyInventoryCount',
     'daily_inventory_sheet_items',
     'WasteLog',
+    'IncomingInvoice',
+    'IncomingInvoiceItem',
+    'InvoiceStatus',
+    'StockMovement',
+    'MovementReason',
 ]
