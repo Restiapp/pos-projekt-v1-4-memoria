@@ -39,6 +39,9 @@ import { OrderPage } from '@/pages/OrderPage';
 // ÚJ IMPORT - Module 5 (Inventory)
 import { InventoryPage } from '@/pages/InventoryPage';
 
+// ÚJ IMPORT - Analytics Dashboard (FE-REP)
+import { ReportsPage } from '@/pages/ReportsPage';
+
 function App() {
   const { loadUserFromStorage, isAuthenticated, user } = useAuth();
 
@@ -241,6 +244,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="menu:manage">
                 <InventoryPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/reports - Analytics Dashboard (FE-REP) */}
+          <Route
+            path="reports"
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <ReportsPage />
               </ProtectedRoute>
             }
           />

@@ -8,7 +8,6 @@
  * Jogosultság: menu:manage (ProtectedRoute-ban ellenőrzött)
  */
 
-import { useState } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { notify } from '@/utils/notifications';
@@ -127,6 +126,14 @@ const MENU_ITEMS: MenuItem[] = [
     icon: '📦',
     path: '/admin/inventory',
     permission: 'menu:manage', // TODO: Add inventory:manage permission
+  },
+  // ÚJ MENÜPONT - Analytics Dashboard (FE-REP)
+  {
+    id: 'reports',
+    label: 'Riportok',
+    icon: '📊',
+    path: '/admin/reports',
+    permission: 'menu:manage', // TODO: Add reports:view permission
   },
 ];
 
