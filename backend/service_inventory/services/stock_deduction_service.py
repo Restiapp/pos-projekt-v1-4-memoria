@@ -14,6 +14,8 @@ import httpx
 
 from backend.service_inventory.services.recipe_service import RecipeService
 from backend.service_inventory.services.inventory_service import InventoryService
+from backend.service_inventory.services.stock_movement_service import StockMovementService
+from backend.service_inventory.models import MovementReason, InventoryItem
 from backend.service_inventory.config import settings
 from backend.service_inventory.models.database import get_db
 
@@ -249,11 +251,21 @@ class StockDeductionService:
                     quantity_per_unit = float(recipe.quantity_used)
                     total_quantity = quantity_per_unit * quantity
 
-                    # Deduct from inventory (negative quantity_change)
-                    updated_item = self.inventory_service.update_stock(
-                        item_id=inventory_item_id,
-                        quantity_change=-total_quantity
+                    # Deduct from inventory using StockMovementService (logs movement automatically)
+                    movement = StockMovementService.create_movement(
+                        db=self.db,
+                        inventory_item_id=inventory_item_id,
+                        change_amount=Decimal(str(-total_quantity)),  # Negative = decrease
+                        reason=MovementReason.SALE,
+                        related_id=item_id,  # Order item ID
+                        notes=f"Order {order_id}: {quantity}x product {product_id}",
+                        commit=True
                     )
+
+                    # Get updated item info
+                    updated_item = self.db.query(InventoryItem).filter(
+                        InventoryItem.id == inventory_item_id
+                    ).first()
 
                     if updated_item:
                         successful.append({
@@ -263,12 +275,14 @@ class StockDeductionService:
                             "inventory_item_name": updated_item.name,
                             "quantity_deducted": total_quantity,
                             "remaining_stock": float(updated_item.current_stock_perpetual),
-                            "unit": updated_item.unit
+                            "unit": updated_item.unit,
+                            "stock_movement_id": movement.id
                         })
 
                         logger.info(
                             f"[STOCK DEDUCTION] Deducted {total_quantity} {updated_item.unit} "
-                            f"of {updated_item.name} (remaining: {updated_item.current_stock_perpetual})"
+                            f"of {updated_item.name} (remaining: {updated_item.current_stock_perpetual}) "
+                            f"[Movement ID: {movement.id}]"
                         )
 
             except ValueError as e:
