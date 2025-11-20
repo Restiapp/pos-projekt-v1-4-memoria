@@ -7,6 +7,7 @@
 # - service_menu: Module 0 - Menu Service (Port 8001)
 # - service_orders: Module 1 - Orders Service (Port 8002)
 # - service_inventory: Module 5 - Inventory Service (Port 8003)
+# - service_crm: Module C-Epic - CRM/Loyalty Service (Port 8004)
 # - service_logistics: Module V3.0 - Logistics Service (Port 8005)
 # - service_admin: Module 6 & 8 - Admin/RBAC/NTAK Service (Port 8008)
 #
@@ -227,6 +228,44 @@ services:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8005/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - pos-network
+
+  # ============================================================================
+  # Module C-Epic - CRM Service (Customer Relationship Management)
+  # ============================================================================
+  service_crm:
+    build:
+      context: .
+      dockerfile: backend/service_crm/Dockerfile
+    container_name: pos-service-crm
+    restart: unless-stopped
+    ports:
+      - "8004:8004"  # Host:Container - CRM runs on 8004 internally
+    environment:
+      # Database connection
+      DATABASE_URL: postgresql://pos_user:${POSTGRES_PASSWORD:-pos_password_dev}@postgres:5432/pos_db
+
+      # Service configuration
+      PORT: 8004
+
+      # Inter-service URLs
+      ORDERS_SERVICE_URL: http://service_orders:8001
+      ADMIN_SERVICE_URL: http://service_admin:8008
+
+      # HOTFIX (H1.1): Cross-service import requires these ENV vars
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-your-secret-key-change-in-production}
+      NTAK_API_KEY: ${NTAK_API_KEY:-dummy-key}
+      NTAK_TAX_NUMBER: ${NTAK_TAX_NUMBER:-00000000-0-00}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8004/health"]
       interval: 30s
       timeout: 10s
       retries: 3

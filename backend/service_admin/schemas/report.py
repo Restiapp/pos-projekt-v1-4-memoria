@@ -5,7 +5,7 @@ This module defines the request and response schemas for reporting operations
 in the Service Admin module, including sales reports, top products, and consumption.
 """
 
-from datetime import date, datetime
+from datetime import date as DateType, datetime
 from typing import Optional, List
 from decimal import Decimal
 
@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field, ConfigDict
 class SalesByDateResponse(BaseModel):
     """Schema for daily sales breakdown."""
 
-    date: date = Field(
+    date: DateType = Field(
         ...,
         description="Nap dátuma",
         examples=["2024-01-15"]
@@ -64,12 +64,12 @@ class SalesByDateResponse(BaseModel):
 class SalesReportResponse(BaseModel):
     """Schema for sales report response."""
 
-    start_date: date = Field(
+    start_date: DateType = Field(
         ...,
         description="Kezdő dátum",
         examples=["2024-01-01"]
     )
-    end_date: date = Field(
+    end_date: DateType = Field(
         ...,
         description="Befejező dátum",
         examples=["2024-01-31"]
@@ -150,12 +150,12 @@ class TopProductsReportResponse(BaseModel):
         description="Kért toplista mérete",
         examples=[10, 20, 50]
     )
-    start_date: Optional[date] = Field(
+    start_date: Optional[DateType] = Field(
         None,
         description="Kezdő dátum (ha van)",
         examples=["2024-01-01"]
     )
-    end_date: Optional[date] = Field(
+    end_date: Optional[DateType] = Field(
         None,
         description="Befejező dátum (ha van)",
         examples=["2024-01-31"]
@@ -228,12 +228,12 @@ class InventoryConsumptionItem(BaseModel):
 class ConsumptionReportResponse(BaseModel):
     """Schema for consumption report response."""
 
-    start_date: Optional[date] = Field(
+    start_date: Optional[DateType] = Field(
         None,
         description="Kezdő dátum (ha van)",
         examples=["2024-01-01"]
     )
-    end_date: Optional[date] = Field(
+    end_date: Optional[DateType] = Field(
         None,
         description="Befejező dátum (ha van)",
         examples=["2024-01-31"]
