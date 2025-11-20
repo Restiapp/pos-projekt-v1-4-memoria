@@ -14,6 +14,7 @@ from .products import router as products_router
 from .modifier_groups import router as modifier_groups_router
 from .images import router as images_router
 from .channels import router as channels_router
+from .allergens import router as allergens_router
 
 __all__ = [
     "categories_router",
@@ -21,4 +22,5 @@ __all__ = [
     "modifier_groups_router",
     "images_router",
     "channels_router",
+    "allergens_router",
 ]

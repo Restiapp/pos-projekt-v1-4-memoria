@@ -22,6 +22,7 @@ from backend.service_menu.routers import (
     modifier_groups_router,
     images_router,
     channels_router,
+    allergens_router,
 )
 
 # Create FastAPI application
@@ -104,6 +105,13 @@ app.include_router(
     channels_router,
     prefix="/api/v1",
     tags=["Channels"],
+    dependencies=[Depends(require_permission("menu:view"))]
+)
+
+app.include_router(
+    allergens_router,
+    prefix="/api/v1",
+    tags=["Allergens"],
     dependencies=[Depends(require_permission("menu:view"))]
 )
 

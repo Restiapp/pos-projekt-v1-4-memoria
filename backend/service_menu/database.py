@@ -22,7 +22,9 @@ from backend.service_menu.models import (
     ImageAsset,
     ModifierGroup,
     Modifier,
+    Allergen,
     product_modifier_group_associations,
+    product_allergen_associations,
     ChannelVisibility,
 )
 
