@@ -33,7 +33,7 @@ import { AssetsPage } from '@/pages/AssetsPage';
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
 // ÚJ IMPORT - Reservation Calendar
-import ReservationsPage from '@/pages/ReservationsPage';
+// TEMP DISABLED: import ReservationsPage from '@/pages/ReservationsPage';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -210,6 +210,7 @@ function App() {
           />
 
           {/* ÚJ: Nested Route: /admin/reservations - Reservation Calendar */}
+          {/* TEMP DISABLED:
           <Route
             path="reservations"
             element={
@@ -218,6 +219,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          */}
 
           {/* TODO: További admin modulok (kategóriák, stb.) */}
           {/* <Route path="categories" element={<CategoryList />} /> */}
