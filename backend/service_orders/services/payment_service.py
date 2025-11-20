@@ -13,8 +13,9 @@ Fázis 4.6: PaymentService implementáció
 
 from decimal import Decimal
 from typing import List, Dict, Any, Optional
+from datetime import date, datetime
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, cast, Date
 from fastapi import HTTPException, status
 
 from backend.service_orders.models.payment import Payment
@@ -292,3 +293,49 @@ class PaymentService:
         )
 
         return response
+
+    @staticmethod
+    def get_daily_payment_summary(db: Session, target_date: date) -> Dict[str, float]:
+        """
+        Egy adott naphoz tartozó fizetések összegzése fizetési mód szerint.
+
+        Ez a metódus támogatja a napi pénztárzárást azáltal, hogy összegzi,
+        mennyi bevétel érkezett az egyes fizetési módokon keresztül.
+
+        Args:
+            db: SQLAlchemy session
+            target_date: A dátum, amelyre az összegzést el kell készíteni
+
+        Returns:
+            Dict[str, float]: Fizetési mód -> összeg párosok
+            Példa: {"KESZPENZ": 10000.00, "KARTYA": 5000.00, "SZEP_KARTYA": 2000.00}
+
+        Example:
+            >>> from datetime import date
+            >>> summary = PaymentService.get_daily_payment_summary(db, date(2024, 1, 15))
+            >>> print(f"Készpénz bevétel: {summary.get('KESZPENZ', 0)} HUF")
+        """
+        # Kezdő és záró időpontok meghatározása (teljes nap)
+        start_datetime = datetime.combine(target_date, datetime.min.time())
+        end_datetime = datetime.combine(target_date, datetime.max.time())
+
+        # Fizetések lekérdezése az adott napról, fizetési mód szerint csoportosítva
+        # Csak sikeres fizetéseket veszünk figyelembe
+        results = db.query(
+            Payment.payment_method,
+            func.sum(Payment.amount).label('total')
+        ).filter(
+            Payment.created_at >= start_datetime,
+            Payment.created_at <= end_datetime,
+            Payment.status == 'SIKERES'
+        ).group_by(
+            Payment.payment_method
+        ).all()
+
+        # Eredmények átalakítása dictionary formátumba
+        payment_summary = {}
+        for payment_method, total in results:
+            # Decimalt float-ra konvertálunk a JSON szerializálhatóság miatt
+            payment_summary[payment_method] = float(total) if total else 0.0
+
+        return payment_summary

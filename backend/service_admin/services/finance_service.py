@@ -8,11 +8,13 @@ Ez a service felelős a pénzügyi műveletek kezeléséért:
 - Pénzmozgások nyomon követése
 """
 
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime, date
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_, func
+import httpx
+import logging
 
 from backend.service_admin.models.finance import (
     CashMovement,
@@ -20,6 +22,10 @@ from backend.service_admin.models.finance import (
     DailyClosure,
     ClosureStatus
 )
+from backend.service_admin.config import settings
+
+# Logger inicializálás
+logger = logging.getLogger(__name__)
 
 
 class FinanceService:
@@ -311,10 +317,14 @@ class FinanceService:
 
         expected_closing_balance = closure.opening_balance + movements_sum
 
+        # Fizetési módok szerinti összegzés lekérése a service_orders-től
+        payment_summary = self._fetch_payment_summary(closure.closure_date)
+
         # Frissítjük a zárást
         closure.expected_closing_balance = expected_closing_balance
         closure.actual_closing_balance = actual_closing_balance
         closure.difference = actual_closing_balance - expected_closing_balance
+        closure.payment_summary = payment_summary  # Fizetési módok szerinti bontás
         closure.status = ClosureStatus.CLOSED
         closure.closed_at = datetime.now()
 
@@ -330,6 +340,45 @@ class FinanceService:
         self.db.refresh(closure)
 
         return closure
+
+    def _fetch_payment_summary(self, closure_date: datetime) -> Optional[Dict[str, float]]:
+        """
+        Fizetési módok szerinti összegzés lekérése a service_orders-től.
+
+        Args:
+            closure_date: A zárás dátuma
+
+        Returns:
+            Optional[Dict[str, float]]: Fizetési módok szerinti összegzés vagy None hiba esetén
+        """
+        try:
+            # Dátum konvertálása ISO formátumra (YYYY-MM-DD)
+            target_date = closure_date.date().isoformat()
+
+            # HTTP kérés a service_orders felé
+            url = f"{settings.orders_service_url}/api/v1/reports/daily-payments"
+            params = {"target_date": target_date}
+
+            with httpx.Client(timeout=10.0) as client:
+                response = client.get(url, params=params)
+                response.raise_for_status()  # Raise exception for 4xx/5xx responses
+
+            payment_summary = response.json()
+            logger.info(f"Fizetési összegzés sikeresen lekérve: {payment_summary}")
+
+            return payment_summary
+
+        except httpx.HTTPStatusError as e:
+            logger.error(
+                f"HTTP hiba a fizetési összegzés lekérésekor: {e.response.status_code} - {e.response.text}"
+            )
+            return None
+        except httpx.RequestError as e:
+            logger.error(f"Hálózati hiba a fizetési összegzés lekérésekor: {str(e)}")
+            return None
+        except Exception as e:
+            logger.error(f"Váratlan hiba a fizetési összegzés lekérésekor: {str(e)}")
+            return None
 
     def get_daily_closures(
         self,
