@@ -19,6 +19,7 @@ from .recipes import router as recipes_router
 from .daily_inventory import daily_inventory_router
 from .internal_router import internal_router
 from .osa_integration_router import osa_router
+from .waste import router as waste_router
 
 __all__ = [
     # Inventory Items Router (Phase 5.1)
@@ -32,6 +33,9 @@ __all__ = [
 
     # Daily Inventory Router (Phase 5.4)
     "daily_inventory_router",
+
+    # Waste Router (Phase 5.5 - Waste Logging)
+    "waste_router",
 
     # Internal API Router (V3.0/F3.A - Stock Deduction)
     "internal_router",
