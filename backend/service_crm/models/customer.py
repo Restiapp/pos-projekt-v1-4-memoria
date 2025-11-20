@@ -7,7 +7,7 @@ Tartalmazza a személyes adatokat, kapcsolattartási információkat,
 és a törzsvásárlói pontokat.
 """
 
-from sqlalchemy import Column, Integer, String, Numeric, Boolean, TIMESTAMP, Text
+from sqlalchemy import Column, Integer, String, Numeric, Boolean, TIMESTAMP, Text, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -47,6 +47,8 @@ class Customer(Base):
     # Additional Information
     birth_date = Column(TIMESTAMP(timezone=False), nullable=True)
     notes = Column(Text, nullable=True)
+    tags = Column(JSON, nullable=True, default=list)  # List of tags (e.g., ["VIP", "Vegetarian"])
+    last_visit = Column(TIMESTAMP(timezone=True), nullable=True)  # Last visit timestamp
 
     # Account Status
     is_active = Column(Boolean, nullable=False, default=True)

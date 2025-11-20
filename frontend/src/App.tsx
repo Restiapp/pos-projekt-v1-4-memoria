@@ -18,6 +18,7 @@ import { RoleList } from '@/components/admin/RoleList';
 import { CustomerList } from '@/components/admin/CustomerList';
 import { CouponList } from '@/components/admin/CouponList';
 import { GiftCardList } from '@/components/admin/GiftCardList';
+import { LoyaltySettings } from '@/components/admin/LoyaltySettings';
 
 // ÚJ IMPORTOK - V3.0 Hullám 10
 import { OperatorPage } from '@/pages/OperatorPage';
@@ -192,6 +193,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="menu:manage">
                 <GiftCardList />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/loyalty - CRM Hűségprogram beállítások */}
+          <Route
+            path="loyalty"
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <LoyaltySettings />
               </ProtectedRoute>
             }
           />

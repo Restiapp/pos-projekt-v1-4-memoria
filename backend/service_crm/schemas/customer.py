@@ -56,6 +56,11 @@ class CustomerBase(BaseModel):
         None,
         description="Additional notes about the customer"
     )
+    tags: Optional[list[str]] = Field(
+        None,
+        description="Customer tags (e.g., VIP, Vegetarian)",
+        examples=[["VIP", "Vegetarian"], ["Regular"]]
+    )
 
 
 class CustomerCreate(CustomerBase):
@@ -103,6 +108,10 @@ class CustomerUpdate(BaseModel):
         None,
         description="Additional notes about the customer"
     )
+    tags: Optional[list[str]] = Field(
+        None,
+        description="Customer tags (e.g., VIP, Vegetarian)"
+    )
     is_active: Optional[bool] = Field(
         None,
         description="Customer account status"
@@ -144,6 +153,10 @@ class CustomerInDB(CustomerBase):
     is_active: bool = Field(
         ...,
         description="Customer account status"
+    )
+    last_visit: Optional[datetime] = Field(
+        None,
+        description="Timestamp of customer's last visit"
     )
     created_at: datetime = Field(
         ...,
