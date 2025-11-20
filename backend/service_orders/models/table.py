@@ -36,6 +36,7 @@ class Table(Base):
     # Relationships
     seats = relationship('Seat', back_populates='table', cascade='all, delete-orphan')
     orders = relationship('Order', back_populates='table')
+    reservations = relationship('Reservation', back_populates='table')
 
     def __repr__(self):
         return f"<Table(id={self.id}, table_number='{self.table_number}', capacity={self.capacity})>"

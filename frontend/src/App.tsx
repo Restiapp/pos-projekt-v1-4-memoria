@@ -32,6 +32,9 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
+// ÚJ IMPORT - Reservation Calendar
+import ReservationsPage from '@/pages/ReservationsPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -202,6 +205,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="menu:manage">
                 <LogisticsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/reservations - Reservation Calendar */}
+          <Route
+            path="reservations"
+            element={
+              <ProtectedRoute requiredPermission="orders:manage">
+                <ReservationsPage />
               </ProtectedRoute>
             }
           />
