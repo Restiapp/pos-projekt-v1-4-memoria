@@ -40,11 +40,10 @@ export const updateItemStatus = async (
   status: KdsStatus
 ): Promise<KdsItem> => {
   try {
-    const payload: UpdateKdsStatusRequest = { kds_status: status };
-    // CRITICAL FIX (C7.2): Add /orders prefix to match backend router
+    // CRITICAL FIX: Send status as QUERY parameter, not in body
+    // Backend expects: PATCH /items/{item_id}/kds-status?status=PREPARING
     const response = await apiClient.patch<KdsItem>(
-      `/api/orders/items/${itemId}/kds-status`,
-      payload
+      `/api/orders/items/${itemId}/kds-status?status=${status}`
     );
     return response.data;
   } catch (error) {

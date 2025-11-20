@@ -24,6 +24,7 @@ export interface KdsItem {
   created_at: string;      // Létrehozás időpontja (ISO datetime)
   notes: string | null;    // Megjegyzések (ha van)
   table_number?: string;   // Asztalszám (opcionális, ha rendeléshez tartozik)
+  course?: string | null;  // Fogás típusa (pl. "Előétel", "Főétel", "Desszert")
 }
 
 // API Response típus (GET /api/v1/kds/stations/{station}/items)
