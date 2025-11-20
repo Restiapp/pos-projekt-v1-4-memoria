@@ -22,6 +22,9 @@ import type {
   Category,
   CategoryListResponse,
 } from '@/types/menu';
+import type {
+  ModifierGroupWithModifiers,
+} from '@/types/modifier';
 
 // =====================================================
 // PRODUCTS
@@ -125,5 +128,27 @@ export const getCategories = async (
  */
 export const getCategoryById = async (id: number): Promise<Category> => {
   const response = await apiClient.get<Category>(`/api/categories/${id}`);
+  return response.data;
+};
+
+// =====================================================
+// MODIFIER GROUPS
+// =====================================================
+
+/**
+ * GET /api/modifier-groups/products/{product_id}/modifier-groups
+ * Get all modifier groups for a specific product
+ * Proxy Target: http://localhost:8001/api/v1/modifier-groups/products/{product_id}/modifier-groups
+ */
+export const getModifierGroupsByProduct = async (
+  productId: number,
+  includeModifiers: boolean = true
+): Promise<ModifierGroupWithModifiers[]> => {
+  const response = await apiClient.get<ModifierGroupWithModifiers[]>(
+    `/api/modifier-groups/products/${productId}/modifier-groups`,
+    {
+      params: { include_modifiers: includeModifiers },
+    }
+  );
   return response.data;
 };

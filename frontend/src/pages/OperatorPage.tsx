@@ -1,26 +1,24 @@
 /**
  * OperatorPage - Telefonos Rendelésfelvételi Felület
- * V3.0 Fázis 5: GlobalHeader integrálva
+ * V4.0: Product Builder Modal Integration
  *
  * Funkciók:
  *   - Vendégkeresés (név, telefonszám alapján)
- *   - Új vendég létrehozása
- *   - "Új Kiszállítási Rendelés" gomb (placeholder)
+ *   - Termékválasztás Product Grid-el
+ *   - Product Builder Modal (modifiers, course, notes)
+ *   - Kosár kezelés
  *   - Zóna ellenőrzés irányítószám alapján
- *
- * TODO (V4.0):
- *   - Teljes rendelésfelvételi folyamat integrációja
- *   - Termékválasztás, kosár kezelés
- *   - Fizetési mód választás
  */
 
 import { useState } from 'react';
 import { GlobalHeader } from '@/components/layout/GlobalHeader';
+import { ProductGrid } from '@/components/operator/ProductGrid';
+import { CartSummary } from '@/components/operator/CartSummary';
+import type { CartItem } from '@/components/operator/ProductBuilderModal';
 import { getCustomers } from '@/services/crmService';
 import { getZoneByZipCode } from '@/services/logisticsService';
 import type { Customer } from '@/types/customer';
 import type { DeliveryZone } from '@/types/logistics';
-import { notify } from '@/utils/notifications';
 import './OperatorPage.css';
 
 export const OperatorPage = () => {
@@ -34,10 +32,14 @@ export const OperatorPage = () => {
   const [deliveryZone, setDeliveryZone] = useState<DeliveryZone | null>(null);
   const [zoneMessage, setZoneMessage] = useState('');
 
+  // Cart state
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [showProducts, setShowProducts] = useState(false);
+
   // Vendég keresés
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
-      notify.warning('Kérlek adj meg keresési kifejezést (név, email, telefon)!');
+      alert('Kérlek adj meg keresési kifejezést (név, email, telefon)!');
       return;
     }
 
@@ -46,11 +48,11 @@ export const OperatorPage = () => {
       const response = await getCustomers(1, 10, undefined, searchTerm);
       setSearchResults(response.items);
       if (response.items.length === 0) {
-        notify.info('Nem található vendég ezzel a keresési kifejezéssel.');
+        alert('Nem található vendég ezzel a keresési kifejezéssel.');
       }
     } catch (error) {
       console.error('Hiba a vendég keresésekor:', error);
-      notify.error('Nem sikerült megtalálni a vendéget!');
+      alert('Nem sikerült megtalálni a vendéget!');
     } finally {
       setIsSearching(false);
     }
@@ -66,7 +68,7 @@ export const OperatorPage = () => {
   // Zóna ellenőrzés irányítószám alapján
   const handleCheckZone = async () => {
     if (!zipCode.trim()) {
-      notify.warning('Kérlek adj meg irányítószámot!');
+      alert('Kérlek adj meg irányítószámot!');
       return;
     }
 
@@ -76,18 +78,55 @@ export const OperatorPage = () => {
       setZoneMessage(response.message);
     } catch (error) {
       console.error('Hiba a zóna ellenőrzésekor:', error);
-      notify.error('Nem sikerült ellenőrizni a zónát!');
+      alert('Nem sikerült ellenőrizni a zónát!');
     }
   };
 
-  // Új rendelés indítása (placeholder)
+  // Új rendelés indítása
   const handleStartNewOrder = () => {
     if (!selectedCustomer) {
-      notify.warning('Először válassz ki egy vendéget!');
+      alert('Először válassz ki egy vendéget!');
       return;
     }
-    notify.info(
-      `ÚJ KISZÁLLÍTÁSI RENDELÉS\n\nVendég: ${selectedCustomer.first_name} ${selectedCustomer.last_name}\n\n(Ez még placeholder funkció - V4.0-ban lesz teljes rendelésfelvétel)`
+    setShowProducts(true);
+  };
+
+  // Cart handlers
+  const handleAddToCart = (item: CartItem) => {
+    setCartItems([...cartItems, item]);
+  };
+
+  const handleUpdateQuantity = (index: number, newQuantity: number) => {
+    if (newQuantity < 1) return;
+    const updatedItems = [...cartItems];
+    updatedItems[index].quantity = newQuantity;
+    setCartItems(updatedItems);
+  };
+
+  const handleRemoveItem = (index: number) => {
+    const updatedItems = cartItems.filter((_, i) => i !== index);
+    setCartItems(updatedItems);
+  };
+
+  const handleClearCart = () => {
+    if (confirm('Biztosan törölni szeretnéd a kosár tartalmát?')) {
+      setCartItems([]);
+    }
+  };
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) {
+      alert('A kosár üres!');
+      return;
+    }
+    if (!selectedCustomer) {
+      alert('Nincs kiválasztott vendég!');
+      return;
+    }
+
+    // TODO: Implement order creation
+    alert(
+      `RENDELÉS LEADÁSA\n\nVendég: ${selectedCustomer.first_name} ${selectedCustomer.last_name}\nTételek száma: ${cartItems.length}\n\n(Rendelés létrehozása következik...)`
     );
   };
 
@@ -99,6 +138,42 @@ export const OperatorPage = () => {
       minimumFractionDigits: 0,
     }).format(price);
   };
+
+  // If products are shown, display the product builder interface
+  if (showProducts) {
+    return (
+      <div className="operator-page">
+        <GlobalHeader currentPage="operator" />
+
+        <div className="operator-product-layout">
+          {/* Product Grid */}
+          <div className="product-grid-panel">
+            <div className="panel-header">
+              <h2>🍽️ Termékválasztás</h2>
+              <button
+                className="back-btn"
+                onClick={() => setShowProducts(false)}
+              >
+                ← Vissza
+              </button>
+            </div>
+            <ProductGrid onAddToCart={handleAddToCart} />
+          </div>
+
+          {/* Cart Summary */}
+          <div className="cart-panel">
+            <CartSummary
+              cartItems={cartItems}
+              onUpdateQuantity={handleUpdateQuantity}
+              onRemoveItem={handleRemoveItem}
+              onClearCart={handleClearCart}
+              onCheckout={handleCheckout}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="operator-page">
