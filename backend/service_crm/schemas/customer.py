@@ -7,7 +7,7 @@ in the Service CRM module (Module 5).
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 
@@ -56,6 +56,15 @@ class CustomerBase(BaseModel):
         None,
         description="Additional notes about the customer"
     )
+    tags: Optional[List[str]] = Field(
+        None,
+        description="Customer tags/labels (e.g., ['VIP', 'Regular', 'New'])",
+        examples=[["VIP", "Regular"], ["New Customer"]]
+    )
+    last_visit: Optional[datetime] = Field(
+        None,
+        description="Last visit/order timestamp"
+    )
 
 
 class CustomerCreate(CustomerBase):
@@ -102,6 +111,14 @@ class CustomerUpdate(BaseModel):
     notes: Optional[str] = Field(
         None,
         description="Additional notes about the customer"
+    )
+    tags: Optional[List[str]] = Field(
+        None,
+        description="Customer tags/labels"
+    )
+    last_visit: Optional[datetime] = Field(
+        None,
+        description="Last visit/order timestamp"
     )
     is_active: Optional[bool] = Field(
         None,
