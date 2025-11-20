@@ -35,6 +35,9 @@ import { VehiclesPage } from '@/pages/VehiclesPage';
 // ÚJ IMPORT - Rendelésfelvétel UI
 import { OrderPage } from '@/pages/OrderPage';
 
+// ÚJ IMPORT - Module 5 (Inventory)
+import { InventoryPage } from '@/pages/InventoryPage';
+
 function App() {
   const { loadUserFromStorage, isAuthenticated, user } = useAuth();
 
@@ -217,6 +220,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="menu:manage">
                 <LogisticsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/inventory - Raktárkezelés - MODULE 5 */}
+          <Route
+            path="inventory"
+            element={
+              <ProtectedRoute requiredPermission="menu:manage">
+                <InventoryPage />
               </ProtectedRoute>
             }
           />
