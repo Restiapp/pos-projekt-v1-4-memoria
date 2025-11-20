@@ -105,6 +105,13 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/gift_cards',
     permission: 'menu:manage', // TODO: Add crm:manage permission
   },
+  {
+    id: 'loyalty',
+    label: 'Hűségprogram',
+    icon: '💎',
+    path: '/admin/loyalty',
+    permission: 'menu:manage', // TODO: Add crm:manage permission
+  },
   // ÚJ MENÜPONT - V3.0 Hullám 10
   {
     id: 'logistics',

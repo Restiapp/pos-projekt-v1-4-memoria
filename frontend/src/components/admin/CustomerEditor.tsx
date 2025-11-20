@@ -35,6 +35,10 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
     is_active: customer?.is_active ?? true,
   });
 
+  // Tags állapot
+  const [tags, setTags] = useState<string[]>(customer?.tags || []);
+  const [newTag, setNewTag] = useState('');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form mező változás
@@ -52,6 +56,20 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
 
     // String mezők
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Tag hozzáadása
+  const handleAddTag = () => {
+    const trimmedTag = newTag.trim();
+    if (trimmedTag && !tags.includes(trimmedTag)) {
+      setTags([...tags, trimmedTag]);
+      setNewTag('');
+    }
+  };
+
+  // Tag eltávolítása
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
   // Form submit (létrehozás / frissítés)
@@ -88,6 +106,7 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           sms_consent: formData.sms_consent,
           birth_date: formData.birth_date || undefined,
           notes: formData.notes || undefined,
+          tags: tags.length > 0 ? tags : undefined,
           is_active: formData.is_active,
         };
         await updateCustomer(customer.id, updateData);
@@ -103,6 +122,7 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           sms_consent: formData.sms_consent,
           birth_date: formData.birth_date || undefined,
           notes: formData.notes || undefined,
+          tags: tags.length > 0 ? tags : undefined,
         };
         await createCustomer(createData);
         notify.success('Vendég sikeresen létrehozva!');
@@ -224,6 +244,56 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
               value={formData.birth_date}
               onChange={handleChange}
             />
+          </div>
+
+          {/* Tag-ek */}
+          <div className="form-group">
+            <label htmlFor="tags">Tag-ek</label>
+            <div className="tags-input-container">
+              <div className="tags-display">
+                {tags.length > 0 ? (
+                  tags.map((tag, idx) => (
+                    <span key={idx} className="tag-badge editable">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="tag-remove-btn"
+                        title="Tag eltávolítása"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))
+                ) : (
+                  <span className="no-tags">Nincsenek tag-ek</span>
+                )}
+              </div>
+              <div className="tag-input-row">
+                <input
+                  id="tags"
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  placeholder="pl. VIP, Vegetáriánus, Törzsvendég..."
+                  maxLength={50}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddTag}
+                  className="add-tag-btn"
+                  disabled={!newTag.trim()}
+                >
+                  ➕ Hozzáad
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Marketing hozzájárulás */}

@@ -40,6 +40,15 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Kuponkód generálása
+  const generateCouponCode = () => {
+    const prefix = 'COUPON';
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const code = `${prefix}-${randomPart}-${timestamp}`;
+    setFormData((prev) => ({ ...prev, code }));
+  };
+
   // Form mező változás
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -158,18 +167,30 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
             <label htmlFor="code">
               Kuponkód <span className="required">*</span>
             </label>
-            <input
-              id="code"
-              name="code"
-              type="text"
-              value={formData.code}
-              onChange={handleChange}
-              placeholder="pl. WELCOME10, SUMMER2024"
-              required
-              maxLength={50}
-              disabled={isEditing} // Szerkesztésnél nem lehet változtatni
-              className={isEditing ? 'readonly-input' : ''}
-            />
+            <div className="code-input-row">
+              <input
+                id="code"
+                name="code"
+                type="text"
+                value={formData.code}
+                onChange={handleChange}
+                placeholder="pl. WELCOME10, SUMMER2024"
+                required
+                maxLength={50}
+                disabled={isEditing} // Szerkesztésnél nem lehet változtatni
+                className={isEditing ? 'readonly-input' : ''}
+              />
+              {!isEditing && (
+                <button
+                  type="button"
+                  onClick={generateCouponCode}
+                  className="generate-code-btn"
+                  title="Automatikus kódgenerálás"
+                >
+                  🎲 Generálás
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Leírás */}
