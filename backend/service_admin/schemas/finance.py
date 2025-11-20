@@ -184,6 +184,11 @@ class DailyClosureResponse(BaseModel):
         None,
         description="Eltérés"
     )
+    payment_summary: Optional[dict] = Field(
+        None,
+        description="Fizetési módok szerinti bontás",
+        examples=[{"KESZPENZ": 10000.00, "KARTYA": 5000.00, "SZEP_KARTYA": 2000.00}]
+    )
     notes: Optional[str] = Field(
         None,
         description="Megjegyzések"

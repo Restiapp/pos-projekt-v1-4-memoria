@@ -7,6 +7,7 @@ Támogatja a készpénzes tranzakciók nyomon követését és a napi elszámol�
 """
 
 from sqlalchemy import Column, Integer, String, DECIMAL, TIMESTAMP, Text, Index, ForeignKey, Enum as SQLEnum
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -125,6 +126,10 @@ class DailyClosure(Base):
 
     # Eltérés (actual - expected)
     difference = Column(DECIMAL(10, 2), nullable=True)
+
+    # Fizetési módok szerinti bontás
+    # Formátum: {"KESZPENZ": 10000.00, "KARTYA": 5000.00, "SZEP_KARTYA": 2000.00}
+    payment_summary = Column(JSONB, nullable=True)
 
     # Megjegyzések/indoklás
     notes = Column(Text, nullable=True)

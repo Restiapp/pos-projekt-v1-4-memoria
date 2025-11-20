@@ -8,11 +8,12 @@ Ez a service felelős a pénzügyi műveletek kezeléséért:
 - Pénzmozgások nyomon követése
 """
 
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime, date
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_, func
+import httpx
 
 from backend.service_admin.models.finance import (
     CashMovement,
@@ -20,6 +21,7 @@ from backend.service_admin.models.finance import (
     DailyClosure,
     ClosureStatus
 )
+from backend.service_admin.config import settings
 
 
 class FinanceService:
@@ -272,6 +274,34 @@ class FinanceService:
 
         return closure
 
+    def _fetch_payment_summary(self, closure_date: date) -> Optional[Dict[str, float]]:
+        """
+        Lekéri a fizetési összesítőt a service_orders-től.
+
+        Args:
+            closure_date: A zárás dátuma
+
+        Returns:
+            Dict[str, float]: Fizetési módok szerinti bontás vagy None hiba esetén
+        """
+        try:
+            # Call the orders service to get payment summary
+            url = f"{settings.orders_service_url}/api/v1/reports/daily-payments"
+            params = {"report_date": closure_date.isoformat()}
+
+            with httpx.Client(timeout=10.0) as client:
+                response = client.get(url, params=params)
+
+                if response.status_code == 200:
+                    data = response.json()
+                    return data.get("payment_summary", {})
+                else:
+                    print(f"Warning: Failed to fetch payment summary: {response.status_code}")
+                    return None
+        except Exception as e:
+            print(f"Warning: Error fetching payment summary: {e}")
+            return None
+
     def close_daily_closure(
         self,
         closure_id: int,
@@ -311,10 +341,15 @@ class FinanceService:
 
         expected_closing_balance = closure.opening_balance + movements_sum
 
+        # Fetch payment summary from orders service
+        closure_date = closure.closure_date.date() if isinstance(closure.closure_date, datetime) else closure.closure_date
+        payment_summary = self._fetch_payment_summary(closure_date)
+
         # Frissítjük a zárást
         closure.expected_closing_balance = expected_closing_balance
         closure.actual_closing_balance = actual_closing_balance
         closure.difference = actual_closing_balance - expected_closing_balance
+        closure.payment_summary = payment_summary
         closure.status = ClosureStatus.CLOSED
         closure.closed_at = datetime.now()
 
