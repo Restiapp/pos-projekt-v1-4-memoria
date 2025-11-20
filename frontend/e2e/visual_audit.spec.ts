@@ -23,9 +23,9 @@ test.describe('A-Epic Visual Audit - Complete Flow', () => {
     await page.goto('http://localhost:5173/login');
     await page.waitForLoadState('networkidle');
 
-    // Fill login form
-    await page.fill('input[name="username"], input[type="text"]', 'admin');
-    await page.fill('input[name="password"], input[type="password"]', 'admin123');
+    // Fill login form with correct credentials
+    await page.fill('#username', 'admin');
+    await page.fill('#pin', '1234');
 
     // Take screenshot BEFORE clicking login
     await page.screenshot({
@@ -34,12 +34,12 @@ test.describe('A-Epic Visual Audit - Complete Flow', () => {
     });
     console.log('[STEP 1] Screenshot saved: 01-login.png');
 
-    // Click login button
-    const loginButton = page.locator('button:has-text("Belépés"), button:has-text("Login"), button[type="submit"]').first();
+    // Click login button with correct text
+    const loginButton = page.locator('button:has-text("Bejelentkezés")');
     await loginButton.click();
 
-    // Wait for navigation to complete
-    await page.waitForURL(/\/tables|\/admin|\/operator/, { timeout: 10000 });
+    // Wait for navigation to /tables
+    await page.waitForURL('**/tables', { timeout: 10000 });
     await page.waitForLoadState('networkidle');
 
     // ========================================
