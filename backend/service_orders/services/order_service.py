@@ -693,3 +693,108 @@ class OrderService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Hiba a rendelés típusának módosítása során: {str(e)}"
             )
+
+    @staticmethod
+    def assign_courier(
+        db: Session,
+        order_id: int,
+        courier_id: int
+    ) -> Order:
+        """
+        Futár hozzárendelése egy rendeléshez.
+
+        V4.0 Feature: Courier Assignment Integration
+
+        Args:
+            db: SQLAlchemy session
+            order_id: A rendelés azonosítója
+            courier_id: A futár azonosítója (service_logistics)
+
+        Returns:
+            Order: A frissített rendelés a hozzárendelt futárral
+
+        Raises:
+            HTTPException: Ha a rendelés nem létezik vagy hiba történik
+
+        Example:
+            >>> updated_order = OrderService.assign_courier(db, order_id=42, courier_id=5)
+        """
+        try:
+            # Rendelés lekérése
+            order = db.query(Order).filter(Order.id == order_id).first()
+
+            if not order:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Rendelés nem található: ID={order_id}"
+                )
+
+            # Ellenőrizzük, hogy a rendelés típusa Kiszállítás-e
+            if order.order_type != "Kiszállítás":
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Csak 'Kiszállítás' típusú rendeléshez lehet futárt rendelni. "
+                           f"Jelenlegi típus: {order.order_type}"
+                )
+
+            # Frissítsük a rendelés courier_id mezőjét
+            previous_courier_id = order.courier_id
+            order.courier_id = courier_id
+
+            # V4.0: REAL HTTP hívás a service_logistics felé
+            # Futár státuszának frissítése ON_DELIVERY-re
+            try:
+                logger.info(
+                    f"Updating courier {courier_id} status to ON_DELIVERY for order {order_id}"
+                )
+
+                with httpx.Client() as client:
+                    logistics_url = f"{settings.logistics_service_url}/api/v1/couriers/{courier_id}/status"
+                    payload = {"new_status": "on_delivery"}
+                    response = client.patch(logistics_url, json=payload, timeout=5.0)
+
+                    if response.status_code == 200:
+                        courier_data = response.json()
+                        logger.info(
+                            f"Courier {courier_id} status updated successfully: {courier_data.get('status')}"
+                        )
+                    else:
+                        logger.warning(
+                            f"Failed to update courier {courier_id} status: HTTP {response.status_code}"
+                        )
+                        # Ne blokkoljuk a rendelés frissítést, ha a logistics API nem elérhető
+
+            except httpx.HTTPError as e:
+                # Graceful failure: log but don't block courier assignment
+                logger.warning(
+                    f"Failed to update courier {courier_id} status via logistics API: {str(e)}"
+                )
+
+            # NTAK adatok frissítése (audit trail)
+            if order.ntak_data is None:
+                order.ntak_data = {}
+
+            order.ntak_data["courier_assignment"] = {
+                "courier_id": courier_id,
+                "previous_courier_id": previous_courier_id,
+                "assigned_at": datetime.now().isoformat()
+            }
+
+            db.commit()
+            db.refresh(order)
+
+            logger.info(
+                f"Courier assigned successfully: order_id={order_id}, courier_id={courier_id}"
+            )
+
+            return order
+
+        except HTTPException:
+            # HTTPException-öket tovább dobni
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Hiba a futár hozzárendelése során: {str(e)}"
+            )

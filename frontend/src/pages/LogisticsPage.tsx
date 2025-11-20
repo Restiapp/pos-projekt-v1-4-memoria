@@ -13,6 +13,7 @@
  */
 
 import { useState } from 'react';
+import { DispatchPanel } from '@/components/DispatchPanel';
 import './LogisticsPage.css';
 
 type TabType = 'couriers' | 'zones' | 'deliveries';
@@ -55,7 +56,7 @@ export const LogisticsPage = () => {
       <main className="logistics-content">
         {activeTab === 'couriers' && <CourierManagerPlaceholder />}
         {activeTab === 'zones' && <ZoneManagerPlaceholder />}
-        {activeTab === 'deliveries' && <DeliveryListPlaceholder />}
+        {activeTab === 'deliveries' && <DispatchPanel />}
       </main>
     </div>
   );

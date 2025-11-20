@@ -53,6 +53,11 @@ class OrderBase(BaseModel):
         description="Customer identifier (V3.0: for CRM integration)",
         examples=[1, 42, None]
     )
+    courier_id: Optional[int] = Field(
+        None,
+        description="Courier identifier (V4.0: for delivery assignment)",
+        examples=[1, 5, None]
+    )
     total_amount: Optional[Decimal] = Field(
         None,
         ge=0,
@@ -106,6 +111,10 @@ class OrderUpdate(BaseModel):
     customer_id: Optional[int] = Field(
         None,
         description="Customer identifier"
+    )
+    courier_id: Optional[int] = Field(
+        None,
+        description="Courier identifier"
     )
     total_amount: Optional[Decimal] = Field(
         None,
@@ -245,4 +254,47 @@ class OrderTypeChangeResponse(BaseModel):
         ...,
         description="Confirmation message",
         examples=["Rendelés típusa sikeresen megváltoztatva: Helyben -> Elvitel"]
+    )
+
+
+# ============================================================================
+# COURIER ASSIGNMENT SCHEMAS (V4.0 / Phase 4.A - Logistics)
+# ============================================================================
+
+class AssignCourierRequest(BaseModel):
+    """
+    Schema for assigning a courier to a delivery order.
+
+    V4.0 Feature: Courier Assignment Integration
+    """
+
+    courier_id: int = Field(
+        ...,
+        description="The ID of the courier to assign to this order",
+        examples=[1, 5, 10]
+    )
+
+
+class AssignCourierResponse(BaseModel):
+    """
+    Schema for courier assignment response.
+
+    Contains the updated order information and confirmation of the assignment.
+
+    V4.0 Feature: Courier Assignment Integration
+    """
+
+    order: OrderResponse = Field(
+        ...,
+        description="The updated order with the assigned courier"
+    )
+    courier_id: int = Field(
+        ...,
+        description="The ID of the assigned courier",
+        examples=[1, 5, 10]
+    )
+    message: str = Field(
+        ...,
+        description="Confirmation message",
+        examples=["Futár sikeresen hozzárendelve a rendeléshez"]
     )

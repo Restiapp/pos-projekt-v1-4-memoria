@@ -24,7 +24,9 @@ from backend.service_orders.schemas.order import (
     OrderStatusEnum,
     OrderTypeEnum,
     OrderTypeChangeRequest,
-    OrderTypeChangeResponse
+    OrderTypeChangeResponse,
+    AssignCourierRequest,
+    AssignCourierResponse
 )
 from backend.service_orders.schemas.payment import (
     PaymentCreate,
@@ -630,4 +632,78 @@ def change_order_type(
         previous_type=previous_type,
         new_type=request.new_order_type,
         message=f"Rendelés típusa sikeresen megváltoztatva: {previous_type} -> {request.new_order_type.value}"
+    )
+
+
+# ============================================================================
+# V4.0: COURIER ASSIGNMENT ENDPOINT
+# ============================================================================
+
+@orders_router.post(
+    "/{order_id}/assign-courier",
+    response_model=AssignCourierResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Assign courier to delivery order",
+    description="Assigns a courier to a delivery order and updates courier status to ON_DELIVERY in service_logistics."
+)
+def assign_courier_to_order(
+    order_id: int,
+    request: AssignCourierRequest,
+    db: Session = Depends(get_db)
+) -> AssignCourierResponse:
+    """
+    Assign a courier to a delivery order (V4.0 Feature).
+
+    This endpoint:
+    1. Updates the order's courier_id field
+    2. Calls service_logistics to update courier status to ON_DELIVERY
+    3. Records the assignment in NTAK audit data
+
+    Args:
+        order_id: The ID of the order to assign the courier to
+        request: Courier assignment request containing courier_id
+        db: Database session (injected)
+
+    Returns:
+        AssignCourierResponse: The updated order with assigned courier
+
+    Raises:
+        HTTPException 404: If order not found
+        HTTPException 400: If order type is not 'Kiszállítás' or other validation error
+
+    Example request body:
+        {
+            "courier_id": 5
+        }
+
+    Example success response:
+        {
+            "order": {
+                "id": 42,
+                "order_type": "Kiszállítás",
+                "courier_id": 5,
+                "status": "NYITOTT",
+                ...
+            },
+            "courier_id": 5,
+            "message": "Futár sikeresen hozzárendelve a rendeléshez"
+        }
+
+    Example error response (wrong order type):
+        {
+            "detail": "Csak 'Kiszállítás' típusú rendeléshez lehet futárt rendelni. Jelenlegi típus: Helyben"
+        }
+    """
+    # Call the service layer which handles all business logic and validation
+    updated_order = OrderService.assign_courier(
+        db=db,
+        order_id=order_id,
+        courier_id=request.courier_id
+    )
+
+    # Build the response
+    return AssignCourierResponse(
+        order=OrderResponse.model_validate(updated_order),
+        courier_id=request.courier_id,
+        message="Futár sikeresen hozzárendelve a rendeléshez"
     )
