@@ -1,111 +1,71 @@
 /**
- * Order Types - Backend API sémákkal szinkronban
+ * Order típusok - Backend API sémákkal szinkronban
  * Backend: backend/service_orders/schemas/order.py
- * Backend: backend/service_orders/schemas/order_item.py
  */
 
-// Order Type Enum
-export enum OrderTypeEnum {
-  HELYBEN = "Helyben",
-  ELVITEL = "Elvitel",
-  KISZALLITAS = "Kiszállítás",
-}
+// =====================================================
+// ORDER TYPES
+// =====================================================
 
-// Order Status Enum
-export enum OrderStatusEnum {
-  NYITOTT = "NYITOTT",
-  FELDOLGOZVA = "FELDOLGOZVA",
-  LEZART = "LEZART",
-  SZTORNO = "SZTORNÓ",
-}
+export type OrderType = 'Helyben' | 'Elvitel' | 'Kiszállítás';
+export type OrderStatus = 'NYITOTT' | 'FELDOLGOZVA' | 'LEZART' | 'SZTORNÓ';
 
-// Selected Modifier Schema
-export interface SelectedModifier {
-  group_name: string;
-  modifier_name: string;
-  price: number;
-}
-
-// Order Item Types
-export interface OrderItemBase {
-  order_id: number;
-  product_id: number;
-  seat_id?: number;
-  quantity: number;
-  unit_price: number;
-  selected_modifiers?: SelectedModifier[];
-  course?: string;
-  notes?: string;
-  kds_station?: string;
-  kds_status?: string;
-}
-
-export interface OrderItemCreate extends OrderItemBase {}
-
-export interface OrderItemUpdate {
-  order_id?: number;
-  product_id?: number;
-  seat_id?: number;
-  quantity?: number;
-  unit_price?: number;
-  selected_modifiers?: SelectedModifier[];
-  course?: string;
-  notes?: string;
-  kds_station?: string;
-  kds_status?: string;
-}
-
-export interface OrderItem extends OrderItemBase {
+export interface Order {
   id: number;
-}
-
-export interface OrderItemResponse extends OrderItem {}
-
-// Order Types
-export interface OrderBase {
-  order_type: OrderTypeEnum | string;
-  status: OrderStatusEnum | string;
+  order_type: OrderType;
+  status: OrderStatus;
   table_id?: number;
   customer_id?: number;
+  courier_id?: number; // V3.0: LOGISTICS-FIX
   total_amount?: number;
   final_vat_rate: number;
   ntak_data?: Record<string, any>;
   notes?: string;
+  created_at: string; // ISO datetime string
+  updated_at: string; // ISO datetime string
 }
 
-export interface OrderCreate extends OrderBase {}
-
-export interface OrderUpdate {
-  order_type?: OrderTypeEnum | string;
-  status?: OrderStatusEnum | string;
+export interface OrderCreate {
+  order_type: OrderType;
+  status?: OrderStatus;
   table_id?: number;
   customer_id?: number;
+  courier_id?: number;
   total_amount?: number;
   final_vat_rate?: number;
   ntak_data?: Record<string, any>;
   notes?: string;
 }
 
-export interface Order extends OrderBase {
-  id: number;
-  created_at: string;
-  updated_at: string;
+export interface OrderUpdate {
+  order_type?: OrderType;
+  status?: OrderStatus;
+  table_id?: number;
+  customer_id?: number;
+  courier_id?: number;
+  total_amount?: number;
+  final_vat_rate?: number;
+  ntak_data?: Record<string, any>;
+  notes?: string;
 }
 
-export interface OrderResponse extends Order {}
-
 export interface OrderListResponse {
-  items: OrderResponse[];
+  items: Order[];
   total: number;
   page: number;
   page_size: number;
 }
 
-// Cart Item (for local state management in the UI)
-export interface CartItem {
-  product_id: number;
-  product_name: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
+// =====================================================
+// COURIER ASSIGNMENT TYPES (V3.0 / LOGISTICS-FIX)
+// =====================================================
+
+export interface CourierAssignmentRequest {
+  courier_id: number;
+}
+
+export interface CourierAssignmentResponse {
+  order: Order;
+  courier_id: number;
+  message: string;
 }

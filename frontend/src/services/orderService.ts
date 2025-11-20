@@ -1,5 +1,5 @@
 /**
- * Order Service - Order API calls
+ * Order Service - Orders API hívások
  *
  * Backend endpoints (service_orders:8002):
  *   - GET /api/v1/orders
@@ -7,10 +7,9 @@
  *   - GET /api/v1/orders/{id}
  *   - PUT /api/v1/orders/{id}
  *   - DELETE /api/v1/orders/{id}
- *   - POST /api/v1/orders/{order_id}/items
- *   - GET /api/v1/orders/{order_id}/items
+ *   - POST /api/v1/orders/{id}/assign-courier (V3.0 / LOGISTICS-FIX)
  *
- * Frontend calls:
+ * Frontend hívások:
  *   - GET /api/orders → Vite proxy → http://localhost:8002/api/v1/orders
  *   - POST /api/orders → Vite proxy → http://localhost:8002/api/v1/orders
  */
@@ -20,11 +19,11 @@ import type {
   Order,
   OrderCreate,
   OrderUpdate,
-  OrderResponse,
   OrderListResponse,
-  OrderItem,
-  OrderItemCreate,
-  OrderItemResponse,
+  OrderType,
+  OrderStatus,
+  CourierAssignmentRequest,
+  CourierAssignmentResponse,
 } from '@/types/order';
 
 // =====================================================
@@ -32,20 +31,26 @@ import type {
 // =====================================================
 
 /**
- * GET /api/orders - Orders list (paginated)
+ * GET /api/orders - Rendelések listája (lapozással)
  * Proxy Target: http://localhost:8002/api/v1/orders
  */
 export const getOrders = async (
-  skip: number = 0,
-  limit: number = 100,
-  order_type?: string,
-  status?: string,
+  page: number = 1,
+  page_size: number = 20,
+  order_type?: OrderType,
+  status?: OrderStatus,
   table_id?: number
 ): Promise<OrderListResponse> => {
-  const params: Record<string, any> = { skip, limit };
-  if (order_type) params.order_type = order_type;
-  if (status) params.status = status;
-  if (table_id) params.table_id = table_id;
+  const params: Record<string, any> = { skip: (page - 1) * page_size, limit: page_size };
+  if (order_type) {
+    params.order_type = order_type;
+  }
+  if (status) {
+    params.status = status;
+  }
+  if (table_id !== undefined) {
+    params.table_id = table_id;
+  }
 
   const response = await apiClient.get<OrderListResponse>('/api/orders', {
     params,
@@ -54,42 +59,34 @@ export const getOrders = async (
 };
 
 /**
- * GET /api/orders/{id} - Order details
+ * GET /api/orders/{id} - Rendelés részletei
  * Proxy Target: http://localhost:8002/api/v1/orders/{id}
  */
-export const getOrderById = async (id: number): Promise<OrderResponse> => {
-  const response = await apiClient.get<OrderResponse>(`/api/orders/${id}`);
+export const getOrderById = async (id: number): Promise<Order> => {
+  const response = await apiClient.get<Order>(`/api/orders/${id}`);
   return response.data;
 };
 
 /**
- * POST /api/orders - Create new order
+ * POST /api/orders - Új rendelés létrehozása
  * Proxy Target: http://localhost:8002/api/v1/orders
  */
-export const createOrder = async (
-  orderData: OrderCreate
-): Promise<OrderResponse> => {
-  const response = await apiClient.post<OrderResponse>('/api/orders', orderData);
+export const createOrder = async (orderData: OrderCreate): Promise<Order> => {
+  const response = await apiClient.post<Order>('/api/orders', orderData);
   return response.data;
 };
 
 /**
- * PUT /api/orders/{id} - Update order
+ * PUT /api/orders/{id} - Rendelés frissítése
  * Proxy Target: http://localhost:8002/api/v1/orders/{id}
  */
-export const updateOrder = async (
-  id: number,
-  orderData: OrderUpdate
-): Promise<OrderResponse> => {
-  const response = await apiClient.put<OrderResponse>(
-    `/api/orders/${id}`,
-    orderData
-  );
+export const updateOrder = async (id: number, orderData: OrderUpdate): Promise<Order> => {
+  const response = await apiClient.put<Order>(`/api/orders/${id}`, orderData);
   return response.data;
 };
 
 /**
- * DELETE /api/orders/{id} - Delete order
+ * DELETE /api/orders/{id} - Rendelés törlése
  * Proxy Target: http://localhost:8002/api/v1/orders/{id}
  */
 export const deleteOrder = async (id: number): Promise<void> => {
@@ -97,41 +94,23 @@ export const deleteOrder = async (id: number): Promise<void> => {
 };
 
 // =====================================================
-// ORDER ITEMS
+// COURIER ASSIGNMENT (V3.0 / LOGISTICS-FIX)
 // =====================================================
 
 /**
- * POST /api/orders/{order_id}/items - Add item to order
- * Proxy Target: http://localhost:8002/api/v1/orders/{order_id}/items
+ * POST /api/orders/{id}/assign-courier - Futár hozzárendelése rendeléshez
+ * Proxy Target: http://localhost:8002/api/v1/orders/{id}/assign-courier
+ *
+ * V3.0 / LOGISTICS-FIX: Assigns a courier to a delivery order and updates
+ * the courier's status to ON_DELIVERY via service_logistics.
  */
-export const addItemToOrder = async (
+export const assignCourierToOrder = async (
   orderId: number,
-  itemData: OrderItemCreate
-): Promise<OrderItemResponse> => {
-  const response = await apiClient.post<OrderItemResponse>(
-    `/api/orders/${orderId}/items`,
-    itemData
+  courierId: number
+): Promise<CourierAssignmentResponse> => {
+  const response = await apiClient.post<CourierAssignmentResponse>(
+    `/api/orders/${orderId}/assign-courier`,
+    { courier_id: courierId } as CourierAssignmentRequest
   );
   return response.data;
-};
-
-/**
- * GET /api/orders/{order_id}/items - Get items for order
- * Proxy Target: http://localhost:8002/api/v1/orders/{order_id}/items
- */
-export const getOrderItems = async (
-  orderId: number
-): Promise<OrderItemResponse[]> => {
-  const response = await apiClient.get<OrderItemResponse[]>(
-    `/api/orders/${orderId}/items`
-  );
-  return response.data;
-};
-
-/**
- * DELETE /api/orders/items/{item_id} - Delete order item
- * Proxy Target: http://localhost:8002/api/v1/orders/items/{item_id}
- */
-export const deleteOrderItem = async (itemId: number): Promise<void> => {
-  await apiClient.delete(`/api/orders/items/${itemId}`);
 };

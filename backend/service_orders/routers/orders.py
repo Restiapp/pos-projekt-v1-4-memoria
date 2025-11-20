@@ -25,7 +25,9 @@ from backend.service_orders.schemas.order import (
     OrderStatusEnum,
     OrderTypeEnum,
     OrderTypeChangeRequest,
-    OrderTypeChangeResponse
+    OrderTypeChangeResponse,
+    CourierAssignmentRequest,
+    CourierAssignmentResponse
 )
 from backend.service_orders.schemas.payment import (
     PaymentCreate,
@@ -698,3 +700,91 @@ async def print_receipt(
     printer_service = PrinterService()
     result = await printer_service.print_receipt(db, order_id)
     return result
+
+
+# ============================================================================
+# COURIER ASSIGNMENT ENDPOINT (V3.0 / LOGISTICS-FIX)
+# ============================================================================
+
+@orders_router.post(
+    "/{order_id}/assign-courier",
+    response_model=CourierAssignmentResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Assign courier to order",
+    description="""
+    **V3.0 / LOGISTICS-FIX Feature**: Assign a courier to a delivery order.
+
+    This endpoint allows assigning a courier from service_logistics to a delivery order.
+
+    **Important constraints:**
+    - Only works for orders with type "Kiszállítás" (Delivery)
+    - Automatically updates courier status to ON_DELIVERY via service_logistics API
+
+    **Side effects:**
+    - Updates the order's courier_id field
+    - Calls service_logistics to update courier status to ON_DELIVERY
+    - Updates NTAK metadata for audit trail
+    - Adds a note to the order with the courier assignment details
+    """
+)
+def assign_courier_to_order(
+    order_id: int,
+    request: CourierAssignmentRequest,
+    db: Session = Depends(get_db)
+) -> CourierAssignmentResponse:
+    """
+    **[V3.0 / LOGISTICS-FIX FEATURE]**
+
+    Assign a courier to a delivery order.
+
+    This endpoint is critical for logistics management, allowing the system
+    to track which courier is assigned to which delivery order.
+
+    Args:
+        order_id: The unique order identifier
+        request: CourierAssignmentRequest with courier_id
+        db: Database session (injected)
+
+    Returns:
+        CourierAssignmentResponse: The updated order with assigned courier
+
+    Raises:
+        HTTPException 404: If order is not found
+        HTTPException 400: If order type is not "Kiszállítás"
+        HTTPException 400: If courier assignment fails
+
+    Example request body:
+        {
+            "courier_id": 5
+        }
+
+    Example success response:
+        {
+            "order": {
+                "id": 42,
+                "order_type": "Kiszállítás",
+                "courier_id": 5,
+                ...
+            },
+            "courier_id": 5,
+            "message": "Futár sikeresen hozzárendelve a rendeléshez"
+        }
+
+    Example error response (not delivery order):
+        {
+            "detail": "Csak 'Kiszállítás' típusú rendelésekhez lehet futárt rendelni. Jelenlegi típus: Helyben"
+        }
+    """
+    # Call the service layer which handles all business logic and validation
+    updated_order = OrderService.assign_courier(
+        db=db,
+        order_id=order_id,
+        courier_id=request.courier_id
+    )
+
+    # Build the response
+    return CourierAssignmentResponse(
+        order=OrderResponse.model_validate(updated_order),
+        courier_id=request.courier_id,
+        message="Futár sikeresen hozzárendelve a rendeléshez"
+    )

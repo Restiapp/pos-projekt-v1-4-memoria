@@ -1,250 +1,238 @@
 /**
- * DispatchPanel - Diszpécser panel (Várakozó rendelések + Futár hozzárendelés)
+ * DispatchPanel - Futár hozzárendelése rendeléshez
+ *
+ * V3.0 / LOGISTICS-FIX: Komponens a kiszállítási rendelések futárhoz rendeléséhez.
  *
  * Funkciók:
- *   - Várakozó kiszállítási rendelések listázása (order_type=Kiszállítás)
- *   - Csak NYITOTT vagy FELDOLGOZVA státuszú rendelések, amiknek nincs futárjuk
- *   - Elérhető futárok listája
- *   - Futár hozzárendelése rendeléshez (POST /api/logistics/couriers/{id}/assign-order)
- *   - Automatikus frissítés
+ *   - Kiszállítási rendelések listázása (futár nélkül)
+ *   - Elérhető futárok listázása
+ *   - Futár hozzárendelése rendeléshez
  */
 
 import { useState, useEffect } from 'react';
-import apiClient from '@/services/api';
-import { getAvailableCouriers, assignCourierToOrder } from '@/services/logisticsService';
-import type { Order } from '@/types/payment';
+import { getOrders } from '@/services/orderService';
+import { getAvailableCouriers } from '@/services/logisticsService';
+import { assignCourierToOrder } from '@/services/orderService';
+import type { Order } from '@/types/order';
 import type { Courier } from '@/types/logistics';
 import './DispatchPanel.css';
 
 export const DispatchPanel = () => {
-  const [pendingOrders, setPendingOrders] = useState<Order[]>([]);
-  const [availableCouriers, setAvailableCouriers] = useState<Courier[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAssigning, setIsAssigning] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [couriers, setCouriers] = useState<Courier[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Várakozó rendelések betöltése
-  const fetchPendingOrders = async () => {
-    try {
-      // Kérjük le a kiszállítási rendeléseket (order_type=Kiszállítás)
-      // Amik NYITOTT vagy FELDOLGOZVA státuszúak
-      const response = await apiClient.get<{ items: Order[]; total: number }>(
-        '/api/orders',
-        {
-          params: {
-            page: 1,
-            page_size: 50,
-            // order_type: 'Kiszállítás', // Ha a backend támogatja ezt a filtert
-            // status: 'NYITOTT,FELDOLGOZVA', // Ha a backend támogatja ezt a filtert
-          },
-        }
-      );
-
-      // Szűrés frontend oldalon: csak Kiszállítás típusú, NYITOTT vagy FELDOLGOZVA státuszú rendelések
-      const filtered = response.data.items.filter(
-        (order) =>
-          order.order_type === 'Kiszállítás' &&
-          (order.status === 'NYITOTT' || order.status === 'FELDOLGOZVA')
-      );
-
-      setPendingOrders(filtered);
-    } catch (error) {
-      console.error('Hiba a várakozó rendelések betöltésekor:', error);
-      alert('Nem sikerült betölteni a várakozó rendeléseket!');
-    }
-  };
-
-  // Elérhető futárok betöltése
-  const fetchAvailableCouriers = async () => {
-    try {
-      const couriers = await getAvailableCouriers();
-      setAvailableCouriers(couriers);
-    } catch (error) {
-      console.error('Hiba az elérhető futárok betöltésekor:', error);
-      alert('Nem sikerült betölteni az elérhető futárokat!');
-    }
-  };
-
-  // Adatok betöltése
-  const loadData = async () => {
-    setIsLoading(true);
-    await Promise.all([fetchPendingOrders(), fetchAvailableCouriers()]);
-    setIsLoading(false);
-  };
-
-  // Első betöltés
+  // Rendelések és futárok betöltése
   useEffect(() => {
     loadData();
-
-    // Automatikus frissítés 30 másodpercenként
-    const interval = setInterval(() => {
-      loadData();
-    }, 30000);
-
-    return () => clearInterval(interval);
   }, []);
 
-  // Futár hozzárendelése rendeléshez
-  const handleAssignCourier = async (orderId: number, courierId: number) => {
-    const confirmed = window.confirm(
-      `Biztosan hozzárendeled ezt a futárt a #${orderId} rendeléshez?`
-    );
-
-    if (!confirmed) return;
-
-    setIsAssigning(true);
-
+  const loadData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      await assignCourierToOrder(courierId, orderId);
-      alert(`Futár sikeresen hozzárendelve a #${orderId} rendeléshez!`);
-      loadData(); // Lista frissítése
-    } catch (error: any) {
-      console.error('Hiba a futár hozzárendelésekor:', error);
-      const errorMessage =
-        error?.response?.data?.detail || 'Nem sikerült hozzárendelni a futárt!';
-      alert(errorMessage);
+      // Kiszállítási rendelések lekérése (futár nélkül)
+      const ordersResponse = await getOrders(1, 100, 'Kiszállítás', 'NYITOTT');
+      const ordersWithoutCourier = ordersResponse.items.filter(
+        (order) => !order.courier_id
+      );
+      setOrders(ordersWithoutCourier);
+
+      // Elérhető futárok lekérése
+      const availableCouriers = await getAvailableCouriers();
+      setCouriers(availableCouriers);
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Hiba történt az adatok betöltése során');
     } finally {
-      setIsAssigning(false);
+      setLoading(false);
     }
   };
 
-  // Ár formázása
-  const formatPrice = (price: number | null): string => {
-    if (price === null) return '-';
-    return new Intl.NumberFormat('hu-HU', {
-      style: 'currency',
-      currency: 'HUF',
-      minimumFractionDigits: 0,
-    }).format(price);
+  const handleAssignCourier = async (orderId: number, courierId: number) => {
+    setError(null);
+    setSuccessMessage(null);
+    try {
+      await assignCourierToOrder(orderId, courierId);
+      setSuccessMessage(`Futár sikeresen hozzárendelve a rendeléshez (ID: ${orderId})`);
+      // Adatok újratöltése
+      await loadData();
+      // Sikeres üzenet törlése 3 másodperc után
+      setTimeout(() => setSuccessMessage(null), 3000);
+    } catch (err: any) {
+      setError(
+        err.response?.data?.detail || 'Hiba történt a futár hozzárendelése során'
+      );
+    }
   };
 
-  // Dátum formázása
-  const formatDate = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    return date.toLocaleString('hu-HU');
-  };
+  if (loading) {
+    return (
+      <div className="dispatch-panel">
+        <div className="loading">Betöltés...</div>
+      </div>
+    );
+  }
 
-  // Státusz badge class
-  const getStatusBadgeClass = (status: string): string => {
-    switch (status) {
-      case 'NYITOTT':
-        return 'status-open';
-      case 'FELDOLGOZVA':
-        return 'status-processing';
-      default:
-        return '';
+  return (
+    <div className="dispatch-panel">
+      <header className="dispatch-header">
+        <h2>📦 Kiszállítások Futárhoz Rendelése</h2>
+        <button onClick={loadData} className="refresh-btn" title="Frissítés">
+          🔄
+        </button>
+      </header>
+
+      {error && (
+        <div className="alert alert-error">
+          ❌ {error}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="alert alert-success">
+          ✅ {successMessage}
+        </div>
+      )}
+
+      {orders.length === 0 ? (
+        <div className="empty-state">
+          <p>📭 Nincs futárra váró kiszállítási rendelés</p>
+        </div>
+      ) : (
+        <div className="dispatch-content">
+          <div className="orders-section">
+            <h3>Rendelések (futár nélkül)</h3>
+            <div className="orders-list">
+              {orders.map((order) => (
+                <OrderCard
+                  key={order.id}
+                  order={order}
+                  couriers={couriers}
+                  onAssign={handleAssignCourier}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="couriers-section">
+            <h3>Elérhető Futárok ({couriers.length})</h3>
+            <div className="couriers-list">
+              {couriers.length === 0 ? (
+                <p className="no-couriers">Nincs elérhető futár</p>
+              ) : (
+                couriers.map((courier) => (
+                  <CourierCard key={courier.id} courier={courier} />
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// =====================================================
+// ORDER CARD KOMPONENS
+// =====================================================
+
+interface OrderCardProps {
+  order: Order;
+  couriers: Courier[];
+  onAssign: (orderId: number, courierId: number) => void;
+}
+
+const OrderCard = ({ order, couriers, onAssign }: OrderCardProps) => {
+  const [selectedCourierId, setSelectedCourierId] = useState<number | null>(null);
+
+  const handleAssignClick = () => {
+    if (selectedCourierId) {
+      onAssign(order.id, selectedCourierId);
+      setSelectedCourierId(null);
     }
   };
 
   return (
-    <div className="dispatch-panel">
-      {/* Fejléc */}
-      <header className="panel-header">
-        <h2>📦 Diszpécser - Várakozó rendelések</h2>
-        <button onClick={loadData} className="refresh-btn" disabled={isLoading}>
-          🔄 Frissítés
+    <div className="order-card">
+      <div className="order-header">
+        <span className="order-id">#{order.id}</span>
+        <span className="order-status">{order.status}</span>
+      </div>
+      <div className="order-body">
+        <p>
+          <strong>Típus:</strong> {order.order_type}
+        </p>
+        <p>
+          <strong>Összeg:</strong> {order.total_amount?.toFixed(2) || '0.00'} HUF
+        </p>
+        {order.notes && (
+          <p className="order-notes">
+            <strong>Megjegyzés:</strong> {order.notes}
+          </p>
+        )}
+      </div>
+      <div className="order-actions">
+        <select
+          value={selectedCourierId || ''}
+          onChange={(e) => setSelectedCourierId(Number(e.target.value))}
+          className="courier-select"
+        >
+          <option value="">-- Válassz futárt --</option>
+          {couriers.map((courier) => (
+            <option key={courier.id} value={courier.id}>
+              {courier.courier_name} ({courier.phone})
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={handleAssignClick}
+          disabled={!selectedCourierId}
+          className="assign-btn"
+        >
+          Hozzárendel
         </button>
-      </header>
+      </div>
+    </div>
+  );
+};
 
-      {/* Töltés állapot */}
-      {isLoading ? (
-        <div className="loading-state">Betöltés...</div>
-      ) : (
-        <div className="dispatch-content">
-          {/* Bal oldal: Várakozó rendelések */}
-          <section className="pending-orders-section">
-            <h3>📋 Várakozó kiszállítások ({pendingOrders.length})</h3>
+// =====================================================
+// COURIER CARD KOMPONENS
+// =====================================================
 
-            {pendingOrders.length === 0 ? (
-              <div className="empty-state">
-                <p>Jelenleg nincsenek várakozó kiszállítási rendelések.</p>
-              </div>
-            ) : (
-              <div className="orders-list">
-                {pendingOrders.map((order) => (
-                  <div key={order.id} className="order-card">
-                    <div className="order-header">
-                      <span className="order-id">Rendelés #{order.id}</span>
-                      <span className={`status-badge ${getStatusBadgeClass(order.status)}`}>
-                        {order.status}
-                      </span>
-                    </div>
-                    <div className="order-info">
-                      <p>
-                        <strong>Típus:</strong> {order.order_type}
-                      </p>
-                      <p>
-                        <strong>Összeg:</strong> {formatPrice(order.total_amount)}
-                      </p>
-                      <p>
-                        <strong>Létrehozva:</strong> {formatDate(order.created_at)}
-                      </p>
-                    </div>
+interface CourierCardProps {
+  courier: Courier;
+}
 
-                    {/* Futár hozzárendelése */}
-                    <div className="assign-section">
-                      <label htmlFor={`courier-select-${order.id}`}>Futár kiválasztása:</label>
-                      <div className="assign-controls">
-                        <select
-                          id={`courier-select-${order.id}`}
-                          className="courier-select"
-                          disabled={isAssigning || availableCouriers.length === 0}
-                          onChange={(e) => {
-                            const courierId = parseInt(e.target.value);
-                            if (courierId) {
-                              handleAssignCourier(order.id, courierId);
-                              e.target.value = ''; // Reset select
-                            }
-                          }}
-                        >
-                          <option value="">
-                            {availableCouriers.length === 0
-                              ? 'Nincs elérhető futár'
-                              : 'Válassz futárt...'}
-                          </option>
-                          {availableCouriers.map((courier) => (
-                            <option key={courier.id} value={courier.id}>
-                              {courier.courier_name} ({courier.phone})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+const CourierCard = ({ courier }: CourierCardProps) => {
+  const statusIcon = {
+    available: '✅',
+    on_delivery: '🚚',
+    offline: '❌',
+    break: '☕',
+  };
 
-          {/* Jobb oldal: Elérhető futárok */}
-          <aside className="available-couriers-section">
-            <h3>👷 Elérhető futárok ({availableCouriers.length})</h3>
+  const statusLabel = {
+    available: 'Elérhető',
+    on_delivery: 'Úton',
+    offline: 'Offline',
+    break: 'Szünet',
+  };
 
-            {availableCouriers.length === 0 ? (
-              <div className="empty-state">
-                <p>Jelenleg nincsenek elérhető futárok.</p>
-                <p className="hint">
-                  (Csak az "Elérhető" státuszú futárok jelennek meg itt)
-                </p>
-              </div>
-            ) : (
-              <div className="couriers-list">
-                {availableCouriers.map((courier) => (
-                  <div key={courier.id} className="courier-card">
-                    <div className="courier-header">
-                      <strong>{courier.courier_name}</strong>
-                      <span className="status-badge status-available">Elérhető</span>
-                    </div>
-                    <div className="courier-info">
-                      <p>📞 {courier.phone}</p>
-                      {courier.email && <p>✉️ {courier.email}</p>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </aside>
-        </div>
-      )}
+  return (
+    <div className="courier-card">
+      <div className="courier-icon">{statusIcon[courier.status]}</div>
+      <div className="courier-info">
+        <p className="courier-name">{courier.courier_name}</p>
+        <p className="courier-phone">{courier.phone}</p>
+        <p className="courier-status">
+          <span className={`status-badge status-${courier.status}`}>
+            {statusLabel[courier.status]}
+          </span>
+        </p>
+      </div>
     </div>
   );
 };

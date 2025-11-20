@@ -1,85 +1,90 @@
 /**
- * DispatchPanel stílusok
+ * DispatchPanel Styles
+ * V3.0 / LOGISTICS-FIX
  */
 
 .dispatch-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  max-width: 1800px;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
-/* =====================================================
-   FEJLÉC
-   ===================================================== */
-
-.panel-header {
+.dispatch-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 24px;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
 }
 
-.panel-header h2 {
-  font-size: 24px;
+.dispatch-header h2 {
   margin: 0;
+  font-size: 24px;
   color: #333;
 }
 
 .refresh-btn {
-  padding: 10px 16px;
+  background: #4caf50;
+  color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
-  background: #f0f0f0;
-  color: #333;
+  font-size: 16px;
+  transition: background 0.3s;
 }
 
-.refresh-btn:hover:not(:disabled) {
-  background: #e0e0e0;
+.refresh-btn:hover {
+  background: #45a049;
 }
 
-.refresh-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* Alerts */
+.alert {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-/* =====================================================
-   TARTALOM (Két oszlopos layout)
-   ===================================================== */
+.alert-error {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef5350;
+}
 
+.alert-success {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #66bb6a;
+}
+
+/* Loading & Empty State */
+.loading,
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  color: #666;
+}
+
+/* Dispatch Content */
 .dispatch-content {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  gap: 20px;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .dispatch-content {
     grid-template-columns: 1fr;
   }
 }
 
-/* =====================================================
-   VÁRAKOZÓ RENDELÉSEK (Bal oldal)
-   ===================================================== */
-
-.pending-orders-section {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 24px;
-}
-
-.pending-orders-section h3 {
-  margin: 0 0 20px 0;
-  font-size: 20px;
+/* Orders Section */
+.orders-section h3,
+.couriers-section h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-size: 18px;
   color: #333;
 }
 
@@ -89,16 +94,18 @@
   gap: 16px;
 }
 
+/* Order Card */
 .order-card {
-  border: 1px solid #e0e0e0;
+  background: white;
+  border: 1px solid #ddd;
   border-radius: 8px;
   padding: 16px;
-  background: #fafafa;
-  transition: box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
 }
 
 .order-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .order-header {
@@ -106,172 +113,156 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #eee;
 }
 
 .order-id {
-  font-weight: 700;
+  font-weight: bold;
   font-size: 16px;
-  color: #333;
+  color: #1976d2;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-badge.status-open {
+.order-status {
   background: #fff3cd;
   color: #856404;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.status-badge.status-processing {
-  background: #d1ecf1;
-  color: #0c5460;
-}
-
-.order-info {
-  margin-bottom: 16px;
+.order-body p {
+  margin: 8px 0;
   font-size: 14px;
-  line-height: 1.6;
+  color: #555;
 }
 
-.order-info p {
-  margin: 4px 0;
-  color: #666;
-}
-
-.order-info strong {
-  color: #333;
-  font-weight: 600;
-}
-
-/* Futár hozzárendelés */
-.assign-section {
-  border-top: 1px solid #e0e0e0;
+.order-notes {
+  font-style: italic;
+  color: #777;
+  margin-top: 12px;
   padding-top: 12px;
+  border-top: 1px solid #eee;
 }
 
-.assign-section label {
-  display: block;
-  font-weight: 600;
-  font-size: 13px;
-  color: #333;
-  margin-bottom: 8px;
-}
-
-.assign-controls {
+.order-actions {
   display: flex;
   gap: 8px;
+  margin-top: 16px;
 }
 
 .courier-select {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
   font-size: 14px;
-  cursor: pointer;
   background: white;
-}
-
-.courier-select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  cursor: pointer;
 }
 
 .courier-select:focus {
   outline: none;
-  border-color: #4a90e2;
+  border-color: #1976d2;
 }
 
-/* =====================================================
-   ELÉRHETŐ FUTÁROK (Jobb oldal)
-   ===================================================== */
-
-.available-couriers-section {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 24px;
+.assign-btn {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.3s;
 }
 
-.available-couriers-section h3 {
-  margin: 0 0 20px 0;
-  font-size: 20px;
-  color: #333;
+.assign-btn:hover:not(:disabled) {
+  background: #1565c0;
 }
 
+.assign-btn:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
+
+/* Couriers Section */
 .couriers-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+.no-couriers {
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}
+
+/* Courier Card */
 .courier-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 12px;
-  background: #f8f9fa;
-}
-
-.courier-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  gap: 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.courier-header strong {
-  font-size: 15px;
-  color: #333;
-}
-
-.status-badge.status-available {
-  background: #d4edda;
-  color: #155724;
+.courier-icon {
+  font-size: 32px;
 }
 
 .courier-info {
-  font-size: 13px;
-  color: #666;
-  line-height: 1.5;
+  flex: 1;
 }
 
-.courier-info p {
-  margin: 4px 0;
-}
-
-/* =====================================================
-   ÜRES ÁLLAPOT
-   ===================================================== */
-
-.empty-state {
-  padding: 48px;
-  text-align: center;
-  color: #999;
-}
-
-.empty-state p {
-  margin: 8px 0;
+.courier-name {
+  margin: 0;
+  font-weight: bold;
   font-size: 14px;
+  color: #333;
 }
 
-.empty-state .hint {
+.courier-phone {
+  margin: 4px 0 0;
   font-size: 12px;
-  color: #aaa;
-  margin-top: 12px;
+  color: #666;
 }
 
-/* =====================================================
-   TÖLTÉSI ÁLLAPOT
-   ===================================================== */
+.courier-status {
+  margin: 8px 0 0;
+}
 
-.loading-state {
-  padding: 48px;
-  text-align: center;
-  font-size: 16px;
-  color: #666;
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-available {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-on_delivery {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-offline {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.status-break {
+  background: #e3f2fd;
+  color: #1565c0;
 }
