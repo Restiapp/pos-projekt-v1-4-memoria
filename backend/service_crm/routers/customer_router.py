@@ -252,6 +252,45 @@ def update_loyalty_points(
     return CustomerResponse.model_validate(customer)
 
 
+@customers_router.post(
+    "/{customer_id}/add-points",
+    response_model=CustomerResponse,
+    summary="Add loyalty points",
+    description="Add loyalty points to a customer's account (alias for loyalty-points endpoint)."
+)
+def add_loyalty_points(
+    customer_id: int,
+    points_data: LoyaltyPointsUpdate,
+    db: Session = Depends(get_db)
+) -> CustomerResponse:
+    """
+    Add loyalty points to customer's account.
+
+    This is an alias endpoint for backward compatibility and clearer API naming.
+    Use positive values in 'points' to add points.
+
+    Args:
+        customer_id: Customer's unique identifier
+        points_data: Points to add (use positive values)
+        db: Database session (injected)
+
+    Returns:
+        CustomerResponse: Updated customer with new points balance
+
+    Raises:
+        HTTPException 404: If customer not found
+        HTTPException 400: If insufficient points for subtraction
+
+    Example request body:
+        {
+            "points": 10.00,
+            "reason": "Purchase reward"
+        }
+    """
+    customer = CustomerService.update_loyalty_points(db, customer_id, points_data)
+    return CustomerResponse.model_validate(customer)
+
+
 @customers_router.get(
     "/email/{email}",
     response_model=CustomerResponse,
