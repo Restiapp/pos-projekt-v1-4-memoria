@@ -44,13 +44,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/tables',
     permission: 'orders:manage',
   },
-  {
-    id: 'reservations',
-    label: 'Foglalások',
-    icon: '📅',
-    path: '/admin/reservations',
-    permission: 'orders:manage',
-  },
+  // HOTFIX: Foglalások komponens még nincs kifejlesztve
+  // {
+  //   id: 'reservations',
+  //   label: 'Foglalások',
+  //   icon: '📅',
+  //   path: '/admin/reservations',
+  //   permission: 'orders:manage',
+  // },
   {
     id: 'employees',
     label: 'Munkavállalók',
@@ -119,13 +120,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/gift_cards',
     permission: 'menu:manage', // TODO: Add crm:manage permission
   },
-  {
-    id: 'loyalty',
-    label: 'Hűségprogram',
-    icon: '💎',
-    path: '/admin/loyalty',
-    permission: 'menu:manage', // TODO: Add crm:manage permission
-  },
+  // HOTFIX: Hűségprogram komponens még nincs kifejlesztve
+  // {
+  //   id: 'loyalty',
+  //   label: 'Hűségprogram',
+  //   icon: '💎',
+  //   path: '/admin/loyalty',
+  //   permission: 'menu:manage', // TODO: Add crm:manage permission
+  // },
   // ÚJ MENÜPONT - V3.0 Hullám 10
   {
     id: 'logistics',

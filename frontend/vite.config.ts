@@ -169,10 +169,10 @@ export default defineConfig({
       },
 
       // ========================================
-      // Logistics Service (Port 8006) - V3.0 Hullám 10
+      // Logistics Service (Port 8005) - V3.0 Hullám 10
       // ========================================
       '/api/logistics': {
-        target: 'http://localhost:8006',
+        target: 'http://localhost:8005',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/logistics/, '/api/v1')
       },

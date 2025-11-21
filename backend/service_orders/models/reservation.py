@@ -78,7 +78,7 @@ class Reservation(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    table = relationship('Table', backref='reservations')
+    table = relationship('Table')
 
     def __repr__(self):
         return (

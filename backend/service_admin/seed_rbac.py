@@ -258,8 +258,11 @@ SYSTEM_ROLES = [
         "permissions": [
             "admin:all",
             "orders:manage",
+            "orders:view",
             "menu:manage",
+            "menu:view",
             "inventory:manage",
+            "inventory:view",
             "reports:manage",
             "employees:manage",
             "roles:manage",

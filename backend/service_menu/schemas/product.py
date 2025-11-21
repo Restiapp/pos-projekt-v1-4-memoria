@@ -153,10 +153,11 @@ class ProductInDB(ProductBase):
         return v
 
 
+from backend.service_menu.schemas.allergen import AllergenResponse
+
 class ProductResponse(ProductInDB):
     """Schema for product API responses."""
-    # Import the AllergenResponse at runtime to avoid circular imports
-    allergens: List[Any] = Field(
+    allergens: List[AllergenResponse] = Field(
         default_factory=list,
         description="List of allergens associated with this product"
     )

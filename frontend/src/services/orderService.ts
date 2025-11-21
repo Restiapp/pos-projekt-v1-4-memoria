@@ -114,3 +114,16 @@ export const assignCourierToOrder = async (
   );
   return response.data;
 };
+
+// =====================================================
+// ORDER ITEMS
+// =====================================================
+
+/**
+ * POST /api/orders/{id}/items - Tétel hozzáadása rendeléshez
+ * Proxy Target: http://localhost:8002/api/v1/orders/{id}/items
+ */
+export const addItemToOrder = async (orderId: number, itemData: any): Promise<any> => {
+  const response = await apiClient.post(`/api/orders/${orderId}/items`, itemData);
+  return response.data;
+};

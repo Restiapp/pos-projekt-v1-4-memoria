@@ -21,6 +21,7 @@ import { GiftCardList } from '@/components/admin/GiftCardList';
 
 // ÚJ IMPORTOK - V3.0 Hullám 10
 import { OperatorPage } from '@/pages/OperatorPage';
+import { OrderPage } from '@/pages/OrderPage';
 import { LogisticsPage } from '@/pages/LogisticsPage';
 
 // ÚJ IMPORT - Fázis 3 (Finance)
@@ -88,6 +89,16 @@ function App() {
           element={
             <ProtectedRoute>
               <PaymentPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ÚJ ROUTE: Rendelésfelvétel (GlobalHeader "Rendelés" gomb) */}
+        <Route
+          path="/orders/new"
+          element={
+            <ProtectedRoute>
+              <OrderPage />
             </ProtectedRoute>
           }
         />

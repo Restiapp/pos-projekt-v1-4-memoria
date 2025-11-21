@@ -58,13 +58,13 @@ services:
     container_name: pos-service-menu
     restart: unless-stopped
     ports:
-      - "8001:8000"  # Host:Container - Menu runs on 8000 internally
+      - "8001:8001"  # Host:Container - Menu runs on 8001 internally
     environment:
       # Database connection
       DATABASE_URL: postgresql://pos_user:${POSTGRES_PASSWORD:-pos_password_dev}@postgres:5432/pos_db
 
       # Service configuration
-      PORT: 8000
+      PORT: 8001
 
       # Google Cloud Storage (Images)
       GCS_BUCKET_NAME: ${GCS_BUCKET_NAME:-pos-images-dev}
@@ -121,7 +121,7 @@ services:
       KITCHEN_DISPLAY_REFRESH_INTERVAL: 5
 
       # Inter-service URLs (internal Docker network)
-      MENU_SERVICE_URL: http://service_menu:8000
+      MENU_SERVICE_URL: http://service_menu:8001
       ADMIN_SERVICE_URL: http://service_admin:8008
       INVENTORY_SERVICE_URL: http://service_inventory:8003
 
