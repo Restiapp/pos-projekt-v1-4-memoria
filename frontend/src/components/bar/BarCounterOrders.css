@@ -1,0 +1,77 @@
+/**
+ * BarCounterOrders Styles
+ * Compact list layout with color-coded status cards
+ */
+
+.bar-counter-orders {
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.bar-orders-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #333;
+}
+
+.bar-orders-header {
+  margin-bottom: 1rem;
+}
+
+/* Order Cards */
+.bar-order-card {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.bar-order-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Status-based border colors */
+.bar-order-card.status-blue {
+  border-left: 4px solid #228be6;
+}
+
+.bar-order-card.status-green {
+  border-left: 4px solid #40c057;
+}
+
+.bar-order-card.status-yellow {
+  border-left: 4px solid #fab005;
+  background-color: #fff9db;
+}
+
+.bar-order-card.status-cyan {
+  border-left: 4px solid #15aabf;
+}
+
+.bar-order-card.status-gray {
+  border-left: 4px solid #adb5bd;
+}
+
+/* Empty State */
+.empty-state-card {
+  background-color: #f8f9fa;
+  padding: 2rem;
+}
+
+/* Error State */
+.error-card {
+  background-color: #ffe3e3;
+  border-color: #fa5252;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bar-counter-orders {
+    padding: 0.5rem;
+  }
+
+  .bar-orders-title {
+    font-size: 1.25rem;
+  }
+}
