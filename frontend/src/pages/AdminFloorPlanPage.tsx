@@ -306,6 +306,40 @@ export const AdminFloorPlanPage = () => {
     };
 
     const handlePointerUp = async () => {
+      // Save table position after drag
+      if (dragState.current) {
+        const draggedTable = tables.find(t => t.id === dragState.current?.id);
+        if (draggedTable) {
+          try {
+            await updateTable(draggedTable.id, {
+              position_x: draggedTable.position_x,
+              position_y: draggedTable.position_y,
+              metadata_json: draggedTable.metadata_json, // Preserve table name and custom color
+            });
+          } catch (err) {
+            console.error('Failed to save table position:', err);
+            showToast('Nem sikerült menteni az asztal pozícióját.', 'error');
+          }
+        }
+      }
+
+      // Save table size after resize
+      if (resizeState.current) {
+        const resizedTable = tables.find(t => t.id === resizeState.current?.id);
+        if (resizedTable) {
+          try {
+            await updateTable(resizedTable.id, {
+              width: resizedTable.width,
+              height: resizedTable.height,
+              metadata_json: resizedTable.metadata_json, // Preserve table name and custom color
+            });
+          } catch (err) {
+            console.error('Failed to save table size:', err);
+            showToast('Nem sikerült menteni az asztal méretét.', 'error');
+          }
+        }
+      }
+
       // Save room resize to backend
       if (roomResizeState.current && activeRoom) {
         try {
