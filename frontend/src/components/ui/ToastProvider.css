@@ -1,0 +1,35 @@
+/**
+ * ToastProvider Styles
+ * Container positioning at top-right
+ */
+
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Enable pointer events on individual toasts */
+.toast-container .toast {
+  pointer-events: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .toast-container {
+    top: 0.5rem;
+    right: 0.5rem;
+    left: 0.5rem;
+    align-items: stretch;
+  }
+
+  .toast {
+    min-width: auto;
+    max-width: none;
+  }
+}
