@@ -31,14 +31,21 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
-// TODO-S0-STUB: Temporary stub page imports
-import { DebugAuthPage } from '@/pages/DebugAuthPage';
+// ÚJ IMPORT - Dashboard Analytics (Reports)
 import { ReportsPage } from '@/pages/ReportsPage';
+
+// ÚJ IMPORT - Fázis 4 (Inventory)
 import { InventoryPage } from '@/pages/InventoryPage';
+
+// ÚJ IMPORT - Sprint 1 (Bar)
+import { BarPage } from '@/pages/BarPage';
 
 // Toast and ConfirmDialog Providers
 import { ToastProvider } from '@/components/common/Toast';
 import { ConfirmProvider } from '@/components/common/ConfirmDialog';
+
+// DEBUG
+import { DebugAuthPage } from '@/pages/DebugAuthPage';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -83,6 +90,16 @@ function App() {
           element={
             <ProtectedRoute>
               <KdsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ÚJ ROUTE: Bár Kezelőfelület (Bar) */}
+        <Route
+          path="/bar"
+          element={
+            <ProtectedRoute>
+              <BarPage />
             </ProtectedRoute>
           }
         />

@@ -1,0 +1,144 @@
+/**
+ * BarPage.module.scss
+ * Styles for the Bar View split-screen layout
+ */
+
+.barPage {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--mantine-color-gray-0);
+}
+
+.mainContent {
+  flex: 1;
+  overflow: hidden;
+  padding: 1rem;
+}
+
+.splitContainer {
+  height: 100%;
+
+  // Responsive: stack vertically on mobile
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.leftPanel,
+.rightPanel {
+  flex: 1;
+  min-width: 0; // Prevent flex item from overflowing
+
+  // Equal width for both panels on desktop
+  @media (min-width: 768px) {
+    width: 50%;
+  }
+}
+
+.panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: white;
+  border-radius: 8px;
+}
+
+.panelTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--mantine-color-dark-8);
+  margin: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--mantine-color-blue-5);
+}
+
+.scrollArea {
+  flex: 1;
+  height: 100%;
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--mantine-color-gray-1);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--mantine-color-gray-4);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--mantine-color-gray-5);
+    }
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  background-color: var(--mantine-color-gray-0);
+  border: 2px dashed var(--mantine-color-gray-3);
+
+  &:hover {
+    border-color: var(--mantine-color-gray-4);
+  }
+}
+
+// Loading state animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Mobile optimizations
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 0.5rem;
+  }
+
+  .panelTitle {
+    font-size: 1.25rem;
+  }
+
+  .leftPanel,
+  .rightPanel {
+    max-height: 50vh;
+  }
+}
+
+// Tablet optimizations
+@media (min-width: 769px) and (max-width: 1024px) {
+  .panelTitle {
+    font-size: 1.375rem;
+  }
+}
+
+// Print styles (hide header, optimize layout)
+@media print {
+  .barPage {
+    height: auto;
+  }
+
+  .mainContent {
+    padding: 0;
+  }
+
+  .splitContainer {
+    flex-direction: column;
+  }
+
+  .panel {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
