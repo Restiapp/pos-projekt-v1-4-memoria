@@ -898,7 +898,16 @@ export const AdminFloorPlanPage = () => {
                   <Text size="sm" c="dimmed">
                     Válassz színpalettát:
                   </Text>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(4, 1fr)',
+                      gap: '6px',
+                      maxHeight: '280px',
+                      overflowY: 'auto',
+                      padding: '4px',
+                    }}
+                  >
                     {tableColorPresets.map((preset, index) => {
                       const currentCustomColor = getCustomColor(selectedTable);
                       const isActive =
@@ -932,18 +941,22 @@ export const AdminFloorPlanPage = () => {
                             }
                           }}
                           style={{
-                            padding: '8px',
-                            borderRadius: '8px',
+                            padding: '6px 4px',
+                            borderRadius: '6px',
                             backgroundColor: preset.bg,
                             border: `2px solid ${isActive ? '#228be6' : preset.border}`,
                             cursor: 'pointer',
                             textAlign: 'center',
-                            fontSize: '0.75rem',
-                            fontWeight: isActive ? 600 : 400,
+                            fontSize: '0.65rem',
+                            fontWeight: isActive ? 700 : 500,
                             color: preset.text,
-                            transition: 'transform 120ms ease, border-color 120ms ease',
-                            boxShadow: isActive ? '0 4px 12px rgba(34, 139, 230, 0.25)' : 'none',
+                            transition: 'all 120ms ease',
+                            boxShadow: isActive ? '0 2px 8px rgba(34, 139, 230, 0.35)' : '0 1px 3px rgba(0,0,0,0.1)',
                             transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                            minHeight: '32px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                           }}
                         >
                           {preset.name}
