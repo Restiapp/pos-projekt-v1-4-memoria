@@ -24,7 +24,8 @@ from backend.service_orders.routers import (
     order_items_router,
     kds_router,
     reservations_router,
-    reports_router
+    reports_router,
+    rooms_router
 )
 
 # Create FastAPI application
@@ -47,10 +48,16 @@ app.add_middleware(
 
 # Register routers with RBAC protection
 app.include_router(
+    rooms_router,
+    prefix="/api/v1",
+    tags=["Rooms"],
+    # dependencies=[Depends(require_permission("orders:manage"))]
+)
+app.include_router(
     tables_router,
     prefix="/api/v1",
     tags=["Tables"],
-    dependencies=[Depends(require_permission("orders:manage"))]
+    # dependencies=[Depends(require_permission("orders:manage"))]
 )
 app.include_router(
     seats_router,

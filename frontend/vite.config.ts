@@ -70,6 +70,11 @@ export default defineConfig({
       // ========================================
       // Orders Service (Port 8002)
       // ========================================
+      '/api/rooms': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/rooms/, '/api/v1/rooms')
+      },
       '/api/tables': {
         target: 'http://localhost:8002',
         changeOrigin: true,

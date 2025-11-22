@@ -12,7 +12,6 @@ import { KdsPage } from '@/pages/KdsPage';
 import { PaymentPage } from '@/pages/PaymentPage';
 import { AdminPage } from '@/pages/AdminPage';
 import { ProductList } from '@/components/admin/ProductList';
-import { TableList } from '@/components/admin/TableList';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { EmployeeList } from '@/components/admin/EmployeeList';
 import { RoleList } from '@/components/admin/RoleList';
@@ -135,12 +134,12 @@ function App() {
           />
 
           {/* HIGH PRIORITY FIX (H8.1): Add permission checks to nested routes */}
-          {/* ÚJ: Nested Route: /admin/tables - requires orders:manage */}
+          {/* ÚJ: Nested Route: /admin/tables - Visual Floor Plan Editor */}
           <Route
             path="tables"
             element={
               <ProtectedRoute requiredPermission="orders:manage">
-                <TableList />
+                <FloorPlanPage />
               </ProtectedRoute>
             }
           />

@@ -19,7 +19,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   token: null,
   user: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true, // CRITICAL FIX: Initial loading state = true
 
   // Actions
   login: async (credentials) => {
@@ -78,10 +78,14 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
         token,
         user,
         isAuthenticated: true,
+        isLoading: false, // CRITICAL FIX: Loading finished
       });
       console.log('[Auth Store] ✅ Auth restored from storage - isAuthenticated: true');
     } else {
       console.log('[Auth Store] ℹ️ No stored auth found (token:', !!token, 'user:', !!user, ')');
+      set({
+        isLoading: false, // CRITICAL FIX: Loading finished, nincs stored auth
+      });
     }
   },
 

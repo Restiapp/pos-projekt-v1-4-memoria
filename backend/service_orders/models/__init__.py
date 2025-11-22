@@ -20,6 +20,7 @@ from backend.service_orders.models.order_item import OrderItem
 from backend.service_orders.models.payment import Payment
 from backend.service_orders.models.reservation import Reservation, ReservationStatus, ReservationSource
 from backend.service_orders.models.opening_hours import OpeningHours
+from backend.service_orders.models.room import Room
 
 # Export all models
 __all__ = [
@@ -33,4 +34,5 @@ __all__ = [
     'ReservationStatus',
     'ReservationSource',
     'OpeningHours',
+    'Room',
 ]

@@ -16,6 +16,7 @@ import logging
 
 from backend.service_admin.config import settings
 from backend.service_admin import __version__, __service_name__
+from backend.service_admin.models.database import init_db
 
 # Configure logging
 logging.basicConfig(
@@ -42,6 +43,10 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {__service_name__} v{__version__}")
     logger.info(f"NTAK Integration: {'Enabled' if settings.ntak_enabled else 'Disabled'}")
     logger.info(f"Port: {settings.port}")
+
+    # Initialize database tables
+    logger.info("Initializing database tables...")
+    init_db()
 
     # Create HTTP client for inter-service communication
     app.state.http_client = httpx.AsyncClient(timeout=30.0)
