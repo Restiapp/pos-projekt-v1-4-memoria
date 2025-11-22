@@ -22,8 +22,13 @@ import {
   closeOrder,
   getPaymentsForOrder,
 } from '@/services/paymentService';
+<<<<<<< HEAD
 import { validateCoupon } from '@/services/crmService';
 import type { CouponValidationResponse } from '@/types/coupon';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './PaymentModal.css';
 
 interface PaymentModalProps {
@@ -37,6 +42,8 @@ export const PaymentModal = ({
   onClose,
   onPaymentSuccess,
 }: PaymentModalProps) => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [splitCheck, setSplitCheck] = useState<SplitCheckResponse | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +78,7 @@ export const PaymentModal = ({
         setPayments(paymentsData);
       } catch (error) {
         console.error('Error loading payment data:', error);
-        alert('Hiba történt az adatok betöltése közben!');
+        showToast('Hiba történt az adatok betöltése közben!', 'error');
       } finally {
         setIsLoading(false);
       }
@@ -91,12 +98,12 @@ export const PaymentModal = ({
         amount,
       });
       setPayments((prev) => [...prev, payment]);
-      alert(`Fizetés rögzítve: ${amount} HUF (${method})`);
+      showToast(`Fizetés rögzítve: ${amount} HUF (${method})`, 'success');
     } catch (error: any) {
       console.error('Payment recording failed:', error);
       const errorMsg =
         error.response?.data?.detail || 'Hiba történt a fizetés rögzítése közben!';
-      alert(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setIsProcessing(false);
     }
@@ -106,11 +113,11 @@ export const PaymentModal = ({
   const handleCloseOrder = async () => {
     if (isProcessing) return;
     if (!isFullyPaid) {
-      alert('A rendelés még nincs teljesen kifizetve!');
+      showToast('A rendelés még nincs teljesen kifizetve!', 'error');
       return;
     }
 
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       'Biztos, hogy lezárod a rendelést? Ez a művelet nem visszavonható.'
     );
     if (!confirmed) return;
@@ -118,14 +125,14 @@ export const PaymentModal = ({
     try {
       setIsProcessing(true);
       await closeOrder(order.id);
-      alert('Rendelés sikeresen lezárva!');
+      showToast('Rendelés sikeresen lezárva!', 'success');
       onPaymentSuccess();
       onClose();
     } catch (error: any) {
       console.error('Order close failed:', error);
       const errorMsg =
         error.response?.data?.detail || 'Hiba történt a rendelés lezárása közben!';
-      alert(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setIsProcessing(false);
     }

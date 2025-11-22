@@ -15,12 +15,22 @@ import { getCoupons, deleteCoupon } from '@/services/crmService';
 import { CouponEditor } from './CouponEditor';
 import type { Coupon } from '@/types/coupon';
 import { DiscountTypeEnum } from '@/types/coupon';
+<<<<<<< HEAD
 import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './CouponList.css';
 
 export const CouponList = () => {
   const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './CouponList.css';
+
+export const CouponList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -47,7 +57,11 @@ export const CouponList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a kuponok betöltésekor:', error);
+<<<<<<< HEAD
       notify.error('Nem sikerült betölteni a kuponokat!');
+=======
+      showToast('Nem sikerült betölteni a kuponokat!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +88,7 @@ export const CouponList = () => {
 
   // Kupon törlése (megerősítéssel)
   const handleDelete = async (coupon: Coupon) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a kupont?\n\n${coupon.code}`
     );
 
@@ -82,11 +96,19 @@ export const CouponList = () => {
 
     try {
       await deleteCoupon(coupon.id);
+<<<<<<< HEAD
       notify.success('Kupon sikeresen törölve!');
       fetchCoupons(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a kupon törlésekor:', error);
       notify.error('Nem sikerült törölni a kupont!');
+=======
+      showToast('Kupon sikeresen törölve!', 'success');
+      fetchCoupons(); // Lista frissítése
+    } catch (error) {
+      console.error('Hiba a kupon törlésekor:', error);
+      showToast('Nem sikerült törölni a kupont!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

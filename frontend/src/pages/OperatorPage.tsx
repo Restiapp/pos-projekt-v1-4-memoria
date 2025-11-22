@@ -19,9 +19,11 @@ import { getCustomers } from '@/services/crmService';
 import { getZoneByZipCode } from '@/services/logisticsService';
 import type { Customer } from '@/types/customer';
 import type { DeliveryZone } from '@/types/logistics';
+import { useToast } from '@/components/common/Toast';
 import './OperatorPage.css';
 
 export const OperatorPage = () => {
+  const { showToast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Customer[]>([]);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
@@ -39,7 +41,7 @@ export const OperatorPage = () => {
   // Vendég keresés
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
-      alert('Kérlek adj meg keresési kifejezést (név, email, telefon)!');
+      showToast('Kérlek adj meg keresési kifejezést (név, email, telefon)!', 'error');
       return;
     }
 
@@ -48,11 +50,11 @@ export const OperatorPage = () => {
       const response = await getCustomers(1, 10, undefined, searchTerm);
       setSearchResults(response.items);
       if (response.items.length === 0) {
-        alert('Nem található vendég ezzel a keresési kifejezéssel.');
+        showToast('Nem található vendég ezzel a keresési kifejezéssel.', 'info');
       }
     } catch (error) {
       console.error('Hiba a vendég keresésekor:', error);
-      alert('Nem sikerült megtalálni a vendéget!');
+      showToast('Nem sikerült megtalálni a vendéget!', 'error');
     } finally {
       setIsSearching(false);
     }
@@ -68,7 +70,7 @@ export const OperatorPage = () => {
   // Zóna ellenőrzés irányítószám alapján
   const handleCheckZone = async () => {
     if (!zipCode.trim()) {
-      alert('Kérlek adj meg irányítószámot!');
+      showToast('Kérlek adj meg irányítószámot!', 'error');
       return;
     }
 
@@ -78,16 +80,17 @@ export const OperatorPage = () => {
       setZoneMessage(response.message);
     } catch (error) {
       console.error('Hiba a zóna ellenőrzésekor:', error);
-      alert('Nem sikerült ellenőrizni a zónát!');
+      showToast('Nem sikerült ellenőrizni a zónát!', 'error');
     }
   };
 
   // Új rendelés indítása
   const handleStartNewOrder = () => {
     if (!selectedCustomer) {
-      alert('Először válassz ki egy vendéget!');
+      showToast('Először válassz ki egy vendéget!', 'error');
       return;
     }
+<<<<<<< HEAD
     setShowProducts(true);
   };
 
@@ -127,6 +130,11 @@ export const OperatorPage = () => {
     // TODO: Implement order creation
     alert(
       `RENDELÉS LEADÁSA\n\nVendég: ${selectedCustomer.first_name} ${selectedCustomer.last_name}\nTételek száma: ${cartItems.length}\n\n(Rendelés létrehozása következik...)`
+=======
+    showToast(
+      `ÚJ KISZÁLLÍTÁSI RENDELÉS\n\nVendég: ${selectedCustomer.first_name} ${selectedCustomer.last_name}\n\n(Ez még placeholder funkció - V4.0-ban lesz teljes rendelésfelvétel)`,
+      'info'
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     );
   };
 
