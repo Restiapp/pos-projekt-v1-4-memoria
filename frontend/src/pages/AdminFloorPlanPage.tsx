@@ -16,6 +16,7 @@ import {
   TextInput,
 } from '@mantine/core';
 import {
+  IconCopy,
   IconDeviceFloppy,
   IconEdit,
   IconPlus,
@@ -422,6 +423,56 @@ export const AdminFloorPlanPage = () => {
     } catch (err) {
       console.error('Failed to create table', err);
       showToast('Nem sikerült létrehozni az asztalt.', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /**
+   * Asztal duplikálása - másolat készítése a kiválasztott asztalból
+   */
+  const handleDuplicateTable = async () => {
+    if (!selectedTable) return;
+    if (!selectedRoomId) {
+      showToast('Válassz ki egy termet a duplikáláshoz.', 'error');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      // Új asztalszám generálása (pl. "A1" -> "A1 (másolat)")
+      const originalNumber = selectedTable.table_number;
+      let newNumber = `${originalNumber} (másolat)`;
+
+      // Ha már létezik ilyen nevű asztal, számot adunk hozzá
+      let counter = 2;
+      while (tables.some((t) => t.table_number === newNumber)) {
+        newNumber = `${originalNumber} (másolat ${counter})`;
+        counter++;
+      }
+
+      const duplicatedTable = await createTable({
+        table_number: newNumber,
+        room_id: selectedTable.room_id ?? selectedRoomId,
+        position_x: (selectedTable.position_x ?? 0) + 20, // Kis eltolás, hogy látszódjon a másolat
+        position_y: (selectedTable.position_y ?? 0) + 20,
+        width: selectedTable.width ?? 96,
+        height: selectedTable.height ?? 96,
+        rotation: selectedTable.rotation ?? 0,
+        shape: selectedTable.shape,
+        capacity: selectedTable.capacity ?? 4,
+        metadata_json: {
+          ...(selectedTable.metadata_json ?? {}),
+          table_name: getTableName(selectedTable) ? `${getTableName(selectedTable)} (másolat)` : '',
+        },
+      });
+
+      setTables((prev) => [...prev, duplicatedTable]);
+      setSelectedTableId(duplicatedTable.id);
+      showToast('Asztal duplikálva! Szerkeszd a másolatot.', 'success');
+    } catch (err) {
+      console.error('Failed to duplicate table', err);
+      showToast('Nem sikerült duplikálni az asztalt.', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -883,13 +934,23 @@ export const AdminFloorPlanPage = () => {
                   }
                 />
 
-                <Button
-                  leftSection={<IconDeviceFloppy size={16} />}
-                  onClick={handleSaveTable}
-                  loading={isSaving}
-                >
-                  Mentés
-                </Button>
+                <Group gap="xs" grow>
+                  <Button
+                    leftSection={<IconCopy size={16} />}
+                    variant="light"
+                    onClick={handleDuplicateTable}
+                    loading={isSaving}
+                  >
+                    Duplikálás
+                  </Button>
+                  <Button
+                    leftSection={<IconDeviceFloppy size={16} />}
+                    onClick={handleSaveTable}
+                    loading={isSaving}
+                  >
+                    Mentés
+                  </Button>
+                </Group>
               </Stack>
             ) : (
               <Alert color="gray" title="Nincs asztal kiválasztva" radius="md">
