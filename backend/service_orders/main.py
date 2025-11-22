@@ -23,6 +23,7 @@ from backend.service_orders.routers import (
     orders_router,
     order_items_router
 )
+from backend.service_orders.routers.rooms import router as rooms_router
 
 # Create FastAPI application
 app = FastAPI(
@@ -43,6 +44,12 @@ app.add_middleware(
 )
 
 # Register routers with RBAC protection
+app.include_router(
+    rooms_router,
+    prefix="/api/v1",
+    tags=["Rooms"],
+    dependencies=[Depends(require_permission("orders:manage"))]
+)
 app.include_router(
     tables_router,
     prefix="/api/v1",

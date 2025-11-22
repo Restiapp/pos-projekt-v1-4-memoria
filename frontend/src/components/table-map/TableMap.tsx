@@ -1,82 +1,74 @@
-/**
- * TableMap - Főkomponens: Asztaltérkép megjelenítése
- * Fetch-eli az összes asztalt és grid layout-ban jeleníti meg
- */
-
 import { useState, useEffect } from 'react';
+import { Stage, Layer, Group } from 'react-konva';
 import { getTables } from '@/services/tableService';
-import { TableIcon } from './TableIcon';
 import type { Table } from '@/types/table';
-import './TableMap.css';
+import { FurnitureShape } from './FurnitureShape';
 
-export const TableMap = () => {
-  const [tables, setTables] = useState<Table[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+interface TableMapProps {
+    activeRoom: string | null; // room ID or name
+}
 
-  // Asztalok betöltése
-  useEffect(() => {
-    const fetchTables = async () => {
-      try {
-        setLoading(true);
-        const data = await getTables();
-        setTables(data);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch tables:', err);
-        setError('Nem sikerült betölteni az asztalokat. Kérjük, próbálja újra.');
-      } finally {
-        setLoading(false);
-      }
-    };
+export const TableMap = ({ activeRoom }: TableMapProps) => {
+    const [tables, setTables] = useState<Table[]>([]);
+    const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
 
-    fetchTables();
-  }, []);
+    // Canvas dimensions
+    const width = window.innerWidth;
+    const height = window.innerHeight - 180; // Approximate available height
 
-  // Asztal kattintás kezelése
-  const handleTableClick = (table: Table) => {
-    console.log('Asztal kiválasztva:', table);
-    // TODO: Navigáció a rendelés oldalra vagy részletek megjelenítése
-    alert(`Asztal: ${table.table_number} (ID: ${table.id})`);
-  };
+    useEffect(() => {
+        const fetchTables = async () => {
+            try {
+                const data = await getTables();
+                // Filter locally for now (until backend filter is active/passed)
+                // Assuming mock activeRoom logic or just showing all
+                setTables(data);
+            } catch (e) {
+                console.error("Failed to load tables", e);
+            }
+        };
+        fetchTables();
+    }, [activeRoom]);
 
-  if (loading) {
     return (
-      <div className="table-map-loading">
-        <p>Asztalok betöltése...</p>
-      </div>
+        <Stage
+            width={width}
+            height={height}
+            draggable
+            style={{ backgroundColor: '#2C2E33' }}
+            onMouseDown={(e) => {
+                // Deselect if clicking on stage
+                if (e.target === e.target.getStage()) {
+                    setSelectedTableId(null);
+                }
+            }}
+        >
+            <Layer>
+                {tables.map((table) => (
+                    <Group
+                        key={table.id}
+                        x={table.position_x || 100}
+                        y={table.position_y || 100}
+                        draggable
+                        onClick={() => setSelectedTableId(table.id)}
+                        onTap={() => setSelectedTableId(table.id)}
+                        onDragEnd={(e) => {
+                            console.log('New pos:', e.target.x(), e.target.y());
+                            // TODO: Save to backend
+                        }}
+                    >
+                        <FurnitureShape
+                            shape={table.shape || 'rect'}
+                            width={table.width || 80}
+                            height={table.height || 80}
+                            rotation={table.rotation || 0}
+                            capacity={table.capacity || 4}
+                            tableNumber={table.table_number}
+                            isSelected={selectedTableId === table.id}
+                        />
+                    </Group>
+                ))}
+            </Layer>
+        </Stage>
     );
-  }
-
-  if (error) {
-    return (
-      <div className="table-map-error">
-        <p>{error}</p>
-        <button onClick={() => window.location.reload()}>Újrapróbálás</button>
-      </div>
-    );
-  }
-
-  if (tables.length === 0) {
-    return (
-      <div className="table-map-empty">
-        <p>Nincs elérhető asztal.</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="table-map-container">
-      <div className="table-grid">
-        {tables.map((table) => (
-          <TableIcon
-            key={table.id}
-            table={table}
-            occupiedSeats={0} // TODO: Rendelések alapján számítani
-            onClick={handleTableClick}
-          />
-        ))}
-      </div>
-    </div>
-  );
 };
