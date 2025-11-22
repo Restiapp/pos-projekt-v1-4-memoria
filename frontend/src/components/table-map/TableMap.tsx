@@ -35,7 +35,6 @@ export const TableMap = () => {
 
   // Asztal kattintás kezelése
   const handleTableClick = (table: Table) => {
-    console.log('Asztal kiválasztva:', table);
     // TODO: Navigáció a rendelés oldalra vagy részletek megjelenítése
     alert(`Asztal: ${table.table_number} (ID: ${table.id})`);
   };
