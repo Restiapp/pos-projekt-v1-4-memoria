@@ -18,9 +18,13 @@ import {
 } from '@/services/assetService';
 import { AssetEditor } from './AssetEditor';
 import type { Asset, AssetGroup } from '@/types/asset';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetList.css';
 
 export const AssetList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [assetGroups, setAssetGroups] = useState<AssetGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +66,7 @@ export const AssetList = () => {
       setAssets(data);
     } catch (error) {
       console.error('Hiba az eszközök betöltésekor:', error);
-      alert('Nem sikerült betölteni az eszközöket!');
+      showToast('Nem sikerült betölteni az eszközöket!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +95,7 @@ export const AssetList = () => {
 
   // Eszköz törlése
   const handleDelete = async (asset: Asset) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt az eszközt?\n\n${asset.name} (${asset.inventory_number || 'Nincs leltári szám'})`
     );
 
@@ -99,11 +103,11 @@ export const AssetList = () => {
 
     try {
       await deleteAsset(asset.id);
-      alert('Eszköz sikeresen törölve!');
+      showToast('Eszköz sikeresen törölve!', 'success');
       fetchAssets();
     } catch (error) {
       console.error('Hiba az eszköz törlésekor:', error);
-      alert('Nem sikerült törölni az eszközt!');
+      showToast('Nem sikerült törölni az eszközt!', 'error');
     }
   };
 

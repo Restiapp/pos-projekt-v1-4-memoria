@@ -11,6 +11,8 @@
 import { useState } from 'react';
 import { createGiftCard, updateGiftCard } from '@/services/crmService';
 import type { GiftCard, GiftCardCreate, GiftCardUpdate } from '@/types/giftCard';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './GiftCardEditor.css';
 
 interface GiftCardEditorProps {
@@ -20,6 +22,8 @@ interface GiftCardEditorProps {
 
 export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
   const isEditing = !!giftCard; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -59,7 +63,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
 
     // Validáció
     if (!formData.card_code.trim()) {
-      alert('A kártyakód kötelező!');
+      showToast('A kártyakód kötelező!', 'error');
       return;
     }
 
@@ -68,13 +72,13 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
       // Ha PIN kódot adtak meg, ellenőrizzük a formátumot
       const pinRegex = /^[0-9]{4,10}$/; // 4-10 számjegy
       if (!pinRegex.test(formData.pin_code)) {
-        alert('A PIN kód 4-10 számjegyből kell álljon!');
+        showToast('A PIN kód 4-10 számjegyből kell álljon!', 'error');
         return;
       }
     }
 
     if (formData.initial_balance <= 0 && !isEditing) {
-      alert('A kezdeti egyenleg nagyobb kell legyen nullánál!');
+      showToast('A kezdeti egyenleg nagyobb kell legyen nullánál!', 'error');
       return;
     }
 
@@ -89,7 +93,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
           is_active: formData.is_active,
         };
         await updateGiftCard(giftCard.id, updateData);
-        alert('Ajándékkártya sikeresen frissítve!');
+        showToast('Ajándékkártya sikeresen frissítve!', 'success');
       } else {
         // Létrehozás
         const createData: GiftCardCreate = {
@@ -100,7 +104,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
           is_active: formData.is_active,
         };
         await createGiftCard(createData);
-        alert('Ajándékkártya sikeresen létrehozva!');
+        showToast('Ajándékkártya sikeresen létrehozva!', 'success');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -108,7 +112,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
       console.error('Hiba az ajándékkártya mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni az ajándékkártyát!';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);
     }

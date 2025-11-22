@@ -15,9 +15,13 @@ import {
   getVehicles,
 } from '@/services/vehicleService';
 import type { VehicleMaintenance, Vehicle } from '@/types/vehicle';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './VehicleMaintenanceList.css';
 
 export const VehicleMaintenanceList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [maintenances, setMaintenances] = useState<VehicleMaintenance[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +57,7 @@ export const VehicleMaintenanceList = () => {
       setMaintenances(data);
     } catch (error) {
       console.error('Hiba a karbantartások betöltésekor:', error);
-      alert('Nem sikerült betölteni a karbantartásokat!');
+      showToast('Nem sikerült betölteni a karbantartásokat!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +74,7 @@ export const VehicleMaintenanceList = () => {
 
   // Karbantartás törlése
   const handleDelete = async (maintenance: VehicleMaintenance) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a karbantartást?\n\n${maintenance.description} (${new Date(
         maintenance.maintenance_date
       ).toLocaleDateString('hu-HU')})`
@@ -80,11 +84,11 @@ export const VehicleMaintenanceList = () => {
 
     try {
       await deleteVehicleMaintenance(maintenance.id);
-      alert('Karbantartás sikeresen törölve!');
+      showToast('Karbantartás sikeresen törölve!', 'success');
       fetchMaintenances();
     } catch (error) {
       console.error('Hiba a karbantartás törlésekor:', error);
-      alert('Nem sikerült törölni a karbantartást!');
+      showToast('Nem sikerült törölni a karbantartást!', 'error');
     }
   };
 

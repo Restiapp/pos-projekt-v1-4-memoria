@@ -14,9 +14,13 @@ import { useState, useEffect } from 'react';
 import { getProducts, deleteProduct, getCategories } from '@/services/menuService';
 import { ProductEditor } from './ProductEditor';
 import type { Product, Category } from '@/types/menu';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './ProductList.css';
 
 export const ProductList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,7 +48,7 @@ export const ProductList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a termékek betöltésekor:', error);
-      alert('Nem sikerült betölteni a termékeket!');
+      showToast('Nem sikerült betölteni a termékeket!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +84,7 @@ export const ProductList = () => {
 
   // Termék törlése (megerősítéssel)
   const handleDelete = async (product: Product) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a terméket?\n\n${product.name}`
     );
 
@@ -88,11 +92,11 @@ export const ProductList = () => {
 
     try {
       await deleteProduct(product.id);
-      alert('Termék sikeresen törölve!');
+      showToast('Termék sikeresen törölve!', 'success');
       fetchProducts(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a termék törlésekor:', error);
-      alert('Nem sikerült törölni a terméket!');
+      showToast('Nem sikerült törölni a terméket!', 'error');
     }
   };
 

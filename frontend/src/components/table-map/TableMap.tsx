@@ -7,9 +7,11 @@ import { useState, useEffect } from 'react';
 import { getTables } from '@/services/tableService';
 import { TableIcon } from './TableIcon';
 import type { Table } from '@/types/table';
+import { useToast } from '@/components/common/Toast';
 import './TableMap.css';
 
 export const TableMap = () => {
+  const { showToast } = useToast();
   const [tables, setTables] = useState<Table[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,7 +39,7 @@ export const TableMap = () => {
   const handleTableClick = (table: Table) => {
     console.log('Asztal kiválasztva:', table);
     // TODO: Navigáció a rendelés oldalra vagy részletek megjelenítése
-    alert(`Asztal: ${table.table_number} (ID: ${table.id})`);
+    showToast(`Asztal: ${table.table_number} (ID: ${table.id})`, 'info');
   };
 
   if (loading) {

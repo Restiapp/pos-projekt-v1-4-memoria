@@ -11,6 +11,8 @@
 import { useState } from 'react';
 import { createTable, updateTable } from '@/services/tableService';
 import type { Table, TableCreate, TableUpdate } from '@/types/table';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './TableEditor.css';
 
 interface TableEditorProps {
@@ -20,6 +22,8 @@ interface TableEditorProps {
 
 export const TableEditor = ({ table, onClose }: TableEditorProps) => {
   const isEditing = !!table; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -54,7 +58,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
 
     // Validáció
     if (!formData.table_number.trim()) {
-      alert('Az asztalszám kötelező!');
+      showToast('Az asztalszám kötelező!', 'error');
       return;
     }
 
@@ -70,7 +74,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
           capacity: formData.capacity === '' ? null : Number(formData.capacity),
         };
         await updateTable(table.id, updateData);
-        alert('Asztal sikeresen frissítve!');
+        showToast('Asztal sikeresen frissítve!', 'success');
       } else {
         // Létrehozás
         const createData: TableCreate = {
@@ -80,7 +84,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
           capacity: formData.capacity === '' ? null : Number(formData.capacity),
         };
         await createTable(createData);
-        alert('Asztal sikeresen létrehozva!');
+        showToast('Asztal sikeresen létrehozva!', 'success');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -88,7 +92,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
       console.error('Hiba az asztal mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni az asztalt!';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);
     }

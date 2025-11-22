@@ -11,6 +11,8 @@
 import { useState } from 'react';
 import { createVehicle, updateVehicle } from '@/services/vehicleService';
 import type { Vehicle, VehicleCreate, VehicleUpdate } from '@/types/vehicle';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './VehicleEditor.css';
 
 interface VehicleEditorProps {
@@ -20,6 +22,8 @@ interface VehicleEditorProps {
 
 export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
   const isEditMode = vehicle !== null;
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapotok
   const [formData, setFormData] = useState({
@@ -75,8 +79,9 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
       !formData.model ||
       !formData.fuel_type
     ) {
-      alert(
-        'Kérlek, töltsd ki a kötelező mezőket: Rendszám, Márka, Modell, Üzemanyag!'
+      showToast(
+        'Kérlek, töltsd ki a kötelező mezőket: Rendszám, Márka, Modell, Üzemanyag!',
+        'error'
       );
       return;
     }
@@ -106,7 +111,7 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
         };
 
         await updateVehicle(vehicle!.id, updateData);
-        alert('Jármű sikeresen frissítve!');
+        showToast('Jármű sikeresen frissítve!', 'success');
       } else {
         // Létrehozás
         const createData: VehicleCreate = {
@@ -129,13 +134,13 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
         };
 
         await createVehicle(createData);
-        alert('Jármű sikeresen létrehozva!');
+        showToast('Jármű sikeresen létrehozva!', 'success');
       }
 
       onClose(true); // Frissítés szükséges
     } catch (error) {
       console.error('Hiba a jármű mentésekor:', error);
-      alert('Nem sikerült menteni a járművet!');
+      showToast('Nem sikerült menteni a járművet!', 'error');
     } finally {
       setIsSaving(false);
     }

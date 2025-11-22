@@ -15,9 +15,13 @@ import {
   getVehicles,
 } from '@/services/vehicleService';
 import type { VehicleRefueling, Vehicle } from '@/types/vehicle';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './VehicleRefuelingList.css';
 
 export const VehicleRefuelingList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [refuelings, setRefuelings] = useState<VehicleRefueling[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,7 +53,7 @@ export const VehicleRefuelingList = () => {
       setRefuelings(data);
     } catch (error) {
       console.error('Hiba a tankolások betöltésekor:', error);
-      alert('Nem sikerült betölteni a tankolásokat!');
+      showToast('Nem sikerült betölteni a tankolásokat!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +70,7 @@ export const VehicleRefuelingList = () => {
 
   // Tankolás törlése
   const handleDelete = async (refueling: VehicleRefueling) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a tankolást?\n\n${new Date(
         refueling.refueling_date
       ).toLocaleDateString('hu-HU')} - ${refueling.quantity_liters.toLocaleString()} L`
@@ -76,11 +80,11 @@ export const VehicleRefuelingList = () => {
 
     try {
       await deleteVehicleRefueling(refueling.id);
-      alert('Tankolás sikeresen törölve!');
+      showToast('Tankolás sikeresen törölve!', 'success');
       fetchRefuelings();
     } catch (error) {
       console.error('Hiba a tankolás törlésekor:', error);
-      alert('Nem sikerült törölni a tankolást!');
+      showToast('Nem sikerült törölni a tankolást!', 'error');
     }
   };
 

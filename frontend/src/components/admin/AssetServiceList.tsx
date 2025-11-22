@@ -18,9 +18,13 @@ import {
 } from '@/services/assetService';
 import { AssetServiceEditor } from './AssetServiceEditor';
 import type { AssetService, Asset } from '@/types/asset';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetServiceList.css';
 
 export const AssetServiceList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [services, setServices] = useState<AssetService[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +64,7 @@ export const AssetServiceList = () => {
       setServices(data);
     } catch (error) {
       console.error('Hiba a szerviz bejegyzések betöltésekor:', error);
-      alert('Nem sikerült betölteni a szerviz bejegyzéseket!');
+      showToast('Nem sikerült betölteni a szerviz bejegyzéseket!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -90,7 +94,7 @@ export const AssetServiceList = () => {
   // Szerviz bejegyzés törlése
   const handleDelete = async (service: AssetService) => {
     const asset = assets.find((a) => a.id === service.asset_id);
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a szerviz bejegyzést?\n\nEszköz: ${asset?.name || 'Ismeretlen'}\nTípus: ${getServiceTypeLabel(service.service_type)}\nDátum: ${new Date(service.service_date).toLocaleDateString('hu-HU')}`
     );
 
@@ -98,11 +102,11 @@ export const AssetServiceList = () => {
 
     try {
       await deleteAssetService(service.id);
-      alert('Szerviz bejegyzés sikeresen törölve!');
+      showToast('Szerviz bejegyzés sikeresen törölve!', 'success');
       fetchServices();
     } catch (error) {
       console.error('Hiba a szerviz bejegyzés törlésekor:', error);
-      alert('Nem sikerült törölni a szerviz bejegyzést!');
+      showToast('Nem sikerült törölni a szerviz bejegyzést!', 'error');
     }
   };
 

@@ -15,9 +15,13 @@ import { useState, useEffect } from 'react';
 import { getVehicles, deleteVehicle } from '@/services/vehicleService';
 import { VehicleEditor } from './VehicleEditor';
 import type { Vehicle } from '@/types/vehicle';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './VehicleList.css';
 
 export const VehicleList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,7 +52,7 @@ export const VehicleList = () => {
       setVehicles(data);
     } catch (error) {
       console.error('Hiba a járművek betöltésekor:', error);
-      alert('Nem sikerült betölteni a járműveket!');
+      showToast('Nem sikerült betölteni a járműveket!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +77,7 @@ export const VehicleList = () => {
 
   // Jármű törlése
   const handleDelete = async (vehicle: Vehicle) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a járművet?\n\n${vehicle.brand} ${vehicle.model} (${vehicle.license_plate})`
     );
 
@@ -81,11 +85,11 @@ export const VehicleList = () => {
 
     try {
       await deleteVehicle(vehicle.id);
-      alert('Jármű sikeresen törölve!');
+      showToast('Jármű sikeresen törölve!', 'success');
       fetchVehicles();
     } catch (error) {
       console.error('Hiba a jármű törlésekor:', error);
-      alert('Nem sikerült törölni a járművet!');
+      showToast('Nem sikerült törölni a járművet!', 'error');
     }
   };
 

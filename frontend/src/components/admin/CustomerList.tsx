@@ -15,9 +15,13 @@ import { useState, useEffect } from 'react';
 import { getCustomers, deleteCustomer } from '@/services/crmService';
 import { CustomerEditor } from './CustomerEditor';
 import type { Customer } from '@/types/customer';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './CustomerList.css';
 
 export const CustomerList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -46,7 +50,7 @@ export const CustomerList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a vendégek betöltésekor:', error);
-      alert('Nem sikerült betölteni a vendégeket!');
+      showToast('Nem sikerült betölteni a vendégeket!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +75,7 @@ export const CustomerList = () => {
 
   // Vendég törlése (megerősítéssel)
   const handleDelete = async (customer: Customer) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a vendéget?\n\n${customer.first_name} ${customer.last_name} (${customer.email})`
     );
 
@@ -79,11 +83,11 @@ export const CustomerList = () => {
 
     try {
       await deleteCustomer(customer.id);
-      alert('Vendég sikeresen törölve!');
+      showToast('Vendég sikeresen törölve!', 'success');
       fetchCustomers(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a vendég törlésekor:', error);
-      alert('Nem sikerült törölni a vendéget!');
+      showToast('Nem sikerült törölni a vendéget!', 'error');
     }
   };
 

@@ -15,9 +15,13 @@ import { getCoupons, deleteCoupon } from '@/services/crmService';
 import { CouponEditor } from './CouponEditor';
 import type { Coupon } from '@/types/coupon';
 import { DiscountTypeEnum } from '@/types/coupon';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './CouponList.css';
 
 export const CouponList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -44,7 +48,7 @@ export const CouponList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a kuponok betöltésekor:', error);
-      alert('Nem sikerült betölteni a kuponokat!');
+      showToast('Nem sikerült betölteni a kuponokat!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +73,7 @@ export const CouponList = () => {
 
   // Kupon törlése (megerősítéssel)
   const handleDelete = async (coupon: Coupon) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a kupont?\n\n${coupon.code}`
     );
 
@@ -77,11 +81,11 @@ export const CouponList = () => {
 
     try {
       await deleteCoupon(coupon.id);
-      alert('Kupon sikeresen törölve!');
+      showToast('Kupon sikeresen törölve!', 'success');
       fetchCoupons(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a kupon törlésekor:', error);
-      alert('Nem sikerült törölni a kupont!');
+      showToast('Nem sikerült törölni a kupont!', 'error');
     }
   };
 

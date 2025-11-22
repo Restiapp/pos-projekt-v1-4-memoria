@@ -11,6 +11,8 @@
 import { useState } from 'react';
 import { createAssetService, updateAssetService } from '@/services/assetService';
 import type { AssetService, Asset, AssetServiceCreate, AssetServiceUpdate } from '@/types/asset';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetServiceEditor.css';
 
 interface AssetServiceEditorProps {
@@ -25,6 +27,8 @@ export const AssetServiceEditor = ({
   onClose,
 }: AssetServiceEditorProps) => {
   const isEditing = !!service;
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -55,22 +59,22 @@ export const AssetServiceEditor = ({
 
     // Validáció
     if (!formData.asset_id) {
-      alert('Az eszköz választása kötelező!');
+      showToast('Az eszköz választása kötelező!', 'error');
       return;
     }
 
     if (!formData.service_type) {
-      alert('A szerviz típusa kötelező!');
+      showToast('A szerviz típusa kötelező!', 'error');
       return;
     }
 
     if (!formData.service_date) {
-      alert('A szerviz dátuma kötelező!');
+      showToast('A szerviz dátuma kötelező!', 'error');
       return;
     }
 
     if (!formData.description.trim()) {
-      alert('A leírás kötelező!');
+      showToast('A leírás kötelező!', 'error');
       return;
     }
 
@@ -92,7 +96,7 @@ export const AssetServiceEditor = ({
         };
 
         await updateAssetService(service!.id, updateData);
-        alert('Szerviz bejegyzés sikeresen frissítve!');
+        showToast('Szerviz bejegyzés sikeresen frissítve!', 'success');
       } else {
         const createData: AssetServiceCreate = {
           asset_id: parseInt(formData.asset_id),
@@ -109,14 +113,14 @@ export const AssetServiceEditor = ({
         };
 
         await createAssetService(createData);
-        alert('Szerviz bejegyzés sikeresen létrehozva!');
+        showToast('Szerviz bejegyzés sikeresen létrehozva!', 'success');
       }
 
       onClose(true);
     } catch (error: any) {
       console.error('Hiba a szerviz bejegyzés mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
-      alert(`Hiba: ${errorMsg}`);
+      showToast(`Hiba: ${errorMsg}`, 'error');
     } finally {
       setIsSubmitting(false);
     }

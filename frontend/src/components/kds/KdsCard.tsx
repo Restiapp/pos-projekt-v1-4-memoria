@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import type { KdsItem, KdsStatus } from '@/types/kds';
 import { updateItemStatus } from '@/services/kdsService';
+import { useToast } from '@/components/common/Toast';
 import './KdsCard.css';
 
 interface KdsCardProps {
@@ -14,6 +15,7 @@ interface KdsCardProps {
 }
 
 export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
+  const { showToast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleStatusChange = async (newStatus: KdsStatus) => {
@@ -27,7 +29,7 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
       }
     } catch (error) {
       console.error('Failed to update KDS status:', error);
-      alert('Hiba történt a státusz frissítése közben!');
+      showToast('Hiba történt a státusz frissítése közben!', 'error');
     } finally {
       setIsUpdating(false);
     }

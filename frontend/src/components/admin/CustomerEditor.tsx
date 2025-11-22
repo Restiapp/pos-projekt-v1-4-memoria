@@ -11,6 +11,8 @@
 import { useState } from 'react';
 import { createCustomer, updateCustomer } from '@/services/crmService';
 import type { Customer, CustomerCreate, CustomerUpdate } from '@/types/customer';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './CustomerEditor.css';
 
 interface CustomerEditorProps {
@@ -20,6 +22,8 @@ interface CustomerEditorProps {
 
 export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
   const isEditing = !!customer; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -59,17 +63,17 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
 
     // Validáció
     if (!formData.first_name.trim()) {
-      alert('A keresztnév kötelező!');
+      showToast('A keresztnév kötelező!', 'error');
       return;
     }
 
     if (!formData.last_name.trim()) {
-      alert('A vezetéknév kötelező!');
+      showToast('A vezetéknév kötelező!', 'error');
       return;
     }
 
     if (!formData.email.trim()) {
-      alert('Az email kötelező!');
+      showToast('Az email kötelező!', 'error');
       return;
     }
 
@@ -90,7 +94,7 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           is_active: formData.is_active,
         };
         await updateCustomer(customer.id, updateData);
-        alert('Vendég sikeresen frissítve!');
+        showToast('Vendég sikeresen frissítve!', 'success');
       } else {
         // Létrehozás
         const createData: CustomerCreate = {
@@ -104,7 +108,7 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           notes: formData.notes || undefined,
         };
         await createCustomer(createData);
-        alert('Vendég sikeresen létrehozva!');
+        showToast('Vendég sikeresen létrehozva!', 'success');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -112,7 +116,7 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
       console.error('Hiba a vendég mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a vendéget!';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);
     }

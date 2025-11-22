@@ -12,6 +12,8 @@
 import { useState } from 'react';
 import { createEmployee, updateEmployee } from '@/services/employeeService';
 import type { Employee, Role, EmployeeCreate, EmployeeUpdate } from '@/types/employee';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './EmployeeEditor.css';
 
 interface EmployeeEditorProps {
@@ -26,6 +28,8 @@ export const EmployeeEditor = ({
   onClose,
 }: EmployeeEditorProps) => {
   const isEditing = !!employee; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -71,35 +75,35 @@ export const EmployeeEditor = ({
 
     // Validáció
     if (!formData.full_name.trim()) {
-      alert('A teljes név kötelező!');
+      showToast('A teljes név kötelező!', 'error');
       return;
     }
 
     if (!formData.username.trim()) {
-      alert('A felhasználónév kötelező!');
+      showToast('A felhasználónév kötelező!', 'error');
       return;
     }
 
     if (!formData.email.trim()) {
-      alert('Az email cím kötelező!');
+      showToast('Az email cím kötelező!', 'error');
       return;
     }
 
     // Email formátum validáció (egyszerű)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      alert('Érvénytelen email formátum!');
+      showToast('Érvénytelen email formátum!', 'error');
       return;
     }
 
     // Jelszó validáció (csak új munkatársnál kötelező)
     if (!isEditing && !formData.password) {
-      alert('A jelszó (PIN kód) kötelező új munkatársnál!');
+      showToast('A jelszó (PIN kód) kötelező új munkatársnál!', 'error');
       return;
     }
 
     if (formData.password && formData.password.length < 4) {
-      alert('A jelszó (PIN kód) legalább 4 karakter hosszú legyen!');
+      showToast('A jelszó (PIN kód) legalább 4 karakter hosszú legyen!', 'error');
       return;
     }
 
@@ -122,7 +126,7 @@ export const EmployeeEditor = ({
         }
 
         await updateEmployee(employee.id, updateData);
-        alert('Munkatárs sikeresen frissítve!');
+        showToast('Munkatárs sikeresen frissítve!', 'success');
       } else {
         // Létrehozás
         const createData: EmployeeCreate = {
@@ -135,7 +139,7 @@ export const EmployeeEditor = ({
         };
 
         await createEmployee(createData);
-        alert('Munkatárs sikeresen létrehozva!');
+        showToast('Munkatárs sikeresen létrehozva!', 'success');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -143,7 +147,7 @@ export const EmployeeEditor = ({
       console.error('Hiba a munkatárs mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a munkatársat!';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);
     }

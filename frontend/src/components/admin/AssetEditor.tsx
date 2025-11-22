@@ -12,6 +12,8 @@
 import { useState } from 'react';
 import { createAsset, updateAsset } from '@/services/assetService';
 import type { Asset, AssetGroup, AssetCreate, AssetUpdate } from '@/types/asset';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetEditor.css';
 
 interface AssetEditorProps {
@@ -26,6 +28,8 @@ export const AssetEditor = ({
   onClose,
 }: AssetEditorProps) => {
   const isEditing = !!asset;
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -68,12 +72,12 @@ export const AssetEditor = ({
 
     // Validáció
     if (!formData.name.trim()) {
-      alert('Az eszköz neve kötelező!');
+      showToast('Az eszköz neve kötelező!', 'error');
       return;
     }
 
     if (!formData.asset_group_id) {
-      alert('Az eszközcsoport választása kötelező!');
+      showToast('Az eszközcsoport választása kötelező!', 'error');
       return;
     }
 
@@ -105,7 +109,7 @@ export const AssetEditor = ({
         };
 
         await updateAsset(asset!.id, updateData);
-        alert('Eszköz sikeresen frissítve!');
+        showToast('Eszköz sikeresen frissítve!', 'success');
       } else {
         const createData: AssetCreate = {
           asset_group_id: parseInt(formData.asset_group_id),
@@ -131,14 +135,14 @@ export const AssetEditor = ({
         };
 
         await createAsset(createData);
-        alert('Eszköz sikeresen létrehozva!');
+        showToast('Eszköz sikeresen létrehozva!', 'success');
       }
 
       onClose(true);
     } catch (error: any) {
       console.error('Hiba az eszköz mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
-      alert(`Hiba: ${errorMsg}`);
+      showToast(`Hiba: ${errorMsg}`, 'error');
     } finally {
       setIsSubmitting(false);
     }

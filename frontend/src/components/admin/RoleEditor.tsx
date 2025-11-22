@@ -12,6 +12,8 @@
 import { useState } from 'react';
 import { createRole, updateRole } from '@/services/roleService';
 import type { RoleWithPermissions, Permission, RoleCreate, RoleUpdate } from '@/types/role';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './RoleEditor.css';
 
 interface RoleEditorProps {
@@ -22,6 +24,8 @@ interface RoleEditorProps {
 
 export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
   const isEditing = !!role; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -68,12 +72,12 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
 
     // Validáció
     if (!formData.name.trim()) {
-      alert('A szerepkör neve kötelező!');
+      showToast('A szerepkör neve kötelező!', 'error');
       return;
     }
 
     if (!formData.description.trim()) {
-      alert('A leírás kötelező!');
+      showToast('A leírás kötelező!', 'error');
       return;
     }
 
@@ -89,7 +93,7 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
         };
 
         await updateRole(role.id, updateData);
-        alert('Szerepkör sikeresen frissítve!');
+        showToast('Szerepkör sikeresen frissítve!', 'success');
       } else {
         // Létrehozás
         const createData: RoleCreate = {
@@ -99,7 +103,7 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
         };
 
         await createRole(createData);
-        alert('Szerepkör sikeresen létrehozva!');
+        showToast('Szerepkör sikeresen létrehozva!', 'success');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -107,7 +111,7 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
       console.error('Hiba a szerepkör mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a szerepkört!';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);
     }

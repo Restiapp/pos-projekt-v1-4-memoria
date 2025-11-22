@@ -14,9 +14,13 @@ import { useState, useEffect } from 'react';
 import { getGiftCards, deleteGiftCard } from '@/services/crmService';
 import { GiftCardEditor } from './GiftCardEditor';
 import type { GiftCard } from '@/types/giftCard';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './GiftCardList.css';
 
 export const GiftCardList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [giftCards, setGiftCards] = useState<GiftCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -43,7 +47,7 @@ export const GiftCardList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba az ajándékkártyák betöltésekor:', error);
-      alert('Nem sikerült betölteni az ajándékkártyákat!');
+      showToast('Nem sikerült betölteni az ajándékkártyákat!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +72,7 @@ export const GiftCardList = () => {
 
   // Ajándékkártya törlése (megerősítéssel)
   const handleDelete = async (giftCard: GiftCard) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt az ajándékkártyát?\n\n${giftCard.card_code}`
     );
 
@@ -76,11 +80,11 @@ export const GiftCardList = () => {
 
     try {
       await deleteGiftCard(giftCard.id);
-      alert('Ajándékkártya sikeresen törölve!');
+      showToast('Ajándékkártya sikeresen törölve!', 'success');
       fetchGiftCards(); // Lista frissítése
     } catch (error) {
       console.error('Hiba az ajándékkártya törlésekor:', error);
-      alert('Nem sikerült törölni az ajándékkártyát!');
+      showToast('Nem sikerült törölni az ajándékkártyát!', 'error');
     }
   };
 

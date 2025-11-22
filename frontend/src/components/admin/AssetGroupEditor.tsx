@@ -11,6 +11,8 @@
 import { useState } from 'react';
 import { createAssetGroup, updateAssetGroup } from '@/services/assetService';
 import type { AssetGroup, AssetGroupCreate, AssetGroupUpdate } from '@/types/asset';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetGroupEditor.css';
 
 interface AssetGroupEditorProps {
@@ -23,6 +25,8 @@ export const AssetGroupEditor = ({
   onClose,
 }: AssetGroupEditorProps) => {
   const isEditing = !!assetGroup;
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -56,7 +60,7 @@ export const AssetGroupEditor = ({
 
     // Validáció
     if (!formData.name.trim()) {
-      alert('Az eszközcsoport neve kötelező!');
+      showToast('Az eszközcsoport neve kötelező!', 'error');
       return;
     }
 
@@ -78,7 +82,7 @@ export const AssetGroupEditor = ({
         };
 
         await updateAssetGroup(assetGroup!.id, updateData);
-        alert('Eszközcsoport sikeresen frissítve!');
+        showToast('Eszközcsoport sikeresen frissítve!', 'success');
       } else {
         const createData: AssetGroupCreate = {
           name: formData.name.trim(),
@@ -93,14 +97,14 @@ export const AssetGroupEditor = ({
         };
 
         await createAssetGroup(createData);
-        alert('Eszközcsoport sikeresen létrehozva!');
+        showToast('Eszközcsoport sikeresen létrehozva!', 'success');
       }
 
       onClose(true); // Bezárás + lista frissítése
     } catch (error: any) {
       console.error('Hiba az eszközcsoport mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
-      alert(`Hiba: ${errorMsg}`);
+      showToast(`Hiba: ${errorMsg}`, 'error');
     } finally {
       setIsSubmitting(false);
     }

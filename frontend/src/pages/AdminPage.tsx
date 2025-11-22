@@ -11,6 +11,7 @@
 import { useState } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/common/Toast';
 import './AdminPage.css';
 
 interface MenuItem {
@@ -115,6 +116,7 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 export const AdminPage = () => {
+  const { showToast } = useToast();
   const { user, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -123,7 +125,7 @@ export const AdminPage = () => {
   const handleMenuClick = (item: MenuItem) => {
     // Jogosultság ellenőrzés (opcionális, a route is védett)
     if (item.permission && !hasPermission(item.permission)) {
-      alert('Nincs jogosultságod ehhez a funkcióhoz!');
+      showToast('Nincs jogosultságod ehhez a funkcióhoz!', 'error');
       return;
     }
     navigate(item.path);

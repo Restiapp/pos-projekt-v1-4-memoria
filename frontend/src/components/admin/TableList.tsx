@@ -13,9 +13,13 @@ import { useState, useEffect } from 'react';
 import { getTables, deleteTable } from '@/services/tableService';
 import { TableEditor } from './TableEditor';
 import type { Table } from '@/types/table';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './TableList.css';
 
 export const TableList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [tables, setTables] = useState<Table[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -31,7 +35,7 @@ export const TableList = () => {
       setTables(data);
     } catch (error) {
       console.error('Hiba az asztalok betöltésekor:', error);
-      alert('Nem sikerült betölteni az asztalokat!');
+      showToast('Nem sikerült betölteni az asztalokat!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +60,7 @@ export const TableList = () => {
 
   // Asztal törlése (megerősítéssel)
   const handleDelete = async (table: Table) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt az asztalt?\n\nAsztal: ${table.table_number}`
     );
 
@@ -64,11 +68,11 @@ export const TableList = () => {
 
     try {
       await deleteTable(table.id);
-      alert('Asztal sikeresen törölve!');
+      showToast('Asztal sikeresen törölve!', 'success');
       fetchTables(); // Lista frissítése
     } catch (error) {
       console.error('Hiba az asztal törlésekor:', error);
-      alert('Nem sikerült törölni az asztalt!');
+      showToast('Nem sikerült törölni az asztalt!', 'error');
     }
   };
 

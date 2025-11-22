@@ -14,9 +14,13 @@ import { useState, useEffect } from 'react';
 import { getAssetGroups, deleteAssetGroup } from '@/services/assetService';
 import { AssetGroupEditor } from './AssetGroupEditor';
 import type { AssetGroup } from '@/types/asset';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetGroupList.css';
 
 export const AssetGroupList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [assetGroups, setAssetGroups] = useState<AssetGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -39,7 +43,7 @@ export const AssetGroupList = () => {
       setAssetGroups(data);
     } catch (error) {
       console.error('Hiba az eszközcsoportok betöltésekor:', error);
-      alert('Nem sikerült betölteni az eszközcsoportokat!');
+      showToast('Nem sikerült betölteni az eszközcsoportokat!', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -64,7 +68,7 @@ export const AssetGroupList = () => {
 
   // Eszközcsoport törlése (megerősítéssel)
   const handleDelete = async (group: AssetGroup) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt az eszközcsoportot?\n\n${group.name}`
     );
 
@@ -72,11 +76,11 @@ export const AssetGroupList = () => {
 
     try {
       await deleteAssetGroup(group.id);
-      alert('Eszközcsoport sikeresen törölve!');
+      showToast('Eszközcsoport sikeresen törölve!', 'success');
       fetchAssetGroups(); // Lista frissítése
     } catch (error) {
       console.error('Hiba az eszközcsoport törlésekor:', error);
-      alert('Nem sikerült törölni az eszközcsoportot!');
+      showToast('Nem sikerült törölni az eszközcsoportot!', 'error');
     }
   };
 

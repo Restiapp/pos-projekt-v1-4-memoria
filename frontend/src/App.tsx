@@ -32,6 +32,10 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
+// Toast and ConfirmDialog Providers
+import { ToastProvider } from '@/components/common/Toast';
+import { ConfirmProvider } from '@/components/common/ConfirmDialog';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -41,8 +45,10 @@ function App() {
   }, [loadUserFromStorage]);
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <ToastProvider>
+      <ConfirmProvider>
+        <BrowserRouter>
+          <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
 
@@ -236,8 +242,10 @@ function App() {
             </div>
           }
         />
-      </Routes>
-    </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </ConfirmProvider>
+    </ToastProvider>
   );
 }
 

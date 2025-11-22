@@ -12,6 +12,8 @@ import { useState } from 'react';
 import { createCoupon, updateCoupon } from '@/services/crmService';
 import type { Coupon, CouponCreate, CouponUpdate } from '@/types/coupon';
 import { DiscountTypeEnum } from '@/types/coupon';
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
 import './CouponEditor.css';
 
 interface CouponEditorProps {
@@ -21,6 +23,8 @@ interface CouponEditorProps {
 
 export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
   const isEditing = !!coupon; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -72,12 +76,12 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
 
     // Validáció
     if (!formData.code.trim()) {
-      alert('A kuponkód kötelező!');
+      showToast('A kuponkód kötelező!', 'error');
       return;
     }
 
     if (formData.discount_value <= 0) {
-      alert('A kedvezmény értéke nagyobb kell legyen nullánál!');
+      showToast('A kedvezmény értéke nagyobb kell legyen nullánál!', 'error');
       return;
     }
 
@@ -85,7 +89,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
       formData.discount_type === DiscountTypeEnum.PERCENTAGE &&
       formData.discount_value > 100
     ) {
-      alert('A százalékos kedvezmény nem lehet nagyobb 100%-nál!');
+      showToast('A százalékos kedvezmény nem lehet nagyobb 100%-nál!', 'error');
       return;
     }
 
@@ -105,7 +109,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           is_active: formData.is_active,
         };
         await updateCoupon(coupon.id, updateData);
-        alert('Kupon sikeresen frissítve!');
+        showToast('Kupon sikeresen frissítve!', 'success');
       } else {
         // Létrehozás
         const createData: CouponCreate = {
@@ -120,7 +124,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           is_active: formData.is_active,
         };
         await createCoupon(createData);
-        alert('Kupon sikeresen létrehozva!');
+        showToast('Kupon sikeresen létrehozva!', 'success');
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -128,7 +132,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
       console.error('Hiba a kupon mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a kupont!';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setIsSubmitting(false);
     }
