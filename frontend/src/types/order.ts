@@ -12,6 +12,7 @@ export type OrderStatus = 'NYITOTT' | 'FELDOLGOZVA' | 'LEZART' | 'SZTORNÓ';
 
 export interface Order {
   id: number;
+  order_number?: string; // Unique sequence number (e.g., "ORD-0001")
   order_type: OrderType;
   status: OrderStatus;
   table_id?: number;

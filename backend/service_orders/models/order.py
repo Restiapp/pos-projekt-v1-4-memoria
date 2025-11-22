@@ -29,6 +29,7 @@ class Order(Base):
     __tablename__ = 'orders'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    order_number = Column(String(20), unique=True, nullable=True, index=True)  # Unique order sequence number (e.g., ORD-0001)
     order_type = Column(String(50), nullable=False)  # 'Helyben', 'Elvitel', 'Kiszállítás'
     status = Column(String(50), nullable=False, default=OrderStatus.OPEN.value)
     table_id = Column(Integer, ForeignKey('tables.id'), nullable=True)

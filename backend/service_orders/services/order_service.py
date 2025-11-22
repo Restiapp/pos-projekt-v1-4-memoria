@@ -28,6 +28,7 @@ from backend.service_orders.schemas.order import (
     OrderResponse,
     OrderStatusEnum
 )
+from backend.service_orders.services.sequence_service import assign_order_number
 # TODO: Sprint 1 - Use shared domain enums
 from backend.core_domain.enums import OrderStatus, OrderType
 
@@ -88,6 +89,11 @@ class OrderService:
             )
 
             db.add(db_order)
+            db.flush()  # Flush to get the ID before assigning order number
+
+            # Assign unique order sequence number
+            assign_order_number(db, db_order)
+
             db.commit()
             db.refresh(db_order)
 

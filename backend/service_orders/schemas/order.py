@@ -149,6 +149,11 @@ class OrderInDB(OrderBase):
         description="Unique order identifier",
         examples=[1, 42, 1234]
     )
+    order_number: Optional[str] = Field(
+        None,
+        description="Unique order sequence number (e.g., ORD-0001)",
+        examples=["ORD-0001", "ORD-0042", "ORD-0123"]
+    )
     created_at: datetime = Field(
         ...,
         description="Timestamp when order was created"

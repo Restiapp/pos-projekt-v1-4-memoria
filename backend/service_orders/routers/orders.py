@@ -17,6 +17,7 @@ from backend.service_orders.models.database import get_db
 from backend.service_orders.services.order_service import OrderService
 from backend.service_orders.services.payment_service import PaymentService
 from backend.service_orders.services.printer_service import PrinterService
+from backend.service_orders.services.sequence_service import get_next_sequence_number
 from backend.service_orders.schemas.order import (
     OrderCreate,
     OrderUpdate,
@@ -142,6 +143,37 @@ def get_orders(
         page=page,
         page_size=limit
     )
+
+
+@orders_router.get(
+    "/sequence/next",
+    response_model=dict,
+    summary="Get next order sequence number",
+    description="Get the next available order sequence number for preview in order creation modal."
+)
+def get_next_order_sequence(
+    db: Session = Depends(get_db)
+) -> dict:
+    """
+    Get the next order sequence number without creating an order.
+
+    This endpoint is used by the frontend to display the sequence number
+    in the order creation modal before the order is submitted.
+
+    Args:
+        db: Database session (injected)
+
+    Returns:
+        dict: Contains the next order number
+            Example: {"order_number": "ORD-0042"}
+
+    Example response:
+        {
+            "order_number": "ORD-0042"
+        }
+    """
+    next_number = get_next_sequence_number(db)
+    return {"order_number": next_number}
 
 
 @orders_router.get(
