@@ -1,0 +1,41 @@
+/**
+ * Card Component Styles - Dark Theme
+ */
+
+.card-ui {
+  background: #1a1a1a;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+  color: #e0e0e0;
+}
+
+/* Padding variants */
+.card-padding-sm {
+  padding: 12px;
+}
+
+.card-padding-md {
+  padding: 16px;
+}
+
+.card-padding-lg {
+  padding: 24px;
+}
+
+/* Hover effect */
+.card-hover:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Clickable card */
+.card-clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.card-clickable:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}

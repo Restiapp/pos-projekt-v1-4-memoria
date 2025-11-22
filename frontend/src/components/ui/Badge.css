@@ -1,0 +1,61 @@
+/**
+ * Badge Component Styles - Dark Theme
+ */
+
+.badge-ui {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+/* Primary variant - Blue */
+.badge-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.badge-primary:hover {
+  background: #1d4ed8;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.5);
+}
+
+/* Warning variant - Orange/Yellow */
+.badge-warning {
+  background: #f59e0b;
+  color: #1a1a1a;
+}
+
+.badge-warning:hover {
+  background: #d97706;
+  box-shadow: 0 3px 8px rgba(245, 158, 11, 0.5);
+}
+
+/* Danger variant - Red */
+.badge-danger {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.badge-danger:hover {
+  background: #b91c1c;
+  box-shadow: 0 3px 8px rgba(220, 38, 38, 0.5);
+}
+
+/* Neutral variant - Gray */
+.badge-neutral {
+  background: #4b5563;
+  color: #e5e7eb;
+}
+
+.badge-neutral:hover {
+  background: #374151;
+  box-shadow: 0 3px 8px rgba(75, 85, 99, 0.5);
+}
