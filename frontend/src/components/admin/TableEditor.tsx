@@ -6,17 +6,15 @@
  *   - Meglévő asztal szerkesztése (PUT /api/tables/{id})
  *   - Validáció (table_number kötelező)
  *   - Modal overlay (háttérre kattintva bezárás)
+ *   - Asztal ikon / típus választó
  */
 
 import { useState } from 'react';
 import { createTable, updateTable } from '@/services/tableService';
 import type { Table, TableCreate, TableUpdate } from '@/types/table';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+import { TableCircle, TableSquare, TableFourSeat, TableSixSeat } from '@/components/tables/icons';
 import './TableEditor.css';
 
 interface TableEditorProps {
@@ -35,16 +33,23 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
     position_x: table?.position_x ?? '',
     position_y: table?.position_y ?? '',
     capacity: table?.capacity ?? '',
+    shape: (table?.shape || 'rect') as 'rect' | 'round',
+    width: table?.width ?? 60,
+    height: table?.height ?? 60,
+    rotation: table?.rotation ?? 0,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tableType, setTableType] = useState<'circle' | 'square' | 'four-seat' | 'six-seat'>(
+    table?.shape === 'round' ? 'circle' : 'square'
+  );
 
   // Form mező változás
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    // Numerikus mezők kezelése (position_x, position_y, capacity)
-    if (['position_x', 'position_y', 'capacity'].includes(name)) {
+    // Numerikus mezők kezelése (position_x, position_y, capacity, width, height, rotation)
+    if (['position_x', 'position_y', 'capacity', 'width', 'height', 'rotation'].includes(name)) {
       setFormData((prev) => ({
         ...prev,
         [name]: value === '' ? '' : parseFloat(value),
@@ -56,17 +61,43 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Asztal típus kiválasztása
+  const handleTableTypeSelect = (type: 'circle' | 'square' | 'four-seat' | 'six-seat') => {
+    setTableType(type);
+
+    // Automatically set shape and default dimensions based on type
+    const updates: Partial<typeof formData> = {};
+
+    if (type === 'circle') {
+      updates.shape = 'round';
+      updates.width = 60;
+      updates.height = 60;
+    } else if (type === 'square') {
+      updates.shape = 'rect';
+      updates.width = 60;
+      updates.height = 60;
+    } else if (type === 'four-seat') {
+      updates.shape = 'rect';
+      updates.width = 80;
+      updates.height = 80;
+      updates.capacity = 4;
+    } else if (type === 'six-seat') {
+      updates.shape = 'rect';
+      updates.width = 90;
+      updates.height = 68;
+      updates.capacity = 6;
+    }
+
+    setFormData((prev) => ({ ...prev, ...updates }));
+  };
+
   // Form submit (létrehozás / frissítés)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validáció
     if (!formData.table_number.trim()) {
-<<<<<<< HEAD
-      notify.warning('Az asztalszám kötelező!');
-=======
       showToast('Az asztalszám kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -80,13 +111,13 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
           position_x: formData.position_x === '' ? null : Number(formData.position_x),
           position_y: formData.position_y === '' ? null : Number(formData.position_y),
           capacity: formData.capacity === '' ? null : Number(formData.capacity),
+          shape: formData.shape,
+          width: Number(formData.width),
+          height: Number(formData.height),
+          rotation: Number(formData.rotation),
         };
         await updateTable(table.id, updateData);
-<<<<<<< HEAD
-        notify.success('Asztal sikeresen frissítve!');
-=======
         showToast('Asztal sikeresen frissítve!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: TableCreate = {
@@ -94,13 +125,13 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
           position_x: formData.position_x === '' ? null : Number(formData.position_x),
           position_y: formData.position_y === '' ? null : Number(formData.position_y),
           capacity: formData.capacity === '' ? null : Number(formData.capacity),
+          shape: formData.shape,
+          width: Number(formData.width),
+          height: Number(formData.height),
+          rotation: Number(formData.rotation),
         };
         await createTable(createData);
-<<<<<<< HEAD
-        notify.success('Asztal sikeresen létrehozva!');
-=======
         showToast('Asztal sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -108,11 +139,7 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
       console.error('Hiba az asztal mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni az asztalt!';
-<<<<<<< HEAD
-      notify.error(errorMessage);
-=======
       showToast(errorMessage, 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }
@@ -151,6 +178,72 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
               required
               maxLength={50}
             />
+          </div>
+
+          {/* Asztal típus választó */}
+          <div className="form-group">
+            <label>Asztal típusa</label>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '8px' }}>
+              <div
+                onClick={() => handleTableTypeSelect('circle')}
+                style={{
+                  cursor: 'pointer',
+                  padding: '10px',
+                  border: tableType === 'circle' ? '3px solid #fd7e14' : '2px solid #dee2e6',
+                  borderRadius: '8px',
+                  backgroundColor: tableType === 'circle' ? '#fff3e0' : '#f8f9fa',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <TableCircle selected={tableType === 'circle'} size={50} />
+                <div style={{ textAlign: 'center', marginTop: '5px', fontSize: '12px' }}>Kerek</div>
+              </div>
+
+              <div
+                onClick={() => handleTableTypeSelect('square')}
+                style={{
+                  cursor: 'pointer',
+                  padding: '10px',
+                  border: tableType === 'square' ? '3px solid #fd7e14' : '2px solid #dee2e6',
+                  borderRadius: '8px',
+                  backgroundColor: tableType === 'square' ? '#fff3e0' : '#f8f9fa',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <TableSquare selected={tableType === 'square'} size={50} />
+                <div style={{ textAlign: 'center', marginTop: '5px', fontSize: '12px' }}>Négyzet</div>
+              </div>
+
+              <div
+                onClick={() => handleTableTypeSelect('four-seat')}
+                style={{
+                  cursor: 'pointer',
+                  padding: '10px',
+                  border: tableType === 'four-seat' ? '3px solid #fd7e14' : '2px solid #dee2e6',
+                  borderRadius: '8px',
+                  backgroundColor: tableType === 'four-seat' ? '#fff3e0' : '#f8f9fa',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <TableFourSeat selected={tableType === 'four-seat'} size={60} />
+                <div style={{ textAlign: 'center', marginTop: '5px', fontSize: '12px' }}>4 személyes</div>
+              </div>
+
+              <div
+                onClick={() => handleTableTypeSelect('six-seat')}
+                style={{
+                  cursor: 'pointer',
+                  padding: '10px',
+                  border: tableType === 'six-seat' ? '3px solid #fd7e14' : '2px solid #dee2e6',
+                  borderRadius: '8px',
+                  backgroundColor: tableType === 'six-seat' ? '#fff3e0' : '#f8f9fa',
+                  transition: 'all 0.2s',
+                }}
+              >
+                <TableSixSeat selected={tableType === 'six-seat'} size={65} />
+                <div style={{ textAlign: 'center', marginTop: '5px', fontSize: '12px' }}>6 személyes</div>
+              </div>
+            </div>
           </div>
 
           {/* Pozíció X */}
@@ -202,6 +295,63 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
             />
             <small className="field-hint">
               Hány vendég fér el az asztalnál (opcionális)
+            </small>
+          </div>
+
+          {/* Szélesség */}
+          <div className="form-group">
+            <label htmlFor="width">Szélesség (px)</label>
+            <input
+              id="width"
+              name="width"
+              type="number"
+              value={formData.width}
+              onChange={handleChange}
+              placeholder="pl. 60"
+              min={20}
+              max={300}
+              step={5}
+            />
+            <small className="field-hint">
+              Az asztal szélessége pixelben (asztaltérképen)
+            </small>
+          </div>
+
+          {/* Magasság */}
+          <div className="form-group">
+            <label htmlFor="height">Magasság (px)</label>
+            <input
+              id="height"
+              name="height"
+              type="number"
+              value={formData.height}
+              onChange={handleChange}
+              placeholder="pl. 60"
+              min={20}
+              max={300}
+              step={5}
+            />
+            <small className="field-hint">
+              Az asztal magassága pixelben (asztaltérképen)
+            </small>
+          </div>
+
+          {/* Forgatás */}
+          <div className="form-group">
+            <label htmlFor="rotation">Forgatás (°)</label>
+            <input
+              id="rotation"
+              name="rotation"
+              type="number"
+              value={formData.rotation}
+              onChange={handleChange}
+              placeholder="pl. 0"
+              min={0}
+              max={359}
+              step={15}
+            />
+            <small className="field-hint">
+              Az asztal elforgatása fokban (0-359)
             </small>
           </div>
 
