@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginPage } from '@/pages/LoginPage';
 import { TableMapPage } from '@/pages/TableMapPage';
+import FloorPlanPage from '@/pages/FloorPlanPage';
 import { KdsPage } from '@/pages/KdsPage';
 import { PaymentPage } from '@/pages/PaymentPage';
 import { AdminPage } from '@/pages/AdminPage';
@@ -26,7 +27,6 @@ import { LogisticsPage } from '@/pages/LogisticsPage';
 
 // ÚJ IMPORT - Fázis 3 (Finance)
 import { FinancePage } from '@/pages/FinancePage';
-
 // ÚJ IMPORT - Fázis 3.3 (Assets)
 import { AssetsPage } from '@/pages/AssetsPage';
 
@@ -38,6 +38,9 @@ import { ReportsPage } from '@/pages/ReportsPage';
 
 // ÚJ IMPORT - Fázis 4 (Inventory)
 import { InventoryPage } from '@/pages/InventoryPage';
+
+// DEBUG
+import { DebugAuthPage } from '@/pages/DebugAuthPage';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -52,6 +55,7 @@ function App() {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/debug-auth" element={<DebugAuthPage />} />
 
         {/* ÚJ ROUTE: Operátori Felület (Telefonos Rendelésfelvétel) */}
         <Route
@@ -99,6 +103,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OrderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/floor-plan"
+          element={
+            <ProtectedRoute>
+              <FloorPlanPage />
             </ProtectedRoute>
           }
         />

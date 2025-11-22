@@ -20,15 +20,39 @@ class TableBase(BaseModel):
         description="Unique table identifier/number",
         examples=["1", "A1", "VIP-01", "Terasz-3"]
     )
-    position_x: Optional[int] = Field(
+    room_id: Optional[int] = Field(
         None,
-        description="X coordinate for visual table map positioning",
-        examples=[100, 250, 450]
+        description="ID of the room this table belongs to"
     )
-    position_y: Optional[int] = Field(
-        None,
-        description="Y coordinate for visual table map positioning",
-        examples=[150, 200, 300]
+    x: int = Field(
+        0,
+        description="X coordinate (pixels)",
+        examples=[100, 250]
+    )
+    y: int = Field(
+        0,
+        description="Y coordinate (pixels)",
+        examples=[150, 200]
+    )
+    width: int = Field(
+        80,
+        description="Table width (pixels)",
+        examples=[80, 120]
+    )
+    height: int = Field(
+        80,
+        description="Table height (pixels)",
+        examples=[80, 120]
+    )
+    rotation: int = Field(
+        0,
+        description="Rotation angle (degrees)",
+        examples=[0, 45, 90]
+    )
+    shape: str = Field(
+        "RECTANGLE",
+        description="Table shape (RECTANGLE, CIRCLE)",
+        examples=["RECTANGLE", "CIRCLE"]
     )
     capacity: Optional[int] = Field(
         None,
@@ -52,14 +76,13 @@ class TableUpdate(BaseModel):
         max_length=50,
         description="Table identifier/number"
     )
-    position_x: Optional[int] = Field(
-        None,
-        description="X coordinate for visual positioning"
-    )
-    position_y: Optional[int] = Field(
-        None,
-        description="Y coordinate for visual positioning"
-    )
+    room_id: Optional[int] = Field(None, description="Room ID")
+    x: Optional[int] = Field(None, description="X coordinate")
+    y: Optional[int] = Field(None, description="Y coordinate")
+    width: Optional[int] = Field(None, description="Width")
+    height: Optional[int] = Field(None, description="Height")
+    rotation: Optional[int] = Field(None, description="Rotation")
+    shape: Optional[str] = Field(None, description="Shape")
     capacity: Optional[int] = Field(
         None,
         ge=1,

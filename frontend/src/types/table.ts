@@ -3,11 +3,24 @@
  * Backend API sémáknak megfelelően
  */
 
+export interface Room {
+  id: number;
+  name: string;
+  width: number;
+  height: number;
+  is_active: boolean;
+}
+
 export interface Table {
   id: number;
   table_number: string;
-  position_x: number | null;
-  position_y: number | null;
+  room_id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  shape: 'RECTANGLE' | 'CIRCLE';
   capacity: number | null;
 }
 
@@ -31,8 +44,13 @@ export interface TableWithOccupancy extends Table {
  */
 export interface TableCreate {
   table_number: string;
-  position_x?: number | null;
-  position_y?: number | null;
+  room_id: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  rotation: number;
+  shape: 'RECTANGLE' | 'CIRCLE';
   capacity?: number | null;
 }
 
@@ -41,7 +59,12 @@ export interface TableCreate {
  */
 export interface TableUpdate {
   table_number?: string;
-  position_x?: number | null;
-  position_y?: number | null;
+  room_id?: number;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+  shape?: 'RECTANGLE' | 'CIRCLE';
   capacity?: number | null;
 }
