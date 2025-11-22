@@ -11,12 +11,8 @@
 import { useState } from 'react';
 import { createAssetService, updateAssetService } from '@/services/assetService';
 import type { AssetService, Asset, AssetServiceCreate, AssetServiceUpdate } from '@/types/asset';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './AssetServiceEditor.css';
 
 interface AssetServiceEditorProps {
@@ -63,38 +59,22 @@ export const AssetServiceEditor = ({
 
     // Validáció
     if (!formData.asset_id) {
-<<<<<<< HEAD
-      notify.warning('Az eszköz választása kötelező!');
-=======
       showToast('Az eszköz választása kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.service_type) {
-<<<<<<< HEAD
-      notify.warning('A szerviz típusa kötelező!');
-=======
       showToast('A szerviz típusa kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.service_date) {
-<<<<<<< HEAD
-      notify.warning('A szerviz dátuma kötelező!');
-=======
       showToast('A szerviz dátuma kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.description.trim()) {
-<<<<<<< HEAD
-      notify.warning('A leírás kötelező!');
-=======
       showToast('A leírás kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -116,11 +96,7 @@ export const AssetServiceEditor = ({
         };
 
         await updateAssetService(service!.id, updateData);
-<<<<<<< HEAD
-        notify.success('Szerviz bejegyzés sikeresen frissítve!');
-=======
         showToast('Szerviz bejegyzés sikeresen frissítve!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         const createData: AssetServiceCreate = {
           asset_id: parseInt(formData.asset_id),
@@ -137,22 +113,14 @@ export const AssetServiceEditor = ({
         };
 
         await createAssetService(createData);
-<<<<<<< HEAD
-        notify.success('Szerviz bejegyzés sikeresen létrehozva!');
-=======
         showToast('Szerviz bejegyzés sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true);
     } catch (error: any) {
       console.error('Hiba a szerviz bejegyzés mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
-<<<<<<< HEAD
-      notify.error(`Hiba: ${errorMsg}`);
-=======
       showToast(`Hiba: ${errorMsg}`, 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }

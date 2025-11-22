@@ -11,11 +11,7 @@
 import { useState, useEffect } from 'react';
 import { createDailyClosure, closeDailyClosure } from '@/services/financeService';
 import type { DailyClosure, DailyClosureCreateRequest, DailyClosureUpdateRequest } from '@/types/finance';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
 import { useToast } from '@/components/common/Toast';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './Finance.css';
 
 interface DailyClosureEditorProps {
@@ -53,11 +49,7 @@ export const DailyClosureEditor: React.FC<DailyClosureEditorProps> = ({ closure,
         // Lezárás (update)
         const numActual = parseFloat(actualClosingBalance);
         if (isNaN(numActual) || numActual < 0) {
-<<<<<<< HEAD
-          notify.error('Érvénytelen záró egyenleg!');
-=======
           showToast('Érvénytelen záró egyenleg!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
           return;
         }
 
@@ -67,21 +59,13 @@ export const DailyClosureEditor: React.FC<DailyClosureEditorProps> = ({ closure,
         };
 
         await closeDailyClosure(closure!.id, payload);
-<<<<<<< HEAD
-        notify.success('Zárás sikeresen lezárva!');
-=======
         showToast('Zárás sikeresen lezárva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
         onClose(true);
       } else {
         // Új zárás létrehozása
         const numOpening = parseFloat(openingBalance);
         if (isNaN(numOpening) || numOpening < 0) {
-<<<<<<< HEAD
-          notify.error('Érvénytelen nyitó egyenleg!');
-=======
           showToast('Érvénytelen nyitó egyenleg!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
           return;
         }
 
@@ -91,20 +75,12 @@ export const DailyClosureEditor: React.FC<DailyClosureEditorProps> = ({ closure,
         };
 
         await createDailyClosure(payload);
-<<<<<<< HEAD
-        notify.success('Új zárás sikeresen létrehozva!');
-=======
         showToast('Új zárás sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
         onClose(true);
       }
     } catch (error: any) {
       console.error('Hiba a művelet során:', error);
-<<<<<<< HEAD
-      notify.error(error.response?.data?.detail || 'Nem sikerült a művelet!');
-=======
       showToast(error.response?.data?.detail || 'Nem sikerült a művelet!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSaving(false);
     }

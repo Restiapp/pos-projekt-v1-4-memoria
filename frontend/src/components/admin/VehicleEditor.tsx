@@ -11,12 +11,8 @@
 import { useState } from 'react';
 import { createVehicle, updateVehicle } from '@/services/vehicleService';
 import type { Vehicle, VehicleCreate, VehicleUpdate } from '@/types/vehicle';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './VehicleEditor.css';
 
 interface VehicleEditorProps {
@@ -83,14 +79,9 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
       !formData.model ||
       !formData.fuel_type
     ) {
-<<<<<<< HEAD
-      notify.warning(
-        'Kérlek, töltsd ki a kötelező mezőket: Rendszám, Márka, Modell, Üzemanyag!'
-=======
       showToast(
         'Kérlek, töltsd ki a kötelező mezőket: Rendszám, Márka, Modell, Üzemanyag!',
         'error'
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       );
       return;
     }
@@ -120,11 +111,7 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
         };
 
         await updateVehicle(vehicle!.id, updateData);
-<<<<<<< HEAD
-        notify.success('Jármű sikeresen frissítve!');
-=======
         showToast('Jármű sikeresen frissítve!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: VehicleCreate = {
@@ -147,21 +134,13 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
         };
 
         await createVehicle(createData);
-<<<<<<< HEAD
-        notify.success('Jármű sikeresen létrehozva!');
-=======
         showToast('Jármű sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Frissítés szükséges
     } catch (error) {
       console.error('Hiba a jármű mentésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült menteni a járművet!');
-=======
       showToast('Nem sikerült menteni a járművet!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSaving(false);
     }

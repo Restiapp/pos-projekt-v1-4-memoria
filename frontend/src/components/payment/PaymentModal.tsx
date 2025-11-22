@@ -22,13 +22,8 @@ import {
   closeOrder,
   getPaymentsForOrder,
 } from '@/services/paymentService';
-<<<<<<< HEAD
-import { validateCoupon } from '@/services/crmService';
-import type { CouponValidationResponse } from '@/types/coupon';
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './PaymentModal.css';
 
 interface PaymentModalProps {

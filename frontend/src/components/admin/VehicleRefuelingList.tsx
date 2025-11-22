@@ -15,14 +15,6 @@ import {
   getVehicles,
 } from '@/services/vehicleService';
 import type { VehicleRefueling, Vehicle } from '@/types/vehicle';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-import { useAuthStore } from '@/stores/authStore';
-import './VehicleRefuelingList.css';
-
-export const VehicleRefuelingList = () => {
-  const { isAuthenticated } = useAuthStore();
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
 import './VehicleRefuelingList.css';
@@ -30,7 +22,6 @@ import './VehicleRefuelingList.css';
 export const VehicleRefuelingList = () => {
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [refuelings, setRefuelings] = useState<VehicleRefueling[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,11 +53,7 @@ export const VehicleRefuelingList = () => {
       setRefuelings(data);
     } catch (error) {
       console.error('Hiba a tankolások betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni a tankolásokat!');
-=======
       showToast('Nem sikerült betölteni a tankolásokat!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -97,19 +84,11 @@ export const VehicleRefuelingList = () => {
 
     try {
       await deleteVehicleRefueling(refueling.id);
-<<<<<<< HEAD
-      notify.success('Tankolás sikeresen törölve!');
-      fetchRefuelings();
-    } catch (error) {
-      console.error('Hiba a tankolás törlésekor:', error);
-      notify.error('Nem sikerült törölni a tankolást!');
-=======
       showToast('Tankolás sikeresen törölve!', 'success');
       fetchRefuelings();
     } catch (error) {
       console.error('Hiba a tankolás törlésekor:', error);
       showToast('Nem sikerült törölni a tankolást!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

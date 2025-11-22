@@ -90,51 +90,9 @@ export const OperatorPage = () => {
       showToast('Először válassz ki egy vendéget!', 'error');
       return;
     }
-<<<<<<< HEAD
-    setShowProducts(true);
-  };
-
-  // Cart handlers
-  const handleAddToCart = (item: CartItem) => {
-    setCartItems([...cartItems, item]);
-  };
-
-  const handleUpdateQuantity = (index: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    const updatedItems = [...cartItems];
-    updatedItems[index].quantity = newQuantity;
-    setCartItems(updatedItems);
-  };
-
-  const handleRemoveItem = (index: number) => {
-    const updatedItems = cartItems.filter((_, i) => i !== index);
-    setCartItems(updatedItems);
-  };
-
-  const handleClearCart = () => {
-    if (confirm('Biztosan törölni szeretnéd a kosár tartalmát?')) {
-      setCartItems([]);
-    }
-  };
-
-  const handleCheckout = () => {
-    if (cartItems.length === 0) {
-      alert('A kosár üres!');
-      return;
-    }
-    if (!selectedCustomer) {
-      alert('Nincs kiválasztott vendég!');
-      return;
-    }
-
-    // TODO: Implement order creation
-    alert(
-      `RENDELÉS LEADÁSA\n\nVendég: ${selectedCustomer.first_name} ${selectedCustomer.last_name}\nTételek száma: ${cartItems.length}\n\n(Rendelés létrehozása következik...)`
-=======
     showToast(
       `ÚJ KISZÁLLÍTÁSI RENDELÉS\n\nVendég: ${selectedCustomer.first_name} ${selectedCustomer.last_name}\n\n(Ez még placeholder funkció - V4.0-ban lesz teljes rendelésfelvétel)`,
       'info'
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     );
   };
 

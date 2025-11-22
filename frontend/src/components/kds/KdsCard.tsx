@@ -6,11 +6,7 @@
 import { useState } from 'react';
 import type { KdsItem, KdsStatus } from '@/types/kds';
 import { updateItemStatus } from '@/services/kdsService';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
 import { useToast } from '@/components/common/Toast';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './KdsCard.css';
 
 interface KdsCardProps {
@@ -33,11 +29,7 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
       }
     } catch (error) {
       console.error('Failed to update KDS status:', error);
-<<<<<<< HEAD
-      notify.error('Hiba történt a státusz frissítése közben!');
-=======
       showToast('Hiba történt a státusz frissítése közben!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsUpdating(false);
     }

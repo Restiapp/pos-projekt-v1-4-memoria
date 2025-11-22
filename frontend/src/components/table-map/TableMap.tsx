@@ -2,24 +2,16 @@ import { useState, useEffect } from 'react';
 import { Stage, Layer, Group } from 'react-konva';
 import { getTables } from '@/services/tableService';
 import type { Table } from '@/types/table';
-<<<<<<< HEAD
 import { FurnitureShape } from './FurnitureShape';
-
-interface TableMapProps {
-    activeRoom: string | null; // room ID or name
-}
-=======
 import { useToast } from '@/components/common/Toast';
 import './TableMap.css';
 
-export const TableMap = () => {
-  const { showToast } = useToast();
-  const [tables, setTables] = useState<Table[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+interface TableMapProps {
+    activeRoom?: string | null;
+}
 
 export const TableMap = ({ activeRoom }: TableMapProps) => {
+    const { showToast } = useToast();
     const [tables, setTables] = useState<Table[]>([]);
     const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
 
@@ -27,13 +19,10 @@ export const TableMap = ({ activeRoom }: TableMapProps) => {
     const width = window.innerWidth;
     const height = window.innerHeight - 180; // Approximate available height
 
-<<<<<<< HEAD
     useEffect(() => {
         const fetchTables = async () => {
             try {
                 const data = await getTables();
-                // Filter locally for now (until backend filter is active/passed)
-                // Assuming mock activeRoom logic or just showing all
                 setTables(data);
             } catch (e) {
                 console.error("Failed to load tables", e);
@@ -41,13 +30,11 @@ export const TableMap = ({ activeRoom }: TableMapProps) => {
         };
         fetchTables();
     }, [activeRoom]);
-=======
-  // Asztal kattintás kezelése
-  const handleTableClick = (table: Table) => {
-    // TODO: Navigáció a rendelés oldalra vagy részletek megjelenítése
-    showToast(`Asztal: ${table.table_number} (ID: ${table.id})`, 'info');
-  };
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+
+    // Asztal kattintás kezelése
+    const handleTableClick = (table: Table) => {
+        showToast(`Asztal: ${table.table_number} (ID: ${table.id})`, 'info');
+    };
 
     return (
         <Stage

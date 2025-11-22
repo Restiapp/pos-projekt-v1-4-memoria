@@ -13,21 +13,11 @@ import { useState, useEffect } from 'react';
 import { getDailyClosures } from '@/services/financeService';
 import { DailyClosureEditor } from './DailyClosureEditor';
 import type { DailyClosure } from '@/types/finance';
-<<<<<<< HEAD
-import { useAuthStore } from '@/stores/authStore';
-import { notify } from '@/utils/notifications';
-import './Finance.css';
-
-export const DailyClosureList = () => {
-  const { isAuthenticated } = useAuthStore();
-
-=======
 import { useToast } from '@/components/common/Toast';
 import './Finance.css';
 
 export const DailyClosureList = () => {
   const { showToast } = useToast();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [closures, setClosures] = useState<DailyClosure[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -47,11 +37,7 @@ export const DailyClosureList = () => {
       setClosures(data);
     } catch (error) {
       console.error('Hiba a zárások betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni a zárásokat!');
-=======
       showToast('Nem sikerült betölteni a zárásokat!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
