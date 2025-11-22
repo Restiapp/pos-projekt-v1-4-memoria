@@ -44,7 +44,6 @@ export const TableMap = ({ activeRoom }: TableMapProps) => {
 =======
   // Asztal kattintás kezelése
   const handleTableClick = (table: Table) => {
-    console.log('Asztal kiválasztva:', table);
     // TODO: Navigáció a rendelés oldalra vagy részletek megjelenítése
     showToast(`Asztal: ${table.table_number} (ID: ${table.id})`, 'info');
   };
