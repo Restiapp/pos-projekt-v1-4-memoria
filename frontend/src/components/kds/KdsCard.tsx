@@ -5,9 +5,10 @@
 
 import { useState } from 'react';
 import type { KdsItem, KdsStatus } from '@/types/kds';
-import { updateItemStatus } from '@/services/kdsService';
+import { updateItemStatus, toggleUrgentFlag } from '@/services/kdsService';
 import { useToast } from '@/components/common/Toast';
 import { ElapsedTime } from '@/components/common/ElapsedTime';
+import { IconAlertCircle } from '@tabler/icons-react';
 import './KdsCard.css';
 
 interface KdsCardProps {
@@ -18,6 +19,7 @@ interface KdsCardProps {
 export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
   const { showToast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isTogglingUrgent, setIsTogglingUrgent] = useState(false);
 
   const handleStatusChange = async (newStatus: KdsStatus) => {
     if (isUpdating) return;
@@ -33,6 +35,23 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
       showToast('Hiba történt a státusz frissítése közben!', 'error');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleToggleUrgent = async () => {
+    if (isTogglingUrgent) return;
+
+    try {
+      setIsTogglingUrgent(true);
+      await toggleUrgentFlag(item.id, !item.is_urgent);
+      if (onStatusChange) {
+        onStatusChange();
+      }
+    } catch (error) {
+      console.error('Failed to toggle urgent flag:', error);
+      showToast('Hiba történt a sürgős jelző váltásakor!', 'error');
+    } finally {
+      setIsTogglingUrgent(false);
     }
   };
 
@@ -75,10 +94,19 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
   };
 
   return (
-    <div className={`kds-card ${getStatusClass()}`}>
+    <div className={`kds-card ${getStatusClass()} ${item.is_urgent ? 'urgent' : ''}`}>
       {/* Fejléc: Asztalszám + Rendelésszám */}
       <div className="kds-card-header">
-        <span className="table-number">{item.table_number || 'N/A'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="table-number">{item.table_number || 'N/A'}</span>
+          {item.is_urgent && (
+            <IconAlertCircle
+              size={20}
+              color="#ff4d4d"
+              className="urgent-icon"
+            />
+          )}
+        </div>
         <span className="order-id">#{item.order_id}</span>
       </div>
 
@@ -142,6 +170,19 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
           <div className="btn-placeholder">Kiszolgálva! ✨</div>
         )}
       </div>
+
+      {/* Sürgős jelző gomb (csak nem SERVED státusznál) */}
+      {item.kds_status !== 'SERVED' && (
+        <div className="kds-card-urgent-toggle" style={{ marginTop: '8px' }}>
+          <button
+            onClick={handleToggleUrgent}
+            disabled={isTogglingUrgent}
+            className={`btn btn-urgent-toggle ${item.is_urgent ? 'active' : ''}`}
+          >
+            {item.is_urgent ? '🔥 Sürgős (kikapcs.)' : '⚠️ Jelölés sürgősnek'}
+          </button>
+        </div>
+      )}
     </div>
   );
 };

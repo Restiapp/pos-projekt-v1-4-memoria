@@ -7,7 +7,7 @@ termékeket, mennyiségeket, árakat és a kiválasztott módosítókat.
 """
 
 import enum
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text, Boolean, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 
 from backend.service_orders.models.database import Base, CompatibleJSON
@@ -48,6 +48,7 @@ class OrderItem(Base):
     discount_details = Column(CompatibleJSON, nullable=True)  # V3.0: Kedvezmény részletek {'type': 'percentage', 'value': 10}
     kds_station = Column(String(50), nullable=True)  # Kitchen station: 'GRILL', 'COLD', 'BAR', etc.
     kds_status = Column(SQLEnum(KDSStatus, native_enum=False), nullable=False, default=KDSStatus.WAITING, index=True)  # Kitchen Display System status
+    is_urgent = Column(Boolean, nullable=False, default=False, index=True)  # Urgent flag for KDS priority items
 
     # Relationships
     order = relationship('Order', back_populates='order_items')

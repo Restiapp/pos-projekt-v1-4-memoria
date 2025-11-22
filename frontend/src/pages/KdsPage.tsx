@@ -5,11 +5,12 @@
  * Sprint 0: Performance optimizations with throttling & error handling
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { GlobalHeader } from '@/components/layout/GlobalHeader';
 import { getItemsByStation } from '@/services/kdsService';
 import { KdsLane } from '@/components/kds/KdsLane';
 import type { KdsItem, KdsStation } from '@/types/kds';
+import { useUrgentAudio } from '@/hooks/useUrgentAudio';
 import './KdsPage.css';
 
 const STATIONS: KdsStation[] = ['PULT', 'KONYHA', 'PIZZA'];
@@ -25,6 +26,14 @@ export const KdsPage = () => {
   const [isPolling, setIsPolling] = useState(false); // Loading state for background polls
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null); // Toast error state
+
+  // Flatten all items for urgent audio detection
+  const allItems = useMemo(() => {
+    return [...items.PULT, ...items.KONYHA, ...items.PIZZA];
+  }, [items]);
+
+  // Audio notifications for urgent items
+  const { audioEnabled, toggleAudio } = useUrgentAudio(allItems);
 
   // Összes állomás adatának lekérése (with throttling & error handling)
   const fetchAllStations = async (isBackgroundPoll = false) => {
@@ -109,6 +118,13 @@ export const KdsPage = () => {
       <div className="kds-controls">
         <button onClick={handleManualRefresh} className="refresh-btn" disabled={isLoading}>
           🔄 Frissítés
+        </button>
+        <button
+          onClick={toggleAudio}
+          className={`audio-toggle-btn ${audioEnabled ? 'active' : ''}`}
+          title={audioEnabled ? 'Hang kikapcsolása' : 'Hang bekapcsolása'}
+        >
+          {audioEnabled ? '🔊 Hang BE' : '🔇 Hang KI'}
         </button>
         <span className="last-update">
           Utolsó frissítés: {formatLastUpdate()}

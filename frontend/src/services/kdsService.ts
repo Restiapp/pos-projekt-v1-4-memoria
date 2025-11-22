@@ -3,11 +3,13 @@
  *
  * Backend endpoints (service_orders:8002):
  *   - GET /api/v1/kds/stations/{station}/items
- *   - PATCH /api/v1/items/{item_id}/kds-status
+ *   - PATCH /api/v1/kds/items/{item_id}/status
+ *   - PATCH /api/v1/kds/items/{item_id}/urgent
  *
  * Frontend hívások (Vite proxy):
- *   - GET /api/kds/stations/{station}/items → http://localhost:8002/api/v1/kds/stations/{station}/items
- *   - PATCH /api/items/{item_id}/kds-status → http://localhost:8002/api/v1/items/{item_id}/kds-status
+ *   - GET /api/orders/kds/stations/{station}/items → http://localhost:8002/api/v1/kds/stations/{station}/items
+ *   - PATCH /api/orders/items/{item_id}/kds-status → http://localhost:8002/api/v1/kds/items/{item_id}/status
+ *   - PATCH /api/orders/kds/items/{item_id}/urgent → http://localhost:8002/api/v1/kds/items/{item_id}/urgent
  */
 
 import apiClient from './api';
@@ -67,6 +69,35 @@ export const updateItemStatus = async (
     return item;
   } catch (error) {
     console.error(`Error updating KDS status for item ${itemId}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Toggle the urgent flag for a KDS item
+ * @param itemId - Item ID
+ * @param isUrgent - New urgent flag value (true/false)
+ * @returns Updated KDS item
+ */
+export const toggleUrgentFlag = async (
+  itemId: number,
+  isUrgent: boolean
+): Promise<KdsItem> => {
+  try {
+    const response = await apiClient.patch<any>(
+      `/api/orders/kds/items/${itemId}/urgent`,
+      { is_urgent: isUrgent }
+    );
+
+    // Map backend status to frontend format
+    const item = {
+      ...response.data,
+      kds_status: KDS_STATUS_FROM_BACKEND[response.data.kds_status] || response.data.kds_status,
+    };
+
+    return item;
+  } catch (error) {
+    console.error(`Error toggling urgent flag for item ${itemId}:`, error);
     throw error;
   }
 };

@@ -202,3 +202,44 @@ class KDSService:
 
         except SQLAlchemyError as e:
             raise e
+
+    @staticmethod
+    def toggle_urgent_flag(
+        db: Session,
+        item_id: int,
+        is_urgent: bool
+    ) -> Optional[OrderItemResponse]:
+        """
+        Toggle the urgent flag for a KDS item.
+
+        Args:
+            db: SQLAlchemy database session
+            item_id: The order item ID
+            is_urgent: The new urgent flag value (True/False)
+
+        Returns:
+            Optional[OrderItemResponse]: Updated item details, or None if not found
+
+        Raises:
+            SQLAlchemyError: Database error
+        """
+        try:
+            # Get the item
+            order_item = db.query(OrderItem).filter(
+                OrderItem.id == item_id
+            ).first()
+
+            if not order_item:
+                return None
+
+            # Update the urgent flag
+            order_item.is_urgent = is_urgent
+
+            db.commit()
+            db.refresh(order_item)
+
+            return OrderItemResponse.model_validate(order_item)
+
+        except SQLAlchemyError as e:
+            db.rollback()
+            raise e

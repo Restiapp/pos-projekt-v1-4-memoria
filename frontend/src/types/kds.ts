@@ -50,6 +50,7 @@ export interface KdsItem {
   notes: string | null;    // Megjegyzések (ha van)
   table_number?: string;   // Asztalszám (opcionális, ha rendeléshez tartozik)
   course?: string | null;  // Fogás típusa (pl. "Előétel", "Főétel", "Desszert")
+  is_urgent: boolean;      // Sürgős jelző (visual priority a KDS-ben)
 }
 
 // API Response típus (GET /api/v1/kds/stations/{station}/items)
