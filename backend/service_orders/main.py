@@ -21,12 +21,9 @@ from backend.service_orders.routers import (
     tables_router,
     seats_router,
     orders_router,
-    order_items_router,
-    kds_router,
-    reservations_router,
-    reports_router,
-    rooms_router
+    order_items_router
 )
+from backend.service_orders.routers.rooms import router as rooms_router
 
 # Create FastAPI application
 app = FastAPI(
@@ -51,13 +48,13 @@ app.include_router(
     rooms_router,
     prefix="/api/v1",
     tags=["Rooms"],
-    # dependencies=[Depends(require_permission("orders:manage"))]
+    dependencies=[Depends(require_permission("orders:manage"))]
 )
 app.include_router(
     tables_router,
     prefix="/api/v1",
     tags=["Tables"],
-    # dependencies=[Depends(require_permission("orders:manage"))]
+    dependencies=[Depends(require_permission("orders:manage"))]
 )
 app.include_router(
     seats_router,
@@ -76,24 +73,6 @@ app.include_router(
     prefix="/api/v1",
     tags=["Order Items"],
     dependencies=[Depends(require_permission("orders:manage"))]
-)
-app.include_router(
-    kds_router,
-    prefix="/api/v1",
-    tags=["KDS"],
-    dependencies=[Depends(require_permission("orders:manage"))]
-)
-app.include_router(
-    reservations_router,
-    prefix="/api/v1",
-    tags=["Reservations"],
-    dependencies=[Depends(require_permission("orders:manage"))]
-)
-
-# Register reports router WITHOUT RBAC (internal endpoint for service_admin)
-app.include_router(
-    reports_router,
-    tags=["Reports"]
 )
 
 

@@ -1,11 +1,9 @@
 """
 Pydantic schemas for Table entities.
-
-This module defines the request and response schemas for table operations
-in the Service Orders module (Module 1).
+Updated for Floor Plan Editor (Phase 1).
 """
 
-from typing import Optional
+from typing import Optional, Any, List
 
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -20,46 +18,23 @@ class TableBase(BaseModel):
         description="Unique table identifier/number",
         examples=["1", "A1", "VIP-01", "Terasz-3"]
     )
-    room_id: Optional[int] = Field(
-        None,
-        description="ID of the room this table belongs to"
-    )
-    x: int = Field(
-        0,
-        description="X coordinate (pixels)",
-        examples=[100, 250]
-    )
-    y: int = Field(
-        0,
-        description="Y coordinate (pixels)",
-        examples=[150, 200]
-    )
-    width: int = Field(
-        80,
-        description="Table width (pixels)",
-        examples=[80, 120]
-    )
-    height: int = Field(
-        80,
-        description="Table height (pixels)",
-        examples=[80, 120]
-    )
-    rotation: int = Field(
-        0,
-        description="Rotation angle (degrees)",
-        examples=[0, 45, 90]
-    )
-    shape: str = Field(
-        "RECTANGLE",
-        description="Table shape (RECTANGLE, CIRCLE)",
-        examples=["RECTANGLE", "CIRCLE"]
-    )
+    room_id: Optional[int] = Field(None, description="ID of the room this table belongs to")
+
+    # Geometry
+    position_x: Optional[int] = Field(0, description="X coordinate")
+    position_y: Optional[int] = Field(0, description="Y coordinate")
+    width: Optional[int] = Field(80, description="Width in pixels")
+    height: Optional[int] = Field(80, description="Height in pixels")
+    rotation: Optional[float] = Field(0.0, description="Rotation in degrees")
+    shape: Optional[str] = Field("rect", description="'rect' or 'round'")
+
     capacity: Optional[int] = Field(
-        None,
+        4,
         ge=1,
-        description="Maximum seating capacity of the table",
-        examples=[2, 4, 6, 8]
+        description="Maximum seating capacity"
     )
+
+    metadata_json: Optional[dict[str, Any]] = Field(None, description="Extra visual config")
 
 
 class TableCreate(TableBase):
@@ -67,39 +42,37 @@ class TableCreate(TableBase):
     pass
 
 
+class TableMoveRequest(BaseModel):
+    """Schema for moving a table to a new section."""
+    new_section: str
+
+
+class TableMergeRequest(BaseModel):
+    """Schema for merging tables."""
+    primary_table_id: int
+    secondary_table_ids: List[int]
+
+
 class TableUpdate(BaseModel):
     """Schema for updating an existing table."""
 
-    table_number: Optional[str] = Field(
-        None,
-        min_length=1,
-        max_length=50,
-        description="Table identifier/number"
-    )
-    room_id: Optional[int] = Field(None, description="Room ID")
-    x: Optional[int] = Field(None, description="X coordinate")
-    y: Optional[int] = Field(None, description="Y coordinate")
-    width: Optional[int] = Field(None, description="Width")
-    height: Optional[int] = Field(None, description="Height")
-    rotation: Optional[int] = Field(None, description="Rotation")
-    shape: Optional[str] = Field(None, description="Shape")
-    capacity: Optional[int] = Field(
-        None,
-        ge=1,
-        description="Table seating capacity"
-    )
+    table_number: Optional[str] = None
+    room_id: Optional[int] = None
+    position_x: Optional[int] = None
+    position_y: Optional[int] = None
+    width: Optional[int] = None
+    height: Optional[int] = None
+    rotation: Optional[float] = None
+    shape: Optional[str] = None
+    capacity: Optional[int] = None
+    metadata_json: Optional[dict[str, Any]] = None
 
 
 class TableInDB(TableBase):
     """Schema for table as stored in database."""
-
     model_config = ConfigDict(from_attributes=True)
 
-    id: int = Field(
-        ...,
-        description="Unique table identifier",
-        examples=[1, 42]
-    )
+    id: int = Field(..., description="Unique table identifier")
 
 
 class TableResponse(TableInDB):
@@ -108,55 +81,8 @@ class TableResponse(TableInDB):
 
 
 class TableListResponse(BaseModel):
-    """Schema for paginated table list responses."""
-
-    items: list[TableResponse] = Field(
-        ...,
-        description="List of tables"
-    )
-    total: int = Field(
-        ...,
-        description="Total number of tables",
-        examples=[25]
-    )
-    page: int = Field(
-        ...,
-        ge=1,
-        description="Current page number",
-        examples=[1]
-    )
-    page_size: int = Field(
-        ...,
-        ge=1,
-        le=100,
-        description="Number of items per page",
-        examples=[20]
-    )
-
-
-class TableMoveRequest(BaseModel):
-    """Schema for moving a table to a new section (V3.0 - Phase 1)."""
-
-    new_section: str = Field(
-        ...,
-        min_length=1,
-        max_length=100,
-        description="New section name for the table",
-        examples=["Terasz", "Belső terem", "VIP"]
-    )
-
-
-class TableMergeRequest(BaseModel):
-    """Schema for merging tables (V3.0 - Phase 1)."""
-
-    primary_table_id: int = Field(
-        ...,
-        description="Primary (main) table ID",
-        examples=[1, 5]
-    )
-    secondary_table_ids: list[int] = Field(
-        ...,
-        min_length=1,
-        description="List of secondary table IDs to merge into the primary table",
-        examples=[[2, 3], [10, 11, 12]]
-    )
+    """Schema for paginated table list response."""
+    items: List[TableResponse]
+    total: int
+    page: int
+    page_size: int
