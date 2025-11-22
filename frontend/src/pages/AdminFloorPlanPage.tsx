@@ -73,6 +73,24 @@ const tableColorPresets: Array<{ name: string; bg: string; text: string; border:
   { name: 'Oceán', bg: '#d8f3fc', text: '#0b7285', border: '#99e9f2' },
 ];
 
+/**
+ * Színpaletta termekhez - gyönyörű hátterek és színek
+ */
+const roomColorPresets: Array<{ name: string; bg: string }> = [
+  { name: 'Alapértelmezett', bg: '#f8fafc' },
+  { name: 'Szenes szürke', bg: '#e9ecef' },
+  { name: 'Világos menta', bg: '#e6fcf5' },
+  { name: 'Lágy kék', bg: '#e7f5ff' },
+  { name: 'Barack árnyalat', bg: '#fff5f5' },
+  { name: 'Krém sárga', bg: '#fffbeb' },
+  { name: 'Levendula pasztell', bg: '#f3f0ff' },
+  { name: 'Rózsa pasztell', bg: '#fff0f6' },
+  { name: 'Barackbarna', bg: '#fff4e6' },
+  { name: 'Tengerzöld', bg: '#e3fafc' },
+  { name: 'Bézs', bg: '#f8f9fa' },
+  { name: 'Homok', bg: '#fef6e7' },
+];
+
 const shapeVariant = (shape?: TableShape): 'round' | 'square' | 'rect' => {
   if (shape === 'ROUND') return 'round';
   if (shape === 'SQUARE') return 'square';
@@ -134,12 +152,20 @@ export const AdminFloorPlanPage = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [roomModalOpen, setRoomModalOpen] = useState<boolean>(false);
   const [roomModalMode, setRoomModalMode] = useState<RoomModalMode>('add');
-  const [roomForm, setRoomForm] = useState<{ id: number | null; name: string; width: number; height: number; type: string }>({
+  const [roomForm, setRoomForm] = useState<{
+    id: number | null;
+    name: string;
+    width: number;
+    height: number;
+    type: string;
+    backgroundColor: string;
+  }>({
     id: null,
     name: '',
     width: defaultRoomSize.width,
     height: defaultRoomSize.height,
     type: 'indoor',
+    backgroundColor: '#f8fafc', // Alapértelmezett
   });
   const [tableModalOpen, setTableModalOpen] = useState<boolean>(false);
   const [tableForm, setTableForm] = useState<{
@@ -304,12 +330,19 @@ export const AdminFloorPlanPage = () => {
 
   const openRoomModal = (mode: RoomModalMode, room?: Room) => {
     setRoomModalMode(mode);
+    // Extract color from background_image_url if it's a color: value
+    const bgColor =
+      room?.background_image_url?.startsWith('color:') ?
+        room.background_image_url.substring(6) :
+        '#f8fafc';
+
     setRoomForm({
       id: room?.id ?? null,
       name: room?.name ?? '',
       width: room?.width ?? defaultRoomSize.width,
       height: room?.height ?? defaultRoomSize.height,
       type: room?.type ?? 'indoor',
+      backgroundColor: bgColor,
     });
     setRoomModalOpen(true);
   };
@@ -321,23 +354,21 @@ export const AdminFloorPlanPage = () => {
     }
 
     try {
+      const roomData = {
+        name: roomForm.name.trim(),
+        width: roomForm.width,
+        height: roomForm.height,
+        type: roomForm.type,
+        background_image_url: `color:${roomForm.backgroundColor}`,
+      };
+
       if (roomModalMode === 'add') {
-        const created = await createRoom({
-          name: roomForm.name.trim(),
-          width: roomForm.width,
-          height: roomForm.height,
-          type: roomForm.type,
-        });
+        const created = await createRoom(roomData);
         setRooms((prev) => [...prev, created]);
         setSelectedRoomId(created.id);
         showToast('Új terem hozzáadva.', 'success');
       } else if (roomForm.id) {
-        const updated = await updateRoom(roomForm.id, {
-          name: roomForm.name.trim(),
-          width: roomForm.width,
-          height: roomForm.height,
-          type: roomForm.type,
-        });
+        const updated = await updateRoom(roomForm.id, roomData);
         setRooms((prev) => prev.map((room) => (room.id === updated.id ? updated : room)));
         showToast('Terem frissítve.', 'success');
       }
@@ -672,6 +703,10 @@ export const AdminFloorPlanPage = () => {
                 style={{
                   width: activeRoom?.width ?? defaultRoomSize.width,
                   height: activeRoom?.height ?? defaultRoomSize.height,
+                  backgroundColor:
+                    activeRoom?.background_image_url?.startsWith('color:') ?
+                      activeRoom.background_image_url.substring(6) :
+                      '#f8fafc',
                 }}
               >
                 {filteredTables.map((table) => {
@@ -994,6 +1029,51 @@ export const AdminFloorPlanPage = () => {
             value={roomForm.type}
             onChange={(value) => setRoomForm((prev) => ({ ...prev, type: value ?? prev.type }))}
           />
+
+          <Divider label="Terem színe" labelPosition="center" />
+          <Stack gap="xs">
+            <Text size="sm" c="dimmed">
+              Válassz háttérszínt:
+            </Text>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+              {roomColorPresets.map((preset, index) => {
+                const isActive = roomForm.backgroundColor === preset.bg;
+
+                return (
+                  <div
+                    key={index}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => {
+                      setRoomForm((prev) => ({ ...prev, backgroundColor: preset.bg }));
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setRoomForm((prev) => ({ ...prev, backgroundColor: preset.bg }));
+                      }
+                    }}
+                    style={{
+                      padding: '12px 8px',
+                      borderRadius: '8px',
+                      backgroundColor: preset.bg,
+                      border: `2px solid ${isActive ? '#228be6' : '#dee2e6'}`,
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      fontSize: '0.7rem',
+                      fontWeight: isActive ? 600 : 400,
+                      color: '#495057',
+                      transition: 'transform 120ms ease, border-color 120ms ease',
+                      boxShadow: isActive ? '0 4px 12px rgba(34, 139, 230, 0.25)' : 'none',
+                      transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                    }}
+                  >
+                    {preset.name}
+                  </div>
+                );
+              })}
+            </div>
+          </Stack>
+
           <Group justify="flex-end" mt="sm">
             <Button variant="default" onClick={() => setRoomModalOpen(false)}>
               Mégse
