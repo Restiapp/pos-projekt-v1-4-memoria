@@ -86,6 +86,7 @@ export const AdminFloorPlanPage = () => {
   const { showToast } = useToast();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
+  const [initialTables, setInitialTables] = useState<Table[]>([]); // Eredeti állapot tárolása
   const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -149,6 +150,7 @@ export const AdminFloorPlanPage = () => {
       const [roomData, tableData] = await Promise.all([getRooms(), getTables()]);
       setRooms(roomData);
       setTables(tableData);
+      setInitialTables([...tableData]); // Eredeti állapot mentése
       if (!selectedRoomId && roomData.length > 0) {
         setSelectedRoomId(roomData[0].id);
       }
@@ -385,6 +387,83 @@ export const AdminFloorPlanPage = () => {
     }
   };
 
+  /**
+   * Mentés összes változtatás - az összes módosított asztal mentése egyszerre
+   */
+  const handleSaveAllChanges = async () => {
+    const modifiedTables = tables.filter((table) => {
+      // Megkeressük az eredeti asztalt az initialTables-ből
+      const original = initialTables.find((t) => t.id === table.id);
+      if (!original) return false; // Új asztal, még nincs mentve
+
+      // Összehasonlítjuk az értékeket
+      return (
+        table.table_number !== original.table_number ||
+        table.position_x !== original.position_x ||
+        table.position_y !== original.position_y ||
+        table.width !== original.width ||
+        table.height !== original.height ||
+        table.shape !== original.shape ||
+        table.capacity !== original.capacity ||
+        JSON.stringify(table.metadata_json) !== JSON.stringify(original.metadata_json)
+      );
+    });
+
+    if (modifiedTables.length === 0) {
+      showToast('Nincs módosítás, amit menthetnénk.', 'info');
+      return;
+    }
+
+    setIsSaving(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      // Párhuzamos mentések (Promise.allSettled)
+      const results = await Promise.allSettled(
+        modifiedTables.map((table) =>
+          updateTable(table.id, {
+            table_number: table.table_number,
+            room_id: table.room_id,
+            position_x: table.position_x,
+            position_y: table.position_y,
+            width: table.width,
+            height: table.height,
+            rotation: table.rotation,
+            shape: table.shape,
+            capacity: table.capacity,
+            metadata_json: table.metadata_json,
+          })
+        )
+      );
+
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          successCount++;
+        } else {
+          failCount++;
+          console.error('Failed to update table:', result.reason);
+        }
+      });
+
+      if (failCount === 0) {
+        showToast(`${successCount} asztal sikeresen mentve!`, 'success');
+        // Frissítjük az initialTables-t, hogy a következő összehasonlítás pontos legyen
+        setInitialTables([...tables]);
+      } else {
+        showToast(
+          `${successCount} asztal mentve, ${failCount} sikertelen.`,
+          'error'
+        );
+      }
+    } catch (err) {
+      console.error('Error during bulk save:', err);
+      showToast('Hiba történt a mentés során.', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="admin-floorplan-page">
       <Group justify="space-between" align="center" mb="md">
@@ -397,6 +476,15 @@ export const AdminFloorPlanPage = () => {
           </Text>
         </div>
         <Group gap="xs">
+          <Button
+            leftSection={<IconDeviceFloppy size={16} />}
+            variant="filled"
+            color="green"
+            onClick={handleSaveAllChanges}
+            loading={isSaving}
+          >
+            Mentés
+          </Button>
           <Button
             leftSection={<IconPlus size={16} />}
             variant="light"
