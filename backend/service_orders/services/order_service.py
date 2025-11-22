@@ -28,6 +28,9 @@ from backend.service_orders.schemas.order import (
     OrderResponse,
     OrderStatusEnum
 )
+# TODO: Sprint 1 - Use shared domain enums
+from backend.core_domain.enums import OrderStatus, OrderType
+
 from backend.service_orders.config import settings
 
 logger = logging.getLogger(__name__)
@@ -162,6 +165,7 @@ class OrderService:
         if order_type:
             query = query.filter(Order.order_type == order_type)
         if status:
+            # TODO: Use OrderStatus(status).value if passing enum directly
             query = query.filter(Order.status == status)
         if table_id:
             query = query.filter(Order.table_id == table_id)
