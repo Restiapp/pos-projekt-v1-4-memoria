@@ -18,12 +18,22 @@ import {
 } from '@/services/assetService';
 import { AssetEditor } from './AssetEditor';
 import type { Asset, AssetGroup } from '@/types/asset';
+<<<<<<< HEAD
 import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './AssetList.css';
 
 export const AssetList = () => {
   const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './AssetList.css';
+
+export const AssetList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [assets, setAssets] = useState<Asset[]>([]);
   const [assetGroups, setAssetGroups] = useState<AssetGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,7 +75,11 @@ export const AssetList = () => {
       setAssets(data);
     } catch (error) {
       console.error('Hiba az eszközök betöltésekor:', error);
+<<<<<<< HEAD
       notify.error('Nem sikerült betölteni az eszközöket!');
+=======
+      showToast('Nem sikerült betölteni az eszközöket!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +112,7 @@ export const AssetList = () => {
 
   // Eszköz törlése
   const handleDelete = async (asset: Asset) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt az eszközt?\n\n${asset.name} (${asset.inventory_number || 'Nincs leltári szám'})`
     );
 
@@ -106,11 +120,19 @@ export const AssetList = () => {
 
     try {
       await deleteAsset(asset.id);
+<<<<<<< HEAD
       notify.success('Eszköz sikeresen törölve!');
       fetchAssets();
     } catch (error) {
       console.error('Hiba az eszköz törlésekor:', error);
       notify.error('Nem sikerült törölni az eszközt!');
+=======
+      showToast('Eszköz sikeresen törölve!', 'success');
+      fetchAssets();
+    } catch (error) {
+      console.error('Hiba az eszköz törlésekor:', error);
+      showToast('Nem sikerült törölni az eszközt!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

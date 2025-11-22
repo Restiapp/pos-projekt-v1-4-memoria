@@ -12,7 +12,12 @@
 import { useState, useEffect } from 'react';
 import { createProduct, updateProduct } from '@/services/menuService';
 import type { Product, Category, ProductCreate, ProductUpdate } from '@/types/menu';
+<<<<<<< HEAD
 import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './ProductEditor.css';
 
 interface ProductEditorProps {
@@ -27,6 +32,8 @@ export const ProductEditor = ({
   onClose,
 }: ProductEditorProps) => {
   const isEditing = !!product; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -78,12 +85,20 @@ export const ProductEditor = ({
 
     // Validáció
     if (!formData.name.trim()) {
+<<<<<<< HEAD
       notify.warning('A termék neve kötelező!');
+=======
+      showToast('A termék neve kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (formData.base_price < 0) {
+<<<<<<< HEAD
       notify.warning('Az ár nem lehet negatív!');
+=======
+      showToast('Az ár nem lehet negatív!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -101,7 +116,11 @@ export const ProductEditor = ({
           is_active: formData.is_active,
         };
         await updateProduct(product.id, updateData);
+<<<<<<< HEAD
         notify.success('Termék sikeresen frissítve!');
+=======
+        showToast('Termék sikeresen frissítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: ProductCreate = {
@@ -113,7 +132,11 @@ export const ProductEditor = ({
           is_active: formData.is_active,
         };
         await createProduct(createData);
+<<<<<<< HEAD
         notify.success('Termék sikeresen létrehozva!');
+=======
+        showToast('Termék sikeresen létrehozva!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -121,7 +144,11 @@ export const ProductEditor = ({
       console.error('Hiba a termék mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a terméket!';
+<<<<<<< HEAD
       notify.error(errorMessage);
+=======
+      showToast(errorMessage, 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }

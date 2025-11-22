@@ -15,12 +15,22 @@ import { useState, useEffect } from 'react';
 import { getEmployees, deleteEmployee, getRoles } from '@/services/employeeService';
 import { EmployeeEditor } from './EmployeeEditor';
 import type { Employee, Role } from '@/types/employee';
+<<<<<<< HEAD
 import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './EmployeeList.css';
 
 export const EmployeeList = () => {
   const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './EmployeeList.css';
+
+export const EmployeeList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,7 +60,11 @@ export const EmployeeList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a munkatársak betöltésekor:', error);
+<<<<<<< HEAD
       notify.error('Nem sikerült betölteni a munkatársakat!');
+=======
+      showToast('Nem sikerült betölteni a munkatársakat!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -93,7 +107,7 @@ export const EmployeeList = () => {
 
   // Munkatárs törlése (megerősítéssel)
   const handleDelete = async (employee: Employee) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a munkatársat?\n\n${employee.full_name} (${employee.username})`
     );
 
@@ -101,11 +115,19 @@ export const EmployeeList = () => {
 
     try {
       await deleteEmployee(employee.id);
+<<<<<<< HEAD
       notify.success('Munkatárs sikeresen törölve!');
       fetchEmployees(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a munkatárs törlésekor:', error);
       notify.error('Nem sikerült törölni a munkatársat!');
+=======
+      showToast('Munkatárs sikeresen törölve!', 'success');
+      fetchEmployees(); // Lista frissítése
+    } catch (error) {
+      console.error('Hiba a munkatárs törlésekor:', error);
+      showToast('Nem sikerült törölni a munkatársat!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

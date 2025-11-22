@@ -1,7 +1,8 @@
 /**
  * KdsPage - Konyhai Kijelző Oldal
- * Valós idejű frissítéssel (10 másodpercenként)
+ * Valós idejű frissítéssel (12 másodpercenként - throttled)
  * V3.0 Fázis 5: GlobalHeader integrálva
+ * Sprint 0: Performance optimizations with throttling & error handling
  */
 
 import { useState, useEffect } from 'react';
@@ -12,7 +13,7 @@ import type { KdsItem, KdsStation } from '@/types/kds';
 import './KdsPage.css';
 
 const STATIONS: KdsStation[] = ['PULT', 'KONYHA', 'PIZZA'];
-const REFRESH_INTERVAL = 10000; // 10 másodperc
+const REFRESH_INTERVAL = 12000; // 12 seconds - throttled for performance (Sprint 0)
 
 export const KdsPage = () => {
   const [items, setItems] = useState<Record<KdsStation, KdsItem[]>>({
@@ -21,11 +22,23 @@ export const KdsPage = () => {
     PULT: [],
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isPolling, setIsPolling] = useState(false); // Loading state for background polls
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [error, setError] = useState<string | null>(null); // Toast error state
 
-  // Összes állomás adatának lekérése
-  const fetchAllStations = async () => {
+  // Összes állomás adatának lekérése (with throttling & error handling)
+  const fetchAllStations = async (isBackgroundPoll = false) => {
     try {
+      // Set appropriate loading state
+      if (isBackgroundPoll) {
+        setIsPolling(true);
+      } else {
+        setIsLoading(true);
+      }
+
+      // Clear any previous errors
+      setError(null);
+
       const results = await Promise.all(
         STATIONS.map((station) => getItemsByStation(station))
       );
@@ -40,8 +53,18 @@ export const KdsPage = () => {
       setLastUpdate(new Date());
     } catch (error) {
       console.error('Error fetching KDS data:', error);
+
+      // Show toast error
+      const errorMessage = error instanceof Error
+        ? `KDS hiba: ${error.message}`
+        : 'Hiba történt az adatok betöltése során';
+      setError(errorMessage);
+
+      // Auto-hide toast after 5 seconds
+      setTimeout(() => setError(null), 5000);
     } finally {
       setIsLoading(false);
+      setIsPolling(false);
     }
   };
 
@@ -50,10 +73,10 @@ export const KdsPage = () => {
     fetchAllStations();
   }, []);
 
-  // Automatikus frissítés (10 másodpercenként)
+  // Automatikus frissítés (12 másodpercenként - throttled)
   useEffect(() => {
     const interval = setInterval(() => {
-      fetchAllStations();
+      fetchAllStations(true); // Mark as background poll
     }, REFRESH_INTERVAL);
 
     return () => clearInterval(interval);
@@ -61,8 +84,7 @@ export const KdsPage = () => {
 
   // Kézi frissítés
   const handleManualRefresh = () => {
-    setIsLoading(true);
-    fetchAllStations();
+    fetchAllStations(false); // Manual refresh, not a background poll
   };
 
   // Utolsó frissítés időpontjának formázása
@@ -76,12 +98,22 @@ export const KdsPage = () => {
       {/* Globális navigációs header */}
       <GlobalHeader currentPage="kds" />
 
+      {/* Toast Error Notification */}
+      {error && (
+        <div className="toast-error" role="alert">
+          ⚠️ {error}
+        </div>
+      )}
+
       {/* KDS-specifikus vezérlők */}
       <div className="kds-controls">
         <button onClick={handleManualRefresh} className="refresh-btn" disabled={isLoading}>
           🔄 Frissítés
         </button>
-        <span className="last-update">Utolsó frissítés: {formatLastUpdate()}</span>
+        <span className="last-update">
+          Utolsó frissítés: {formatLastUpdate()}
+          {isPolling && <span className="polling-indicator"> 🔄 Frissítés...</span>}
+        </span>
       </div>
 
       {/* Állomások (oszlopok) */}

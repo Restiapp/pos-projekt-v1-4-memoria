@@ -15,12 +15,22 @@ import {
   getVehicles,
 } from '@/services/vehicleService';
 import type { VehicleMaintenance, Vehicle } from '@/types/vehicle';
+<<<<<<< HEAD
 import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './VehicleMaintenanceList.css';
 
 export const VehicleMaintenanceList = () => {
   const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './VehicleMaintenanceList.css';
+
+export const VehicleMaintenanceList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [maintenances, setMaintenances] = useState<VehicleMaintenance[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -56,7 +66,11 @@ export const VehicleMaintenanceList = () => {
       setMaintenances(data);
     } catch (error) {
       console.error('Hiba a karbantartások betöltésekor:', error);
+<<<<<<< HEAD
       notify.error('Nem sikerült betölteni a karbantartásokat!');
+=======
+      showToast('Nem sikerült betölteni a karbantartásokat!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +91,7 @@ export const VehicleMaintenanceList = () => {
 
   // Karbantartás törlése
   const handleDelete = async (maintenance: VehicleMaintenance) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a karbantartást?\n\n${maintenance.description} (${new Date(
         maintenance.maintenance_date
       ).toLocaleDateString('hu-HU')})`
@@ -87,11 +101,19 @@ export const VehicleMaintenanceList = () => {
 
     try {
       await deleteVehicleMaintenance(maintenance.id);
+<<<<<<< HEAD
       notify.success('Karbantartás sikeresen törölve!');
       fetchMaintenances();
     } catch (error) {
       console.error('Hiba a karbantartás törlésekor:', error);
       notify.error('Nem sikerült törölni a karbantartást!');
+=======
+      showToast('Karbantartás sikeresen törölve!', 'success');
+      fetchMaintenances();
+    } catch (error) {
+      console.error('Hiba a karbantartás törlésekor:', error);
+      showToast('Nem sikerült törölni a karbantartást!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

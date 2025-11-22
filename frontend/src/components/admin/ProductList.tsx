@@ -14,12 +14,22 @@ import { useState, useEffect } from 'react';
 import { getProducts, deleteProduct, getCategories } from '@/services/menuService';
 import { ProductEditor } from './ProductEditor';
 import type { Product, Category } from '@/types/menu';
+<<<<<<< HEAD
 import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './ProductList.css';
 
 export const ProductList = () => {
   const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './ProductList.css';
+
+export const ProductList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -47,7 +57,11 @@ export const ProductList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a termékek betöltésekor:', error);
+<<<<<<< HEAD
       notify.error('Nem sikerült betölteni a termékeket!');
+=======
+      showToast('Nem sikerült betölteni a termékeket!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -85,7 +99,7 @@ export const ProductList = () => {
 
   // Termék törlése (megerősítéssel)
   const handleDelete = async (product: Product) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a terméket?\n\n${product.name}`
     );
 
@@ -93,11 +107,19 @@ export const ProductList = () => {
 
     try {
       await deleteProduct(product.id);
+<<<<<<< HEAD
       notify.success('Termék sikeresen törölve!');
       fetchProducts(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a termék törlésekor:', error);
       notify.error('Nem sikerült törölni a terméket!');
+=======
+      showToast('Termék sikeresen törölve!', 'success');
+      fetchProducts(); // Lista frissítése
+    } catch (error) {
+      console.error('Hiba a termék törlésekor:', error);
+      showToast('Nem sikerült törölni a terméket!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

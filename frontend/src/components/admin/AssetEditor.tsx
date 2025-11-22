@@ -12,7 +12,12 @@
 import { useState } from 'react';
 import { createAsset, updateAsset } from '@/services/assetService';
 import type { Asset, AssetGroup, AssetCreate, AssetUpdate } from '@/types/asset';
+<<<<<<< HEAD
 import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './AssetEditor.css';
 
 interface AssetEditorProps {
@@ -27,6 +32,8 @@ export const AssetEditor = ({
   onClose,
 }: AssetEditorProps) => {
   const isEditing = !!asset;
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -69,12 +76,20 @@ export const AssetEditor = ({
 
     // Validáció
     if (!formData.name.trim()) {
+<<<<<<< HEAD
       notify.warning('Az eszköz neve kötelező!');
+=======
+      showToast('Az eszköz neve kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.asset_group_id) {
+<<<<<<< HEAD
       notify.warning('Az eszközcsoport választása kötelező!');
+=======
+      showToast('Az eszközcsoport választása kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -106,7 +121,11 @@ export const AssetEditor = ({
         };
 
         await updateAsset(asset!.id, updateData);
+<<<<<<< HEAD
         notify.success('Eszköz sikeresen frissítve!');
+=======
+        showToast('Eszköz sikeresen frissítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         const createData: AssetCreate = {
           asset_group_id: parseInt(formData.asset_group_id),
@@ -132,14 +151,22 @@ export const AssetEditor = ({
         };
 
         await createAsset(createData);
+<<<<<<< HEAD
         notify.success('Eszköz sikeresen létrehozva!');
+=======
+        showToast('Eszköz sikeresen létrehozva!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true);
     } catch (error: any) {
       console.error('Hiba az eszköz mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
+<<<<<<< HEAD
       notify.error(`Hiba: ${errorMsg}`);
+=======
+      showToast(`Hiba: ${errorMsg}`, 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }

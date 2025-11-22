@@ -11,7 +11,12 @@
 import { useState } from 'react';
 import { createAssetGroup, updateAssetGroup } from '@/services/assetService';
 import type { AssetGroup, AssetGroupCreate, AssetGroupUpdate } from '@/types/asset';
+<<<<<<< HEAD
 import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './AssetGroupEditor.css';
 
 interface AssetGroupEditorProps {
@@ -24,6 +29,8 @@ export const AssetGroupEditor = ({
   onClose,
 }: AssetGroupEditorProps) => {
   const isEditing = !!assetGroup;
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -57,7 +64,11 @@ export const AssetGroupEditor = ({
 
     // Validáció
     if (!formData.name.trim()) {
+<<<<<<< HEAD
       notify.warning('Az eszközcsoport neve kötelező!');
+=======
+      showToast('Az eszközcsoport neve kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -79,7 +90,11 @@ export const AssetGroupEditor = ({
         };
 
         await updateAssetGroup(assetGroup!.id, updateData);
+<<<<<<< HEAD
         notify.success('Eszközcsoport sikeresen frissítve!');
+=======
+        showToast('Eszközcsoport sikeresen frissítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         const createData: AssetGroupCreate = {
           name: formData.name.trim(),
@@ -94,14 +109,22 @@ export const AssetGroupEditor = ({
         };
 
         await createAssetGroup(createData);
+<<<<<<< HEAD
         notify.success('Eszközcsoport sikeresen létrehozva!');
+=======
+        showToast('Eszközcsoport sikeresen létrehozva!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
     } catch (error: any) {
       console.error('Hiba az eszközcsoport mentésekor:', error);
       const errorMsg = error?.response?.data?.detail || 'Ismeretlen hiba történt';
+<<<<<<< HEAD
       notify.error(`Hiba: ${errorMsg}`);
+=======
+      showToast(`Hiba: ${errorMsg}`, 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }
