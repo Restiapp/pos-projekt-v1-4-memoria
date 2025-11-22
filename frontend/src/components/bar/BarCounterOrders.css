@@ -1,77 +1,96 @@
 /**
  * BarCounterOrders Styles
- * Compact list layout with color-coded status cards
  */
 
 .bar-counter-orders {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.bar-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 1rem;
-  max-width: 600px;
-  margin: 0 auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom: 2px solid #5568d3;
 }
 
-.bar-orders-title {
-  font-size: 1.5rem;
-  font-weight: 700;
+.bar-section-header h2 {
   margin: 0;
-  color: #333;
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
-.bar-orders-header {
-  margin-bottom: 1rem;
+.item-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
-/* Order Cards */
-.bar-order-card {
-  transition: all 0.2s ease;
-  cursor: pointer;
+.bar-orders-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.bar-order-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #999;
+  font-size: 1rem;
 }
 
-/* Status-based border colors */
-.bar-order-card.status-blue {
-  border-left: 4px solid #228be6;
-}
-
-.bar-order-card.status-green {
-  border-left: 4px solid #40c057;
-}
-
-.bar-order-card.status-yellow {
-  border-left: 4px solid #fab005;
-  background-color: #fff9db;
-}
-
-.bar-order-card.status-cyan {
-  border-left: 4px solid #15aabf;
-}
-
-.bar-order-card.status-gray {
-  border-left: 4px solid #adb5bd;
-}
-
-/* Empty State */
-.empty-state-card {
-  background-color: #f8f9fa;
+.bar-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
   padding: 2rem;
+  color: #d32f2f;
 }
 
-/* Error State */
-.error-card {
-  background-color: #ffe3e3;
-  border-color: #fa5252;
+.retry-btn {
+  padding: 0.5rem 1rem;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.2s;
 }
 
-/* Responsive Design */
+.retry-btn:hover {
+  background: #5568d3;
+}
+
+.retry-btn:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-  .bar-counter-orders {
-    padding: 0.5rem;
+  .bar-section-header h2 {
+    font-size: 1rem;
   }
 
-  .bar-orders-title {
-    font-size: 1.25rem;
+  .bar-orders-list {
+    padding: 0.5rem;
+    gap: 0.5rem;
   }
 }

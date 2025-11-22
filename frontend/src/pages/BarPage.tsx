@@ -1,180 +1,95 @@
 /**
- * BarPage - Bárpultos nézet (Bar View)
+ * BarPage - Bar Management Interface
+ * Sprint 1 Bar Integration
  *
- * Split-screen layout:
- *   LEFT: Active bar orders (Bárpult)
- *   RIGHT: Bar drink queue (Italos KDS)
+ * LEFT SIDE:
+ *  - BarCounterOrders
+ *  - TakeawayOrders
+ *  - QuickOrderButton
  *
- * Sprint 1: Base layout implementation
- * - No business logic yet (mock only)
- * - Skeleton loaders for both panels
- * - Error boundary wrapper
+ * RIGHT SIDE:
+ *  - DrinkKdsQueue
+ *
+ * Features:
+ *  - Clean architecture with error boundaries
+ *  - Responsive layout (mobile, tablet, desktop)
+ *  - Role-based visibility
+ *  - Skeleton loaders for better UX
  */
 
-import { useState, useEffect } from 'react';
-import { Flex, Paper, Stack, Title, Text, Skeleton, ScrollArea } from '@mantine/core';
-import { GlobalHeader } from '@/components/layout/GlobalHeader';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
-import styles from './BarPage.module.scss';
-
-// Mock data types for future implementation
-interface BarOrder {
-  id: number;
-  tableNumber: string;
-  status: 'pending' | 'preparing' | 'ready';
-  items: string[];
-}
-
-interface DrinkQueueItem {
-  id: number;
-  orderNumber: string;
-  drinkName: string;
-  quantity: number;
-  priority: 'normal' | 'urgent';
-}
+import { GlobalHeader } from '@/components/layout/GlobalHeader';
+import { BarCounterOrders } from '@/components/bar/BarCounterOrders';
+import { TakeawayOrders } from '@/components/bar/TakeawayOrders';
+import { QuickOrderButton } from '@/components/bar/QuickOrderButton';
+import { DrinkKdsQueue } from '@/components/bar/DrinkKdsQueue';
+import { useAuth } from '@/hooks/useAuth';
+import './BarPage.css';
 
 export const BarPage = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [barOrders] = useState<BarOrder[]>([]);
-  const [drinkQueue] = useState<DrinkQueueItem[]>([]);
+  const { user, hasPermission } = useAuth();
 
-  // Simulate initial data loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
+  // Check if user has bar access permissions
+  const canAccessBar = hasPermission('orders:manage') || hasPermission('kds:view');
 
-    return () => clearTimeout(timer);
-  }, []);
+  if (!canAccessBar) {
+    return (
+      <div className="bar-page">
+        <GlobalHeader currentPage="bar" />
+        <div className="bar-unauthorized">
+          <div className="unauthorized-content">
+            <span className="unauthorized-icon">🔒</span>
+            <h2>Hozzáférés megtagadva</h2>
+            <p>Nincs jogosultságod a bár kezelőfelülethez.</p>
+            <a href="/tables" className="back-link">
+              ← Vissza az asztaltérképre
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <ErrorBoundary>
-      <div className={styles.barPage}>
-        {/* Global navigation header */}
-        <GlobalHeader currentPage="bar" />
+    <div className="bar-page">
+      {/* Global Navigation Header */}
+      <GlobalHeader currentPage="bar" />
 
-        {/* Main content: Split-screen layout */}
-        <main className={styles.mainContent}>
-          <Flex
-            gap="md"
-            className={styles.splitContainer}
-            direction={{ base: 'column', md: 'row' }}
-          >
-            {/* LEFT PANEL: Bárpult (Active Bar Orders) */}
-            <div className={styles.leftPanel}>
-              <Paper shadow="sm" p="md" className={styles.panel}>
-                <Stack gap="md">
-                  <Title order={2} className={styles.panelTitle}>
-                    🍸 Bárpult
-                  </Title>
-
-                  <Text size="sm" c="dimmed">
-                    Aktív rendelések a bárpultról
-                  </Text>
-
-                  <ScrollArea className={styles.scrollArea}>
-                    {isLoading ? (
-                      // Skeleton loaders for active orders
-                      <Stack gap="sm">
-                        {Array.from({ length: 5 }).map((_, index) => (
-                          <Paper key={index} shadow="xs" p="md" withBorder>
-                            <Stack gap="xs">
-                              <Skeleton height={20} width="40%" />
-                              <Skeleton height={16} width="60%" />
-                              <Skeleton height={16} width="80%" />
-                              <Skeleton height={14} mt="xs" width="30%" />
-                            </Stack>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    ) : barOrders.length === 0 ? (
-                      // Empty state
-                      <Paper shadow="xs" p="xl" withBorder className={styles.emptyState}>
-                        <Stack align="center" gap="sm">
-                          <Text size="xl" c="dimmed">
-                            📋
-                          </Text>
-                          <Text size="sm" c="dimmed" ta="center">
-                            Nincs aktív rendelés
-                          </Text>
-                        </Stack>
-                      </Paper>
-                    ) : (
-                      // Future: Render actual bar orders
-                      <Stack gap="sm">
-                        {barOrders.map((order) => (
-                          <Paper key={order.id} shadow="xs" p="md" withBorder>
-                            <Text fw={500}>Asztal {order.tableNumber}</Text>
-                            <Text size="sm" c="dimmed">
-                              {order.items.join(', ')}
-                            </Text>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    )}
-                  </ScrollArea>
-                </Stack>
-              </Paper>
-            </div>
-
-            {/* RIGHT PANEL: Italos KDS (Bar Drink Queue) */}
-            <div className={styles.rightPanel}>
-              <Paper shadow="sm" p="md" className={styles.panel}>
-                <Stack gap="md">
-                  <Title order={2} className={styles.panelTitle}>
-                    🥤 Italos KDS
-                  </Title>
-
-                  <Text size="sm" c="dimmed">
-                    Ital előkészítési sor
-                  </Text>
-
-                  <ScrollArea className={styles.scrollArea}>
-                    {isLoading ? (
-                      // Skeleton loaders for drink queue
-                      <Stack gap="sm">
-                        {Array.from({ length: 6 }).map((_, index) => (
-                          <Paper key={index} shadow="xs" p="md" withBorder>
-                            <Stack gap="xs">
-                              <Skeleton height={18} width="50%" />
-                              <Skeleton height={14} width="70%" />
-                              <Skeleton height={12} mt="xs" width="40%" />
-                            </Stack>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    ) : drinkQueue.length === 0 ? (
-                      // Empty state
-                      <Paper shadow="xs" p="xl" withBorder className={styles.emptyState}>
-                        <Stack align="center" gap="sm">
-                          <Text size="xl" c="dimmed">
-                            ✅
-                          </Text>
-                          <Text size="sm" c="dimmed" ta="center">
-                            Nincs várakozó ital
-                          </Text>
-                        </Stack>
-                      </Paper>
-                    ) : (
-                      // Future: Render actual drink queue
-                      <Stack gap="sm">
-                        {drinkQueue.map((item) => (
-                          <Paper key={item.id} shadow="xs" p="md" withBorder>
-                            <Text fw={500}>{item.drinkName}</Text>
-                            <Text size="sm" c="dimmed">
-                              Rendelés: {item.orderNumber} | Mennyiség: {item.quantity}
-                            </Text>
-                          </Paper>
-                        ))}
-                      </Stack>
-                    )}
-                  </ScrollArea>
-                </Stack>
-              </Paper>
-            </div>
-          </Flex>
-        </main>
+      {/* Bar Page Title */}
+      <div className="bar-page-header">
+        <h1>🍹 Bár Kezelőfelület</h1>
+        {user && (
+          <div className="user-info">
+            <span className="user-name">{user.name}</span>
+            <span className="user-role">{user.roles.map(r => r.name).join(', ')}</span>
+          </div>
+        )}
       </div>
-    </ErrorBoundary>
+
+      {/* Main Content: Two-Column Layout */}
+      <main className="bar-content">
+        {/* LEFT COLUMN */}
+        <div className="bar-left-column">
+          <ErrorBoundary>
+            <BarCounterOrders />
+          </ErrorBoundary>
+
+          <ErrorBoundary>
+            <TakeawayOrders />
+          </ErrorBoundary>
+
+          <ErrorBoundary>
+            <QuickOrderButton />
+          </ErrorBoundary>
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="bar-right-column">
+          <ErrorBoundary>
+            <DrinkKdsQueue />
+          </ErrorBoundary>
+        </div>
+      </main>
+    </div>
   );
 };

@@ -1,207 +1,160 @@
 /**
- * DrinkKdsQueue - Bar KDS Queue Display
- *
- * Displays drink orders in a queue with:
- * - Order number
- * - Item name and quantity
- * - Urgent flag (red highlight for items waiting > 5 minutes)
- * - Timer showing time in queue
- * - Grey styling for completed items (status=ready)
+ * DrinkKdsQueue - Drink preparation queue for bar
+ * Displays drink orders from all stations with priority sorting
  */
 
-import { useEffect, useState } from 'react';
-import { Card, Grid, Badge, Text, Group, Stack, Loader, Center } from '@mantine/core';
-import { getDrinkItems, type DrinkItem } from '@/services/kdsService';
+import { useState, useEffect } from 'react';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+import { Skeleton } from '@/components/ui/Skeleton';
+import { KdsCard } from '@/components/kds/KdsCard';
+import { getItemsByStation } from '@/services/kdsService';
+import type { KdsItem, KdsStation } from '@/types/kds';
+import './DrinkKdsQueue.css';
 
-const DrinkKdsQueue = () => {
-  const [drinks, setDrinks] = useState<DrinkItem[]>([]);
-  const [loading, setLoading] = useState(true);
+const REFRESH_INTERVAL = 10000; // 10 seconds - faster for drinks
+const DRINK_STATIONS: KdsStation[] = ['PULT', 'KONYHA', 'PIZZA'];
+
+export const DrinkKdsQueue = () => {
+  const [drinkItems, setDrinkItems] = useState<KdsItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [currentTime, setCurrentTime] = useState(Date.now());
 
-  // Fetch drink items
-  const fetchDrinks = async () => {
+  const fetchDrinkItems = async () => {
     try {
-      setLoading(true);
-      const items = await getDrinkItems();
-      setDrinks(items);
       setError(null);
+
+      // Fetch from all stations
+      const allStationsPromises = DRINK_STATIONS.map((station) =>
+        getItemsByStation(station)
+      );
+
+      const allStationsResults = await Promise.all(allStationsPromises);
+
+      // Flatten and filter for drink-related items
+      // This is a simplified version - you might want to filter by product category
+      const allItems = allStationsResults.flat();
+
+      // Sort by created_at (oldest first for FIFO)
+      const sortedItems = allItems.sort((a, b) => {
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      });
+
+      setDrinkItems(sortedItems);
     } catch (err) {
-      console.error('Failed to fetch drink items:', err);
-      setError('Failed to load drink orders');
+      console.error('Error fetching drink queue:', err);
+      setError(err instanceof Error ? err.message : 'Hiba történt');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  // Initial fetch and polling
   useEffect(() => {
-    fetchDrinks();
-
-    // Poll every 10 seconds for new drinks
-    const pollInterval = setInterval(fetchDrinks, 10000);
-
-    return () => clearInterval(pollInterval);
+    fetchDrinkItems();
   }, []);
 
-  // Update timer every second
   useEffect(() => {
-    const timerInterval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
-
-    return () => clearInterval(timerInterval);
+    const interval = setInterval(fetchDrinkItems, REFRESH_INTERVAL);
+    return () => clearInterval(interval);
   }, []);
 
-  // Calculate current time in queue
-  const getTimeInQueue = (createdAt: string): string => {
-    const created = new Date(createdAt).getTime();
-    const diff = Math.floor((currentTime - created) / 1000); // seconds
-
-    const minutes = Math.floor(diff / 60);
-    const seconds = diff % 60;
-
-    if (minutes > 0) {
-      return `${minutes}m ${seconds}s`;
-    }
-    return `${seconds}s`;
+  // Group items by status for better organization
+  const groupedItems = {
+    pending: drinkItems.filter((item) => item.kds_status === 'PENDING'),
+    preparing: drinkItems.filter((item) => item.kds_status === 'PREPARING'),
+    ready: drinkItems.filter((item) => item.kds_status === 'READY'),
   };
 
-  // Determine card border color
-  const getCardStyle = (drink: DrinkItem) => {
-    const isReady = drink.status === 'READY' || drink.status === 'KÉSZ';
-    const isUrgent = drink.urgent;
-
-    if (isReady) {
-      return {
-        borderColor: '#adb5bd',
-        backgroundColor: '#f8f9fa',
-        opacity: 0.7
-      };
-    }
-
-    if (isUrgent) {
-      return {
-        borderColor: '#fa5252',
-        borderWidth: '3px',
-        backgroundColor: '#fff5f5'
-      };
-    }
-
-    return {
-      borderColor: '#339af0',
-      borderWidth: '2px'
-    };
-  };
-
-  // Render loading state
-  if (loading && drinks.length === 0) {
+  if (isLoading) {
     return (
-      <Center style={{ minHeight: '400px' }}>
-        <Loader size="xl" />
-      </Center>
+      <div className="drink-kds-queue">
+        <div className="drink-queue-header">
+          <h2>🥤 Itallap Sor</h2>
+        </div>
+        <div className="drink-queue-content">
+          <Skeleton variant="card" count={4} height={180} />
+        </div>
+      </div>
     );
   }
 
-  // Render error state
   if (error) {
     return (
-      <Center style={{ minHeight: '400px' }}>
-        <Text c="red" size="lg">{error}</Text>
-      </Center>
-    );
-  }
-
-  // Render empty state
-  if (drinks.length === 0) {
-    return (
-      <Center style={{ minHeight: '400px' }}>
-        <Text size="xl" c="dimmed">No drinks in queue</Text>
-      </Center>
+      <div className="drink-kds-queue">
+        <div className="drink-queue-header">
+          <h2>🥤 Itallap Sor</h2>
+        </div>
+        <div className="drink-queue-error">
+          <p>⚠️ {error}</p>
+          <button onClick={fetchDrinkItems} className="retry-btn">
+            🔄 Újrapróbálás
+          </button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Group justify="space-between" mb="xl">
-        <Text size="xl" fw={700}>Bar Queue - Drink Orders</Text>
-        <Badge size="lg" color="blue">
-          {drinks.length} {drinks.length === 1 ? 'drink' : 'drinks'}
-        </Badge>
-      </Group>
+    <div className="drink-kds-queue">
+      <div className="drink-queue-header">
+        <h2>🥤 Itallap Sor</h2>
+        <div className="queue-stats">
+          <span className="stat-badge stat-pending">{groupedItems.pending.length} Várakozik</span>
+          <span className="stat-badge stat-preparing">{groupedItems.preparing.length} Készül</span>
+          <span className="stat-badge stat-ready">{groupedItems.ready.length} Kész</span>
+        </div>
+      </div>
 
-      <Grid gutter="md">
-        {drinks.map((drink) => {
-          const cardStyle = getCardStyle(drink);
-          const isReady = drink.status === 'READY' || drink.status === 'KÉSZ';
+      <div className="drink-queue-content">
+        {drinkItems.length === 0 ? (
+          <div className="empty-state">
+            <p>🎉 Nincs függőben lévő ital</p>
+          </div>
+        ) : (
+          <>
+            {/* Pending Items - Highest Priority */}
+            {groupedItems.pending.length > 0 && (
+              <div className="queue-section">
+                <h3 className="section-title">⏳ Várakozik ({groupedItems.pending.length})</h3>
+                <div className="queue-items">
+                  {groupedItems.pending.map((item) => (
+                    <ErrorBoundary key={item.id}>
+                      <KdsCard item={item} onStatusChange={fetchDrinkItems} />
+                    </ErrorBoundary>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          return (
-            <Grid.Col key={drink.id} span={{ base: 12, sm: 6, md: 4, lg: 3 }}>
-              <Card
-                shadow="sm"
-                padding="lg"
-                radius="md"
-                withBorder
-                style={{
-                  borderColor: cardStyle.borderColor,
-                  borderWidth: cardStyle.borderWidth || '1px',
-                  backgroundColor: cardStyle.backgroundColor || '#ffffff',
-                  opacity: cardStyle.opacity || 1,
-                  transition: 'all 0.3s ease'
-                }}
-              >
-                <Stack gap="xs">
-                  {/* Order number and status badges */}
-                  <Group justify="space-between">
-                    <Badge size="lg" color="dark" variant="filled">
-                      Order #{drink.orderNumber}
-                    </Badge>
-                    {drink.urgent && !isReady && (
-                      <Badge size="sm" color="red" variant="filled">
-                        URGENT
-                      </Badge>
-                    )}
-                    {isReady && (
-                      <Badge size="sm" color="gray" variant="filled">
-                        READY
-                      </Badge>
-                    )}
-                  </Group>
+            {/* Preparing Items */}
+            {groupedItems.preparing.length > 0 && (
+              <div className="queue-section">
+                <h3 className="section-title">🔄 Készül ({groupedItems.preparing.length})</h3>
+                <div className="queue-items">
+                  {groupedItems.preparing.map((item) => (
+                    <ErrorBoundary key={item.id}>
+                      <KdsCard item={item} onStatusChange={fetchDrinkItems} />
+                    </ErrorBoundary>
+                  ))}
+                </div>
+              </div>
+            )}
 
-                  {/* Item name */}
-                  <Text size="xl" fw={700} style={{ marginTop: '8px' }}>
-                    {drink.itemName}
-                  </Text>
-
-                  {/* Quantity */}
-                  <Text size="md" c="dimmed">
-                    Quantity: {drink.quantity}x
-                  </Text>
-
-                  {/* Notes */}
-                  {drink.notes && (
-                    <Text size="sm" c="dimmed" style={{ fontStyle: 'italic' }}>
-                      📝 {drink.notes}
-                    </Text>
-                  )}
-
-                  {/* Time in queue */}
-                  <Group justify="space-between" mt="md">
-                    <Text size="sm" fw={500} c={drink.urgent ? 'red' : 'blue'}>
-                      ⏱️ {getTimeInQueue(drink.createdAt)}
-                    </Text>
-                    <Text size="xs" c="dimmed">
-                      {drink.minutesWaiting} min ago
-                    </Text>
-                  </Group>
-                </Stack>
-              </Card>
-            </Grid.Col>
-          );
-        })}
-      </Grid>
+            {/* Ready Items */}
+            {groupedItems.ready.length > 0 && (
+              <div className="queue-section">
+                <h3 className="section-title">✅ Kész ({groupedItems.ready.length})</h3>
+                <div className="queue-items">
+                  {groupedItems.ready.map((item) => (
+                    <ErrorBoundary key={item.id}>
+                      <KdsCard item={item} onStatusChange={fetchDrinkItems} />
+                    </ErrorBoundary>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
-
-export default DrinkKdsQueue;
