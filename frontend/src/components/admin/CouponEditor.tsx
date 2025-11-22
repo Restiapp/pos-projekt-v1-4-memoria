@@ -12,13 +12,8 @@ import { useState } from 'react';
 import { createCoupon, updateCoupon } from '@/services/crmService';
 import type { Coupon, CouponCreate, CouponUpdate } from '@/types/coupon';
 import { DiscountTypeEnum } from '@/types/coupon';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './CouponEditor.css';
+import { notifications } from '@mantine/notifications';
 
 interface CouponEditorProps {
   coupon: Coupon | null; // null = új kupon, Coupon = szerkesztés
@@ -27,9 +22,7 @@ interface CouponEditorProps {
 
 export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
   const isEditing = !!coupon; // true = szerkesztés, false = új létrehozás
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
-
+    
   // Form állapot
   const [formData, setFormData] = useState({
     code: coupon?.code || '',
@@ -89,20 +82,20 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
 
     // Validáció
     if (!formData.code.trim()) {
-<<<<<<< HEAD
-      notify.warning('A kuponkód kötelező!');
-=======
-      showToast('A kuponkód kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Figyelmeztetés',
+        message: 'A kuponkód kötelező!',
+        color: 'yellow',
+      });
       return;
     }
 
     if (formData.discount_value <= 0) {
-<<<<<<< HEAD
-      notify.warning('A kedvezmény értéke nagyobb kell legyen nullánál!');
-=======
-      showToast('A kedvezmény értéke nagyobb kell legyen nullánál!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Figyelmeztetés',
+        message: 'A kedvezmény értéke nagyobb kell legyen nullánál!',
+        color: 'yellow',
+      });
       return;
     }
 
@@ -110,11 +103,11 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
       formData.discount_type === DiscountTypeEnum.PERCENTAGE &&
       formData.discount_value > 100
     ) {
-<<<<<<< HEAD
-      notify.warning('A százalékos kedvezmény nem lehet nagyobb 100%-nál!');
-=======
-      showToast('A százalékos kedvezmény nem lehet nagyobb 100%-nál!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Figyelmeztetés',
+        message: 'A százalékos kedvezmény nem lehet nagyobb 100%-nál!',
+        color: 'yellow',
+      });
       return;
     }
 
@@ -134,11 +127,11 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           is_active: formData.is_active,
         };
         await updateCoupon(coupon.id, updateData);
-<<<<<<< HEAD
-        notify.success('Kupon sikeresen frissítve!');
-=======
-        showToast('Kupon sikeresen frissítve!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+        notifications.show({
+        title: 'Siker',
+        message: 'Kupon sikeresen frissítve!',
+        color: 'green',
+      });
       } else {
         // Létrehozás
         const createData: CouponCreate = {
@@ -153,11 +146,11 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           is_active: formData.is_active,
         };
         await createCoupon(createData);
-<<<<<<< HEAD
-        notify.success('Kupon sikeresen létrehozva!');
-=======
-        showToast('Kupon sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+        notifications.show({
+        title: 'Siker',
+        message: 'Kupon sikeresen létrehozva!',
+        color: 'green',
+      });
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -165,11 +158,7 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
       console.error('Hiba a kupon mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a kupont!';
-<<<<<<< HEAD
       notify.error(errorMessage);
-=======
-      showToast(errorMessage, 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }

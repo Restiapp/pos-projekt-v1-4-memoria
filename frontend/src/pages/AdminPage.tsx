@@ -10,12 +10,8 @@
 
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
-import { useToast } from '@/components/common/Toast';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './AdminPage.css';
+import { notifications } from '@mantine/notifications';
 
 interface MenuItem {
   id: string;
@@ -159,8 +155,7 @@ const MENU_ITEMS: MenuItem[] = [
 ];
 
 export const AdminPage = () => {
-  const { showToast } = useToast();
-  const { user, logout, hasPermission } = useAuth();
+    const { user, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -168,11 +163,11 @@ export const AdminPage = () => {
   const handleMenuClick = (item: MenuItem) => {
     // Jogosultság ellenőrzés (opcionális, a route is védett)
     if (item.permission && !hasPermission(item.permission)) {
-<<<<<<< HEAD
-      notify.warning('Nincs jogosultságod ehhez a funkcióhoz!');
-=======
-      showToast('Nincs jogosultságod ehhez a funkcióhoz!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Figyelmeztetés',
+        message: 'Nincs jogosultságod ehhez a funkcióhoz!',
+        color: 'yellow',
+      });
       return;
     }
     navigate(item.path);

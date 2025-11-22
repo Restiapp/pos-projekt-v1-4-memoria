@@ -11,13 +11,8 @@
 import { useState } from 'react';
 import { createVehicle, updateVehicle } from '@/services/vehicleService';
 import type { Vehicle, VehicleCreate, VehicleUpdate } from '@/types/vehicle';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './VehicleEditor.css';
+import { notifications } from '@mantine/notifications';
 
 interface VehicleEditorProps {
   vehicle: Vehicle | null; // null = új jármű létrehozása
@@ -26,9 +21,7 @@ interface VehicleEditorProps {
 
 export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
   const isEditMode = vehicle !== null;
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
-
+    
   // Form állapotok
   const [formData, setFormData] = useState({
     license_plate: vehicle?.license_plate || '',
@@ -83,14 +76,8 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
       !formData.model ||
       !formData.fuel_type
     ) {
-<<<<<<< HEAD
       notify.warning(
         'Kérlek, töltsd ki a kötelező mezőket: Rendszám, Márka, Modell, Üzemanyag!'
-=======
-      showToast(
-        'Kérlek, töltsd ki a kötelező mezőket: Rendszám, Márka, Modell, Üzemanyag!',
-        'error'
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       );
       return;
     }
@@ -120,11 +107,11 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
         };
 
         await updateVehicle(vehicle!.id, updateData);
-<<<<<<< HEAD
-        notify.success('Jármű sikeresen frissítve!');
-=======
-        showToast('Jármű sikeresen frissítve!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+        notifications.show({
+        title: 'Siker',
+        message: 'Jármű sikeresen frissítve!',
+        color: 'green',
+      });
       } else {
         // Létrehozás
         const createData: VehicleCreate = {
@@ -147,21 +134,21 @@ export const VehicleEditor = ({ vehicle, onClose }: VehicleEditorProps) => {
         };
 
         await createVehicle(createData);
-<<<<<<< HEAD
-        notify.success('Jármű sikeresen létrehozva!');
-=======
-        showToast('Jármű sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+        notifications.show({
+        title: 'Siker',
+        message: 'Jármű sikeresen létrehozva!',
+        color: 'green',
+      });
       }
 
       onClose(true); // Frissítés szükséges
     } catch (error) {
       console.error('Hiba a jármű mentésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült menteni a járművet!');
-=======
-      showToast('Nem sikerült menteni a járművet!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült menteni a járművet!',
+        color: 'red',
+      });
     } finally {
       setIsSaving(false);
     }

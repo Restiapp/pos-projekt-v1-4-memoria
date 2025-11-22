@@ -15,22 +15,12 @@ import { useState, useEffect } from 'react';
 import { getVehicles, deleteVehicle } from '@/services/vehicleService';
 import { VehicleEditor } from './VehicleEditor';
 import type { Vehicle } from '@/types/vehicle';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './VehicleList.css';
+import { notifications } from '@mantine/notifications';
 
 export const VehicleList = () => {
   const { isAuthenticated } = useAuthStore();
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
-import './VehicleList.css';
-
-export const VehicleList = () => {
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -61,11 +51,11 @@ export const VehicleList = () => {
       setVehicles(data);
     } catch (error) {
       console.error('Hiba a járművek betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni a járműveket!');
-=======
-      showToast('Nem sikerült betölteni a járműveket!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült betölteni a járműveket!',
+        color: 'red',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -100,19 +90,19 @@ export const VehicleList = () => {
 
     try {
       await deleteVehicle(vehicle.id);
-<<<<<<< HEAD
-      notify.success('Jármű sikeresen törölve!');
+      notifications.show({
+        title: 'Siker',
+        message: 'Jármű sikeresen törölve!',
+        color: 'green',
+      });
       fetchVehicles();
     } catch (error) {
       console.error('Hiba a jármű törlésekor:', error);
-      notify.error('Nem sikerült törölni a járművet!');
-=======
-      showToast('Jármű sikeresen törölve!', 'success');
-      fetchVehicles();
-    } catch (error) {
-      console.error('Hiba a jármű törlésekor:', error);
-      showToast('Nem sikerült törölni a járművet!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült törölni a járművet!',
+        color: 'red',
+      });
     }
   };
 

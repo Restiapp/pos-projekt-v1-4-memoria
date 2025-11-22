@@ -13,22 +13,12 @@ import { useState, useEffect } from 'react';
 import { getRoles, deleteRole, getPermissions, getRoleById } from '@/services/roleService';
 import { RoleEditor } from './RoleEditor';
 import type { Role, Permission, RoleWithPermissions } from '@/types/role';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './RoleList.css';
+import { notifications } from '@mantine/notifications';
 
 export const RoleList = () => {
   const { isAuthenticated } = useAuthStore();
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
-import './RoleList.css';
-
-export const RoleList = () => {
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [roles, setRoles] = useState<Role[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -49,11 +39,11 @@ export const RoleList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a szerepkörök betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni a szerepköröket!');
-=======
-      showToast('Nem sikerült betölteni a szerepköröket!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült betölteni a szerepköröket!',
+        color: 'red',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -97,11 +87,11 @@ export const RoleList = () => {
       setIsEditorOpen(true);
     } catch (error) {
       console.error('Hiba a szerepkör betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni a szerepkör részleteit!');
-=======
-      showToast('Nem sikerült betölteni a szerepkör részleteit!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült betölteni a szerepkör részleteit!',
+        color: 'red',
+      });
     }
   };
 
@@ -115,19 +105,19 @@ export const RoleList = () => {
 
     try {
       await deleteRole(role.id);
-<<<<<<< HEAD
-      notify.success('Szerepkör sikeresen törölve!');
+      notifications.show({
+        title: 'Siker',
+        message: 'Szerepkör sikeresen törölve!',
+        color: 'green',
+      });
       fetchRoles(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a szerepkör törlésekor:', error);
-      notify.error('Nem sikerült törölni a szerepkört!');
-=======
-      showToast('Szerepkör sikeresen törölve!', 'success');
-      fetchRoles(); // Lista frissítése
-    } catch (error) {
-      console.error('Hiba a szerepkör törlésekor:', error);
-      showToast('Nem sikerült törölni a szerepkört!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült törölni a szerepkört!',
+        color: 'red',
+      });
     }
   };
 

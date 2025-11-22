@@ -2,22 +2,11 @@ import { useState, useEffect } from 'react';
 import { Stage, Layer, Group } from 'react-konva';
 import { getTables } from '@/services/tableService';
 import type { Table } from '@/types/table';
-<<<<<<< HEAD
 import { FurnitureShape } from './FurnitureShape';
 
 interface TableMapProps {
     activeRoom: string | null; // room ID or name
 }
-=======
-import { useToast } from '@/components/common/Toast';
-import './TableMap.css';
-
-export const TableMap = () => {
-  const { showToast } = useToast();
-  const [tables, setTables] = useState<Table[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 
 export const TableMap = ({ activeRoom }: TableMapProps) => {
     const [tables, setTables] = useState<Table[]>([]);
@@ -27,7 +16,6 @@ export const TableMap = ({ activeRoom }: TableMapProps) => {
     const width = window.innerWidth;
     const height = window.innerHeight - 180; // Approximate available height
 
-<<<<<<< HEAD
     useEffect(() => {
         const fetchTables = async () => {
             try {
@@ -41,13 +29,6 @@ export const TableMap = ({ activeRoom }: TableMapProps) => {
         };
         fetchTables();
     }, [activeRoom]);
-=======
-  // Asztal kattintás kezelése
-  const handleTableClick = (table: Table) => {
-    // TODO: Navigáció a rendelés oldalra vagy részletek megjelenítése
-    showToast(`Asztal: ${table.table_number} (ID: ${table.id})`, 'info');
-  };
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 
     return (
         <Stage

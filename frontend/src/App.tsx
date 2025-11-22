@@ -31,7 +31,6 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
-<<<<<<< HEAD
 // ÚJ IMPORT - Dashboard Analytics (Reports)
 import { ReportsPage } from '@/pages/ReportsPage';
 
@@ -40,11 +39,9 @@ import { InventoryPage } from '@/pages/InventoryPage';
 
 // DEBUG
 import { DebugAuthPage } from '@/pages/DebugAuthPage';
-=======
-// Toast and ConfirmDialog Providers
-import { ToastProvider } from '@/components/common/Toast';
-import { ConfirmProvider } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+
+// Module 9: Guest Lookup + CRM Demo
+import { GuestLookupDemo } from '@/pages/GuestLookupDemo';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -55,13 +52,21 @@ function App() {
   }, [loadUserFromStorage]);
 
   return (
-    <ToastProvider>
-      <ConfirmProvider>
-        <BrowserRouter>
-          <Routes>
+    <BrowserRouter>
+      <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/debug-auth" element={<DebugAuthPage />} />
+
+        {/* ÚJ ROUTE: Guest Lookup Demo (Module 9) */}
+        <Route
+          path="/guest-lookup-demo"
+          element={
+            <ProtectedRoute>
+              <GuestLookupDemo />
+            </ProtectedRoute>
+          }
+        />
 
         {/* ÚJ ROUTE: Operátori Felület (Telefonos Rendelésfelvétel) */}
         <Route
@@ -291,10 +296,8 @@ function App() {
             </div>
           }
         />
-          </Routes>
-        </BrowserRouter>
-      </ConfirmProvider>
-    </ToastProvider>
+      </Routes>
+    </BrowserRouter>
   );
 }
 

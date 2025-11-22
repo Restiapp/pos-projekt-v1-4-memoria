@@ -9,14 +9,9 @@
  */
 
 import { useState } from 'react';
+import { notifications } from '@mantine/notifications';
 import { createCustomer, updateCustomer } from '@/services/crmService';
 import type { Customer, CustomerCreate, CustomerUpdate } from '@/types/customer';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './CustomerEditor.css';
 
 interface CustomerEditorProps {
@@ -26,8 +21,6 @@ interface CustomerEditorProps {
 
 export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
   const isEditing = !!customer; // true = szerkesztés, false = új létrehozás
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -85,29 +78,29 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
 
     // Validáció
     if (!formData.first_name.trim()) {
-<<<<<<< HEAD
-      notify.warning('A keresztnév kötelező!');
-=======
-      showToast('A keresztnév kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Figyelmeztetés',
+        message: 'A keresztnév kötelező!',
+        color: 'yellow',
+      });
       return;
     }
 
     if (!formData.last_name.trim()) {
-<<<<<<< HEAD
-      notify.warning('A vezetéknév kötelező!');
-=======
-      showToast('A vezetéknév kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Figyelmeztetés',
+        message: 'A vezetéknév kötelező!',
+        color: 'yellow',
+      });
       return;
     }
 
     if (!formData.email.trim()) {
-<<<<<<< HEAD
-      notify.warning('Az email kötelező!');
-=======
-      showToast('Az email kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Figyelmeztetés',
+        message: 'Az email kötelező!',
+        color: 'yellow',
+      });
       return;
     }
 
@@ -129,11 +122,11 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           is_active: formData.is_active,
         };
         await updateCustomer(customer.id, updateData);
-<<<<<<< HEAD
-        notify.success('Vendég sikeresen frissítve!');
-=======
-        showToast('Vendég sikeresen frissítve!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+        notifications.show({
+          title: 'Siker',
+          message: 'Vendég sikeresen frissítve!',
+          color: 'green',
+        });
       } else {
         // Létrehozás
         const createData: CustomerCreate = {
@@ -148,11 +141,11 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           tags: tags.length > 0 ? tags : undefined,
         };
         await createCustomer(createData);
-<<<<<<< HEAD
-        notify.success('Vendég sikeresen létrehozva!');
-=======
-        showToast('Vendég sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+        notifications.show({
+          title: 'Siker',
+          message: 'Vendég sikeresen létrehozva!',
+          color: 'green',
+        });
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -160,11 +153,11 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
       console.error('Hiba a vendég mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a vendéget!';
-<<<<<<< HEAD
-      notify.error(errorMessage);
-=======
-      showToast(errorMessage, 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: errorMessage,
+        color: 'red',
+      });
     } finally {
       setIsSubmitting(false);
     }

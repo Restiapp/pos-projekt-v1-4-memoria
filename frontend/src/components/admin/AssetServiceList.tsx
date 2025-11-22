@@ -18,22 +18,12 @@ import {
 } from '@/services/assetService';
 import { AssetServiceEditor } from './AssetServiceEditor';
 import type { AssetService, Asset } from '@/types/asset';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './AssetServiceList.css';
+import { notifications } from '@mantine/notifications';
 
 export const AssetServiceList = () => {
   const { isAuthenticated } = useAuthStore();
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
-import './AssetServiceList.css';
-
-export const AssetServiceList = () => {
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [services, setServices] = useState<AssetService[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -73,11 +63,11 @@ export const AssetServiceList = () => {
       setServices(data);
     } catch (error) {
       console.error('Hiba a szerviz bejegyzések betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni a szerviz bejegyzéseket!');
-=======
-      showToast('Nem sikerült betölteni a szerviz bejegyzéseket!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült betölteni a szerviz bejegyzéseket!',
+        color: 'red',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -119,19 +109,19 @@ export const AssetServiceList = () => {
 
     try {
       await deleteAssetService(service.id);
-<<<<<<< HEAD
-      notify.success('Szerviz bejegyzés sikeresen törölve!');
+      notifications.show({
+        title: 'Siker',
+        message: 'Szerviz bejegyzés sikeresen törölve!',
+        color: 'green',
+      });
       fetchServices();
     } catch (error) {
       console.error('Hiba a szerviz bejegyzés törlésekor:', error);
-      notify.error('Nem sikerült törölni a szerviz bejegyzést!');
-=======
-      showToast('Szerviz bejegyzés sikeresen törölve!', 'success');
-      fetchServices();
-    } catch (error) {
-      console.error('Hiba a szerviz bejegyzés törlésekor:', error);
-      showToast('Nem sikerült törölni a szerviz bejegyzést!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült törölni a szerviz bejegyzést!',
+        color: 'red',
+      });
     }
   };
 

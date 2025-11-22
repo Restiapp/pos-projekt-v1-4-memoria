@@ -6,12 +6,8 @@
 import { useState } from 'react';
 import type { KdsItem, KdsStatus } from '@/types/kds';
 import { updateItemStatus } from '@/services/kdsService';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
-import { useToast } from '@/components/common/Toast';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './KdsCard.css';
+import { notifications } from '@mantine/notifications';
 
 interface KdsCardProps {
   item: KdsItem;
@@ -19,8 +15,7 @@ interface KdsCardProps {
 }
 
 export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
-  const { showToast } = useToast();
-  const [isUpdating, setIsUpdating] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
   const handleStatusChange = async (newStatus: KdsStatus) => {
     if (isUpdating) return;
@@ -33,11 +28,11 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
       }
     } catch (error) {
       console.error('Failed to update KDS status:', error);
-<<<<<<< HEAD
-      notify.error('Hiba történt a státusz frissítése közben!');
-=======
-      showToast('Hiba történt a státusz frissítése közben!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Hiba történt a státusz frissítése közben!',
+        color: 'red',
+      });
     } finally {
       setIsUpdating(false);
     }

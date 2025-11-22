@@ -84,6 +84,23 @@ export const getCustomerById = async (id: number): Promise<Customer> => {
 };
 
 /**
+ * GET /api/customers/by-uid/{customer_uid} - Vendég keresése vendégszám alapján
+ * Proxy Target: http://localhost:8004/api/v1/customers/by-uid/{customer_uid}
+ */
+export const getCustomerByUid = async (customer_uid: string): Promise<Customer | null> => {
+  try {
+    const response = await apiClient.get<Customer>(`/api/customers/by-uid/${customer_uid}`);
+    return response.data;
+  } catch (error: any) {
+    // Return null if customer not found (404)
+    if (error.response?.status === 404) {
+      return null;
+    }
+    throw error;
+  }
+};
+
+/**
  * POST /api/customers - Új vendég létrehozása
  * Proxy Target: http://localhost:8004/api/v1/customers
  */

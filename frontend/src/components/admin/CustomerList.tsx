@@ -12,25 +12,16 @@
  */
 
 import { useState, useEffect } from 'react';
+import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
 import { getCustomers, deleteCustomer, updateLoyaltyPoints } from '@/services/crmService';
 import { CustomerEditor } from './CustomerEditor';
 import type { Customer } from '@/types/customer';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './CustomerList.css';
 
 export const CustomerList = () => {
   const { isAuthenticated } = useAuthStore();
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
-import './CustomerList.css';
-
-export const CustomerList = () => {
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -65,11 +56,11 @@ export const CustomerList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a vendégek betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni a vendégeket!');
-=======
-      showToast('Nem sikerült betölteni a vendégeket!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült betölteni a vendégeket!',
+        color: 'red',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -96,28 +87,30 @@ export const CustomerList = () => {
 
   // Vendég törlése (megerősítéssel)
   const handleDelete = async (customer: Customer) => {
-    const confirmed = await showConfirm(
-      `Biztosan törölni szeretnéd ezt a vendéget?\n\n${customer.first_name} ${customer.last_name} (${customer.email})`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      await deleteCustomer(customer.id);
-<<<<<<< HEAD
-      notify.success('Vendég sikeresen törölve!');
-      fetchCustomers(); // Lista frissítése
-    } catch (error) {
-      console.error('Hiba a vendég törlésekor:', error);
-      notify.error('Nem sikerült törölni a vendéget!');
-=======
-      showToast('Vendég sikeresen törölve!', 'success');
-      fetchCustomers(); // Lista frissítése
-    } catch (error) {
-      console.error('Hiba a vendég törlésekor:', error);
-      showToast('Nem sikerült törölni a vendéget!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
-    }
+    modals.openConfirmModal({
+      title: 'Vendég törlése',
+      children: `Biztosan törölni szeretnéd ezt a vendéget? ${customer.first_name} ${customer.last_name} (${customer.email})`,
+      labels: { confirm: 'Törlés', cancel: 'Mégse' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        try {
+          await deleteCustomer(customer.id);
+          notifications.show({
+            title: 'Siker',
+            message: 'Vendég sikeresen törölve!',
+            color: 'green',
+          });
+          fetchCustomers(); // Lista frissítése
+        } catch (error) {
+          console.error('Hiba a vendég törlésekor:', error);
+          notifications.show({
+            title: 'Hiba',
+            message: 'Nem sikerült törölni a vendéget!',
+            color: 'red',
+          });
+        }
+      },
+    });
   };
 
   // Editor bezárása és lista frissítése
@@ -142,7 +135,11 @@ export const CustomerList = () => {
     if (!loyaltyCustomer) return;
 
     if (loyaltyPoints === 0) {
-      alert('A pontok értéke nem lehet 0!');
+      notifications.show({
+        title: 'Figyelmeztetés',
+        message: 'A pontok értéke nem lehet 0!',
+        color: 'yellow',
+      });
       return;
     }
 
@@ -151,7 +148,11 @@ export const CustomerList = () => {
         points: loyaltyPoints,
         reason: loyaltyReason || undefined,
       });
-      alert('Hűségpontok sikeresen frissítve!');
+      notifications.show({
+        title: 'Siker',
+        message: 'Hűségpontok sikeresen frissítve!',
+        color: 'green',
+      });
       setIsLoyaltyModalOpen(false);
       setLoyaltyCustomer(null);
       fetchCustomers(); // Lista frissítése
@@ -159,7 +160,11 @@ export const CustomerList = () => {
       console.error('Hiba a pontok frissítésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült frissíteni a pontokat!';
-      alert(errorMessage);
+      notifications.show({
+        title: 'Hiba',
+        message: errorMessage,
+        color: 'red',
+      });
     }
   };
 

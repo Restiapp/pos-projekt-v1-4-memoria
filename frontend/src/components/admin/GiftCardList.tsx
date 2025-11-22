@@ -14,22 +14,12 @@ import { useState, useEffect } from 'react';
 import { getGiftCards, deleteGiftCard } from '@/services/crmService';
 import { GiftCardEditor } from './GiftCardEditor';
 import type { GiftCard } from '@/types/giftCard';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
 import { useAuthStore } from '@/stores/authStore';
 import './GiftCardList.css';
+import { notifications } from '@mantine/notifications';
 
 export const GiftCardList = () => {
   const { isAuthenticated } = useAuthStore();
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
-import './GiftCardList.css';
-
-export const GiftCardList = () => {
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [giftCards, setGiftCards] = useState<GiftCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -56,11 +46,11 @@ export const GiftCardList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba az ajándékkártyák betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni az ajándékkártyákat!');
-=======
-      showToast('Nem sikerült betölteni az ajándékkártyákat!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült betölteni az ajándékkártyákat!',
+        color: 'red',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -95,19 +85,19 @@ export const GiftCardList = () => {
 
     try {
       await deleteGiftCard(giftCard.id);
-<<<<<<< HEAD
-      notify.success('Ajándékkártya sikeresen törölve!');
+      notifications.show({
+        title: 'Siker',
+        message: 'Ajándékkártya sikeresen törölve!',
+        color: 'green',
+      });
       fetchGiftCards(); // Lista frissítése
     } catch (error) {
       console.error('Hiba az ajándékkártya törlésekor:', error);
-      notify.error('Nem sikerült törölni az ajándékkártyát!');
-=======
-      showToast('Ajándékkártya sikeresen törölve!', 'success');
-      fetchGiftCards(); // Lista frissítése
-    } catch (error) {
-      console.error('Hiba az ajándékkártya törlésekor:', error);
-      showToast('Nem sikerült törölni az ajándékkártyát!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+      notifications.show({
+        title: 'Hiba',
+        message: 'Nem sikerült törölni az ajándékkártyát!',
+        color: 'red',
+      });
     }
   };
 

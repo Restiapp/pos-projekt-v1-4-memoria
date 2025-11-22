@@ -10,6 +10,8 @@
  */
 
 import { useState, useEffect } from 'react';
+import { notifications } from '@mantine/notifications';
+import { modals } from '@mantine/modals';
 import type {
   Order,
   Payment,
@@ -22,13 +24,8 @@ import {
   closeOrder,
   getPaymentsForOrder,
 } from '@/services/paymentService';
-<<<<<<< HEAD
 import { validateCoupon } from '@/services/crmService';
 import type { CouponValidationResponse } from '@/types/coupon';
-=======
-import { useToast } from '@/components/common/Toast';
-import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './PaymentModal.css';
 
 interface PaymentModalProps {
@@ -42,9 +39,7 @@ export const PaymentModal = ({
   onClose,
   onPaymentSuccess,
 }: PaymentModalProps) => {
-  const { showToast } = useToast();
-  const { showConfirm } = useConfirm();
-  const [splitCheck, setSplitCheck] = useState<SplitCheckResponse | null>(null);
+      const [splitCheck, setSplitCheck] = useState<SplitCheckResponse | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -78,7 +73,7 @@ export const PaymentModal = ({
         setPayments(paymentsData);
       } catch (error) {
         console.error('Error loading payment data:', error);
-        showToast('Hiba történt az adatok betöltése közben!', 'error');
+        notifications.show({ title: 'Hiba', message: 'Hiba történt az adatok betöltése közben!', color: 'red' });
       } finally {
         setIsLoading(false);
       }
@@ -113,29 +108,32 @@ export const PaymentModal = ({
   const handleCloseOrder = async () => {
     if (isProcessing) return;
     if (!isFullyPaid) {
-      showToast('A rendelés még nincs teljesen kifizetve!', 'error');
+      notifications.show({ title: 'Hiba', message: 'A rendelés még nincs teljesen kifizetve!', color: 'red' });
       return;
     }
 
-    const confirmed = await showConfirm(
-      'Biztos, hogy lezárod a rendelést? Ez a művelet nem visszavonható.'
-    );
-    if (!confirmed) return;
-
-    try {
-      setIsProcessing(true);
-      await closeOrder(order.id);
-      showToast('Rendelés sikeresen lezárva!', 'success');
-      onPaymentSuccess();
-      onClose();
-    } catch (error: any) {
-      console.error('Order close failed:', error);
-      const errorMsg =
-        error.response?.data?.detail || 'Hiba történt a rendelés lezárása közben!';
-      showToast(errorMsg, 'error');
-    } finally {
-      setIsProcessing(false);
-    }
+    modals.openConfirmModal({
+      title: 'Megerősítés',
+      children: 'Biztos, hogy lezárod a rendelést? Ez a művelet nem visszavonható.',
+      labels: { confirm: 'Igen', cancel: 'Mégse' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        try {
+          setIsProcessing(true);
+          await closeOrder(order.id);
+          notifications.show({ title: 'Siker', message: 'Rendelés sikeresen lezárva!', color: 'green' });
+          onPaymentSuccess();
+          onClose();
+        } catch (error: any) {
+          console.error('Order close failed:', error);
+          const errorMsg =
+            error.response?.data?.detail || 'Hiba történt a rendelés lezárása közben!';
+          notifications.show({ title: 'Hiba', message: errorMsg, color: 'red' });
+        } finally {
+          setIsProcessing(false);
+        }
+      },
+    });
   };
 
   // Kupon validálása
