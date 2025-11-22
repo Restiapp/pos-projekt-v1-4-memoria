@@ -37,11 +37,15 @@ import type {
 export const getProducts = async (
   page: number = 1,
   page_size: number = 20,
-  is_active?: boolean
+  is_active?: boolean,
+  search?: string
 ): Promise<ProductListResponse> => {
   const params: Record<string, any> = { page, page_size };
   if (is_active !== undefined) {
     params.is_active = is_active;
+  }
+  if (search) {
+    params.search = search;
   }
 
   const response = await apiClient.get<ProductListResponse>('/api/products', {
