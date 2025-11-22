@@ -226,7 +226,7 @@ export const AdminFloorPlanPage = () => {
     setSelectedTableId(table.id);
   };
 
-  const handleRoomDragOver = (roomId: number, event: React.DragEvent<HTMLButtonElement>) => {
+  const handleRoomDragOver = (roomId: number, event: React.DragEvent<HTMLElement>) => {
     event.preventDefault();
     if (!draggingRoomId || draggingRoomId === roomId) return;
 
@@ -374,8 +374,15 @@ export const AdminFloorPlanPage = () => {
                 </Alert>
               ) : (
                 rooms.map((room) => (
-                  <button
+                  <div
                     key={room.id}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setSelectedRoomId(room.id);
+                      }
+                    }}
                     className={`room-item ${selectedRoomId === room.id ? 'active' : ''}`}
                     onClick={() => setSelectedRoomId(room.id)}
                     draggable
@@ -399,7 +406,7 @@ export const AdminFloorPlanPage = () => {
                     >
                       <IconEdit size={14} />
                     </ActionIcon>
-                  </button>
+                  </div>
                 ))
               )}
             </div>
