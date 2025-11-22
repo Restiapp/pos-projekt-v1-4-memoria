@@ -1,5 +1,3 @@
-// TODO-S0-STUB: TypeScript checking disabled - fix dependency issues
-// @ts-nocheck
 /**
  * Table Service - Asztalok és ülések API hívások
  *
@@ -13,7 +11,8 @@
  */
 
 import apiClient from './api';
-import type { Table, Seat, TableCreate, TableUpdate, Room } from '@/types/table';
+import type { Table, Seat, TableCreate, TableUpdate } from '@/types/table';
+import type { Room } from '@/types/room';
 
 interface TableListResponse {
   items: Table[];
@@ -28,7 +27,9 @@ interface TableListResponse {
 
 export const getRooms = async (): Promise<Room[]> => {
   try {
-    const response = await apiClient.get<Room[]>('/api/rooms');
+    const response = await apiClient.get<Room[]>('/api/rooms', {
+      params: { skip: 0, limit: 100 },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching rooms:', error);
