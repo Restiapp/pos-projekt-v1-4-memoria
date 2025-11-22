@@ -154,6 +154,11 @@ const OrderCard = ({ order, couriers, onAssign }: OrderCardProps) => {
     }
   };
 
+  // Determine VAT indicator style based on VAT rate
+  const vatRate = order.final_vat_rate || 27;
+  const vatClass = vatRate === 5 ? 'vat-low' : 'vat-high';
+  const vatColor = vatRate === 5 ? '#28a745' : '#ffc107'; // green for 5%, yellow for 27%
+
   return (
     <div className="order-card">
       <div className="order-header">
@@ -166,6 +171,22 @@ const OrderCard = ({ order, couriers, onAssign }: OrderCardProps) => {
         </p>
         <p>
           <strong>Összeg:</strong> {order.total_amount?.toFixed(2) || '0.00'} HUF
+        </p>
+        <p>
+          <strong>ÁFA:</strong>{' '}
+          <span
+            className={`vat-indicator ${vatClass}`}
+            style={{
+              backgroundColor: vatColor,
+              color: '#000',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontWeight: 'bold',
+              fontSize: '0.9em',
+            }}
+          >
+            {vatRate}%
+          </span>
         </p>
         {order.notes && (
           <p className="order-notes">
