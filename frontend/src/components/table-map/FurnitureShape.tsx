@@ -1,3 +1,7 @@
+/**
+ * Deprecated: legacy Konva-based renderer kept for reference.
+ * The modern table map now uses Mantine + DOM elements instead of Konva.
+ */
 import { Group, Rect, Circle, Text } from 'react-konva';
 import { useRef, useEffect } from 'react';
 import Konva from 'konva';
