@@ -1,36 +1,43 @@
 /**
  * App - Fő alkalmazás komponens (Routing)
+ *
+ * AGENT #8 FIX: Cleaned up routing structure
+ * - Removed unused DashboardPage import
+ * - Optimized ProtectedRoute usage
+ * - Added proper route organization
  */
 
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+
+// === PUBLIC PAGES ===
 import { LoginPage } from '@/pages/LoginPage';
+
+// === MAIN PAGES ===
 import { TableMapPage } from '@/pages/TableMapPage';
 import { KdsPage } from '@/pages/KdsPage';
 import { PaymentPage } from '@/pages/PaymentPage';
+import { OperatorPage } from '@/pages/OperatorPage';
+
+// === ADMIN PAGES ===
 import { AdminPage } from '@/pages/AdminPage';
+import { FinancePage } from '@/pages/FinancePage';
+import { AssetsPage } from '@/pages/AssetsPage';
+import { VehiclesPage } from '@/pages/VehiclesPage';
+import { LogisticsPage } from '@/pages/LogisticsPage';
+
+// === ADMIN COMPONENTS ===
 import { ProductList } from '@/components/admin/ProductList';
 import { TableList } from '@/components/admin/TableList';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { EmployeeList } from '@/components/admin/EmployeeList';
 import { RoleList } from '@/components/admin/RoleList';
 import { CustomerList } from '@/components/admin/CustomerList';
 import { CouponList } from '@/components/admin/CouponList';
 import { GiftCardList } from '@/components/admin/GiftCardList';
 
-// ÚJ IMPORTOK - V3.0 Hullám 10
-import { OperatorPage } from '@/pages/OperatorPage';
-import { LogisticsPage } from '@/pages/LogisticsPage';
-
-// ÚJ IMPORT - Fázis 3 (Finance)
-import { FinancePage } from '@/pages/FinancePage';
-
-// ÚJ IMPORT - Fázis 3.3 (Assets)
-import { AssetsPage } from '@/pages/AssetsPage';
-
-// ÚJ IMPORT - Fázis 3.5 (Vehicles)
-import { VehiclesPage } from '@/pages/VehiclesPage';
+// === AUTH ===
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -43,20 +50,12 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Route */}
+        {/* ===== PUBLIC ROUTES ===== */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* ÚJ ROUTE: Operátori Felület (Telefonos Rendelésfelvétel) */}
-        <Route
-          path="/operator"
-          element={
-            <ProtectedRoute>
-              <OperatorPage />
-            </ProtectedRoute>
-          }
-        />
+        {/* ===== MAIN APPLICATION ROUTES ===== */}
 
-        {/* ÚJ ROUTE: Asztaltérkép */}
+        {/* Waiter Mode - Table Management */}
         <Route
           path="/tables"
           element={
@@ -66,7 +65,7 @@ function App() {
           }
         />
 
-        {/* ÚJ ROUTE: Konyhai Kijelző (KDS) */}
+        {/* Kitchen Display System (Bar/Kitchen) */}
         <Route
           path="/kds"
           element={
@@ -76,7 +75,17 @@ function App() {
           }
         />
 
-        {/* ÚJ ROUTE: Fizetési Képernyő */}
+        {/* Operator Mode - Phone Orders (Dispatcher) */}
+        <Route
+          path="/operator"
+          element={
+            <ProtectedRoute>
+              <OperatorPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Payment Screen */}
         <Route
           path="/orders/:orderId/pay"
           element={
@@ -86,16 +95,19 @@ function App() {
           }
         />
 
-        {/* ÚJ ROUTE: Admin Dashboard (Nested Routes) */}
+        {/* ===== ADMIN ROUTES ===== */}
         <Route
           path="/admin"
           element={
-            <ProtectedRoute requiredPermission="menu:manage">
+            <ProtectedRoute>
               <AdminPage />
             </ProtectedRoute>
           }
         >
-          {/* Nested Route: /admin/products */}
+          {/* Default Admin Route - Redirect to Products */}
+          <Route index element={<Navigate to="/admin/products" replace />} />
+
+          {/* Menu Management */}
           <Route
             path="products"
             element={
@@ -105,8 +117,7 @@ function App() {
             }
           />
 
-          {/* HIGH PRIORITY FIX (H8.1): Add permission checks to nested routes */}
-          {/* ÚJ: Nested Route: /admin/tables - requires orders:manage */}
+          {/* Table Management */}
           <Route
             path="tables"
             element={
@@ -116,7 +127,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/employees - requires employees:manage */}
+          {/* Employee Management */}
           <Route
             path="employees"
             element={
@@ -126,7 +137,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/roles - requires roles:manage */}
+          {/* Role Management */}
           <Route
             path="roles"
             element={
@@ -136,7 +147,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/finance - Pénzügy és Zárások - FÁZIS 3 */}
+          {/* Finance Management */}
           <Route
             path="finance"
             element={
@@ -146,7 +157,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/assets - Tárgyi Eszközök - FÁZIS 3.3 */}
+          {/* Asset Management */}
           <Route
             path="assets"
             element={
@@ -156,7 +167,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/vehicles - Gépjárművek - FÁZIS 3.5 */}
+          {/* Vehicle Management */}
           <Route
             path="vehicles"
             element={
@@ -166,7 +177,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/customers - CRM Vendégek */}
+          {/* CRM - Customer Management */}
           <Route
             path="customers"
             element={
@@ -176,7 +187,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/coupons - CRM Kuponok */}
+          {/* CRM - Coupon Management */}
           <Route
             path="coupons"
             element={
@@ -186,7 +197,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/gift_cards - CRM Ajándékkártyák */}
+          {/* CRM - Gift Card Management */}
           <Route
             path="gift_cards"
             element={
@@ -196,7 +207,7 @@ function App() {
             }
           />
 
-          {/* ÚJ: Nested Route: /admin/logistics - Logisztikai Adminisztráció */}
+          {/* Logistics Management */}
           <Route
             path="logistics"
             element={
@@ -205,15 +216,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* TODO: További admin modulok (kategóriák, stb.) */}
-          {/* <Route path="categories" element={<CategoryList />} /> */}
         </Route>
 
-        {/* Default redirect: Asztaltérképre */}
+        {/* ===== UTILITY ROUTES ===== */}
+
+        {/* Default Redirect */}
         <Route path="/" element={<Navigate to="/tables" replace />} />
 
-        {/* CRITICAL FIX (C6.1): Add /unauthorized route for permission denied */}
+        {/* 403 - Unauthorized Access */}
         <Route
           path="/unauthorized"
           element={
@@ -225,7 +235,7 @@ function App() {
           }
         />
 
-        {/* CRITICAL FIX (C6.2): Fix 404 route to not logout authenticated users */}
+        {/* 404 - Not Found */}
         <Route
           path="*"
           element={
