@@ -312,9 +312,14 @@ export const AdminFloorPlanPage = () => {
         console.log('🔍 Drag ended, draggedTable:', draggedTable);
         if (draggedTable) {
           try {
+            // Backend néha x,y néven küldi, néha position_x, position_y néven
+            const tableAny = draggedTable as any;
+            const position_x = tableAny.position_x ?? tableAny.x ?? 0;
+            const position_y = tableAny.position_y ?? tableAny.y ?? 0;
+
             const payload = {
-              position_x: draggedTable.position_x,
-              position_y: draggedTable.position_y,
+              position_x,
+              position_y,
               metadata_json: draggedTable.metadata_json,
             };
             console.log('📤 Saving table position:', payload);
