@@ -15,9 +15,22 @@ import { useState, useEffect } from 'react';
 import { getVehicles, deleteVehicle } from '@/services/vehicleService';
 import { VehicleEditor } from './VehicleEditor';
 import type { Vehicle } from '@/types/vehicle';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './VehicleList.css';
 
 export const VehicleList = () => {
+  const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './VehicleList.css';
+
+export const VehicleList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,7 +61,11 @@ export const VehicleList = () => {
       setVehicles(data);
     } catch (error) {
       console.error('Hiba a járművek betöltésekor:', error);
-      alert('Nem sikerült betölteni a járműveket!');
+<<<<<<< HEAD
+      notify.error('Nem sikerült betölteni a járműveket!');
+=======
+      showToast('Nem sikerült betölteni a járműveket!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -56,8 +73,10 @@ export const VehicleList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchVehicles();
-  }, [selectedStatus, selectedFuelType, showOnlyActive]);
+    if (isAuthenticated) {
+      fetchVehicles();
+    }
+  }, [selectedStatus, selectedFuelType, showOnlyActive, isAuthenticated]);
 
   // Új jármű létrehozása
   const handleCreate = () => {
@@ -73,7 +92,7 @@ export const VehicleList = () => {
 
   // Jármű törlése
   const handleDelete = async (vehicle: Vehicle) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a járművet?\n\n${vehicle.brand} ${vehicle.model} (${vehicle.license_plate})`
     );
 
@@ -81,11 +100,19 @@ export const VehicleList = () => {
 
     try {
       await deleteVehicle(vehicle.id);
-      alert('Jármű sikeresen törölve!');
+<<<<<<< HEAD
+      notify.success('Jármű sikeresen törölve!');
       fetchVehicles();
     } catch (error) {
       console.error('Hiba a jármű törlésekor:', error);
-      alert('Nem sikerült törölni a járművet!');
+      notify.error('Nem sikerült törölni a járművet!');
+=======
+      showToast('Jármű sikeresen törölve!', 'success');
+      fetchVehicles();
+    } catch (error) {
+      console.error('Hiba a jármű törlésekor:', error);
+      showToast('Nem sikerült törölni a járművet!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

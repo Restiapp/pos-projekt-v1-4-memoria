@@ -11,7 +11,6 @@ import { KdsPage } from '@/pages/KdsPage';
 import { PaymentPage } from '@/pages/PaymentPage';
 import { AdminPage } from '@/pages/AdminPage';
 import { ProductList } from '@/components/admin/ProductList';
-import { TableList } from '@/components/admin/TableList';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { EmployeeList } from '@/components/admin/EmployeeList';
 import { RoleList } from '@/components/admin/RoleList';
@@ -21,16 +20,31 @@ import { GiftCardList } from '@/components/admin/GiftCardList';
 
 // ÚJ IMPORTOK - V3.0 Hullám 10
 import { OperatorPage } from '@/pages/OperatorPage';
+import { OrderPage } from '@/pages/OrderPage';
 import { LogisticsPage } from '@/pages/LogisticsPage';
 
 // ÚJ IMPORT - Fázis 3 (Finance)
 import { FinancePage } from '@/pages/FinancePage';
-
 // ÚJ IMPORT - Fázis 3.3 (Assets)
 import { AssetsPage } from '@/pages/AssetsPage';
 
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
+
+<<<<<<< HEAD
+// ÚJ IMPORT - Dashboard Analytics (Reports)
+import { ReportsPage } from '@/pages/ReportsPage';
+
+// ÚJ IMPORT - Fázis 4 (Inventory)
+import { InventoryPage } from '@/pages/InventoryPage';
+
+// DEBUG
+import { DebugAuthPage } from '@/pages/DebugAuthPage';
+=======
+// Toast and ConfirmDialog Providers
+import { ToastProvider } from '@/components/common/Toast';
+import { ConfirmProvider } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -41,10 +55,13 @@ function App() {
   }, [loadUserFromStorage]);
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <ToastProvider>
+      <ConfirmProvider>
+        <BrowserRouter>
+          <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/debug-auth" element={<DebugAuthPage />} />
 
         {/* ÚJ ROUTE: Operátori Felület (Telefonos Rendelésfelvétel) */}
         <Route
@@ -86,6 +103,24 @@ function App() {
           }
         />
 
+        {/* ÚJ ROUTE: Rendelésfelvétel (GlobalHeader "Rendelés" gomb) */}
+        <Route
+          path="/orders/new"
+          element={
+            <ProtectedRoute>
+              <OrderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/floor-plan"
+          element={
+            <ProtectedRoute>
+              <TableMapPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* ÚJ ROUTE: Admin Dashboard (Nested Routes) */}
         <Route
           path="/admin"
@@ -106,12 +141,12 @@ function App() {
           />
 
           {/* HIGH PRIORITY FIX (H8.1): Add permission checks to nested routes */}
-          {/* ÚJ: Nested Route: /admin/tables - requires orders:manage */}
+          {/* ÚJ: Nested Route: /admin/tables - Visual Floor Plan Editor */}
           <Route
             path="tables"
             element={
               <ProtectedRoute requiredPermission="orders:manage">
-                <TableList />
+                <TableMapPage />
               </ProtectedRoute>
             }
           />
@@ -166,6 +201,16 @@ function App() {
             }
           />
 
+          {/* ÚJ: Nested Route: /admin/reports - Dashboard Analytics */}
+          <Route
+            path="reports"
+            element={
+              <ProtectedRoute requiredPermission="reports:view">
+                <ReportsPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* ÚJ: Nested Route: /admin/customers - CRM Vendégek */}
           <Route
             path="customers"
@@ -206,6 +251,16 @@ function App() {
             }
           />
 
+          {/* ÚJ: Nested Route: /admin/inventory - Raktárkezelés - FÁZIS 4 */}
+          <Route
+            path="inventory"
+            element={
+              <ProtectedRoute requiredPermission="inventory:manage">
+                <InventoryPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* TODO: További admin modulok (kategóriák, stb.) */}
           {/* <Route path="categories" element={<CategoryList />} /> */}
         </Route>
@@ -236,8 +291,10 @@ function App() {
             </div>
           }
         />
-      </Routes>
-    </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </ConfirmProvider>
+    </ToastProvider>
   );
 }
 

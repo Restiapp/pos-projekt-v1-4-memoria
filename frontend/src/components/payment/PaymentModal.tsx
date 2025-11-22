@@ -22,6 +22,13 @@ import {
   closeOrder,
   getPaymentsForOrder,
 } from '@/services/paymentService';
+<<<<<<< HEAD
+import { validateCoupon } from '@/services/crmService';
+import type { CouponValidationResponse } from '@/types/coupon';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './PaymentModal.css';
 
 interface PaymentModalProps {
@@ -35,15 +42,26 @@ export const PaymentModal = ({
   onClose,
   onPaymentSuccess,
 }: PaymentModalProps) => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
   const [splitCheck, setSplitCheck] = useState<SplitCheckResponse | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Kupon kezelés
+  const [showCouponModal, setShowCouponModal] = useState(false);
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResponse | null>(null);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
+
   // Összes fizetés összege
   const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
-  // Hátralévő összeg
-  const remainingAmount = (order.total_amount || 0) - totalPaid;
+  // Kupon kedvezmény (ha van alkalmazva)
+  const discountAmount = appliedCoupon?.valid && appliedCoupon.discount_amount ? appliedCoupon.discount_amount : 0;
+  // Hátralévő összeg (kedvezménnyel)
+  const remainingAmount = Math.max(0, (order.total_amount || 0) - totalPaid - discountAmount);
   // Teljesen kifizetve?
   const isFullyPaid = remainingAmount <= 0;
 
@@ -60,7 +78,7 @@ export const PaymentModal = ({
         setPayments(paymentsData);
       } catch (error) {
         console.error('Error loading payment data:', error);
-        alert('Hiba történt az adatok betöltése közben!');
+        showToast('Hiba történt az adatok betöltése közben!', 'error');
       } finally {
         setIsLoading(false);
       }
@@ -80,12 +98,12 @@ export const PaymentModal = ({
         amount,
       });
       setPayments((prev) => [...prev, payment]);
-      alert(`Fizetés rögzítve: ${amount} HUF (${method})`);
+      showToast(`Fizetés rögzítve: ${amount} HUF (${method})`, 'success');
     } catch (error: any) {
       console.error('Payment recording failed:', error);
       const errorMsg =
         error.response?.data?.detail || 'Hiba történt a fizetés rögzítése közben!';
-      alert(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setIsProcessing(false);
     }
@@ -95,11 +113,11 @@ export const PaymentModal = ({
   const handleCloseOrder = async () => {
     if (isProcessing) return;
     if (!isFullyPaid) {
-      alert('A rendelés még nincs teljesen kifizetve!');
+      showToast('A rendelés még nincs teljesen kifizetve!', 'error');
       return;
     }
 
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       'Biztos, hogy lezárod a rendelést? Ez a művelet nem visszavonható.'
     );
     if (!confirmed) return;
@@ -107,17 +125,58 @@ export const PaymentModal = ({
     try {
       setIsProcessing(true);
       await closeOrder(order.id);
-      alert('Rendelés sikeresen lezárva!');
+      showToast('Rendelés sikeresen lezárva!', 'success');
       onPaymentSuccess();
       onClose();
     } catch (error: any) {
       console.error('Order close failed:', error);
       const errorMsg =
         error.response?.data?.detail || 'Hiba történt a rendelés lezárása közben!';
-      alert(errorMsg);
+      showToast(errorMsg, 'error');
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  // Kupon validálása
+  const handleValidateCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('Kérjük, adjon meg egy kuponkódot!');
+      return;
+    }
+
+    try {
+      setIsValidatingCoupon(true);
+      setCouponError(null);
+
+      const validationResult = await validateCoupon({
+        code: couponCode.trim(),
+        order_amount: order.total_amount || 0,
+        customer_id: order.customer_id, // Ha van customer_id a rendelésben
+      });
+
+      if (validationResult.valid) {
+        setAppliedCoupon(validationResult);
+        setShowCouponModal(false);
+        setCouponCode('');
+        alert(`✅ Kupon sikeresen alkalmazva! Kedvezmény: ${validationResult.discount_amount?.toFixed(2)} HUF`);
+      } else {
+        setCouponError(validationResult.message || 'Érvénytelen kuponkód!');
+      }
+    } catch (error: any) {
+      console.error('Coupon validation failed:', error);
+      const errorMsg = error.response?.data?.detail || 'Hiba történt a kupon ellenőrzése közben!';
+      setCouponError(errorMsg);
+    } finally {
+      setIsValidatingCoupon(false);
+    }
+  };
+
+  // Kupon eltávolítása
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError(null);
   };
 
   // Fizetési mód gombok
@@ -154,6 +213,21 @@ export const PaymentModal = ({
                 <span>Befizetett összeg:</span>
                 <strong>{totalPaid.toFixed(2)} HUF</strong>
               </div>
+              {appliedCoupon && appliedCoupon.valid && (
+                <div className="summary-row discount">
+                  <span>🎫 Kupon kedvezmény:</span>
+                  <strong className="discount-amount">
+                    -{discountAmount.toFixed(2)} HUF
+                  </strong>
+                  <button
+                    onClick={handleRemoveCoupon}
+                    className="remove-coupon-btn"
+                    title="Kupon eltávolítása"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
               <div className={`summary-row remaining ${isFullyPaid ? 'completed' : ''}`}>
                 <span>Hátralévő összeg:</span>
                 <strong>
@@ -202,6 +276,16 @@ export const PaymentModal = ({
                     <span className="label">{label}</span>
                   </button>
                 ))}
+                {/* Kupon gomb */}
+                <button
+                  onClick={() => setShowCouponModal(true)}
+                  disabled={isProcessing || appliedCoupon !== null}
+                  className="payment-method-btn coupon-btn"
+                  title={appliedCoupon ? 'Kupon már alkalmazva' : 'Kupon beváltása'}
+                >
+                  <span className="icon">🎫</span>
+                  <span className="label">Kupon</span>
+                </button>
               </div>
             </div>
 
@@ -234,6 +318,55 @@ export const PaymentModal = ({
               </button>
             </div>
           </>
+        )}
+
+        {/* Kupon Modal */}
+        {showCouponModal && (
+          <div className="coupon-modal-overlay" onClick={() => setShowCouponModal(false)}>
+            <div className="coupon-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="coupon-modal-header">
+                <h3>🎫 Kupon beváltása</h3>
+                <button onClick={() => setShowCouponModal(false)} className="close-btn">
+                  ✕
+                </button>
+              </div>
+              <div className="coupon-modal-body">
+                <label htmlFor="coupon-code">Kuponkód:</label>
+                <input
+                  id="coupon-code"
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="pl. WELCOME10"
+                  maxLength={50}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleValidateCoupon();
+                    }
+                  }}
+                />
+                {couponError && (
+                  <div className="coupon-error">❌ {couponError}</div>
+                )}
+              </div>
+              <div className="coupon-modal-footer">
+                <button
+                  onClick={() => setShowCouponModal(false)}
+                  className="cancel-btn"
+                  disabled={isValidatingCoupon}
+                >
+                  Mégse
+                </button>
+                <button
+                  onClick={handleValidateCoupon}
+                  className="apply-coupon-btn"
+                  disabled={isValidatingCoupon || !couponCode.trim()}
+                >
+                  {isValidatingCoupon ? 'Ellenőrzés...' : 'Alkalmazás'}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

@@ -12,6 +12,12 @@ import { useState } from 'react';
 import { createCoupon, updateCoupon } from '@/services/crmService';
 import type { Coupon, CouponCreate, CouponUpdate } from '@/types/coupon';
 import { DiscountTypeEnum } from '@/types/coupon';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './CouponEditor.css';
 
 interface CouponEditorProps {
@@ -21,6 +27,8 @@ interface CouponEditorProps {
 
 export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
   const isEditing = !!coupon; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -38,6 +46,15 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Kuponkód generálása
+  const generateCouponCode = () => {
+    const prefix = 'COUPON';
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const code = `${prefix}-${randomPart}-${timestamp}`;
+    setFormData((prev) => ({ ...prev, code }));
+  };
 
   // Form mező változás
   const handleChange = (
@@ -72,12 +89,20 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
 
     // Validáció
     if (!formData.code.trim()) {
-      alert('A kuponkód kötelező!');
+<<<<<<< HEAD
+      notify.warning('A kuponkód kötelező!');
+=======
+      showToast('A kuponkód kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (formData.discount_value <= 0) {
-      alert('A kedvezmény értéke nagyobb kell legyen nullánál!');
+<<<<<<< HEAD
+      notify.warning('A kedvezmény értéke nagyobb kell legyen nullánál!');
+=======
+      showToast('A kedvezmény értéke nagyobb kell legyen nullánál!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -85,7 +110,11 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
       formData.discount_type === DiscountTypeEnum.PERCENTAGE &&
       formData.discount_value > 100
     ) {
-      alert('A százalékos kedvezmény nem lehet nagyobb 100%-nál!');
+<<<<<<< HEAD
+      notify.warning('A százalékos kedvezmény nem lehet nagyobb 100%-nál!');
+=======
+      showToast('A százalékos kedvezmény nem lehet nagyobb 100%-nál!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -105,7 +134,11 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           is_active: formData.is_active,
         };
         await updateCoupon(coupon.id, updateData);
-        alert('Kupon sikeresen frissítve!');
+<<<<<<< HEAD
+        notify.success('Kupon sikeresen frissítve!');
+=======
+        showToast('Kupon sikeresen frissítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: CouponCreate = {
@@ -120,7 +153,11 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
           is_active: formData.is_active,
         };
         await createCoupon(createData);
-        alert('Kupon sikeresen létrehozva!');
+<<<<<<< HEAD
+        notify.success('Kupon sikeresen létrehozva!');
+=======
+        showToast('Kupon sikeresen létrehozva!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -128,7 +165,11 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
       console.error('Hiba a kupon mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a kupont!';
-      alert(errorMessage);
+<<<<<<< HEAD
+      notify.error(errorMessage);
+=======
+      showToast(errorMessage, 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }
@@ -157,18 +198,30 @@ export const CouponEditor = ({ coupon, onClose }: CouponEditorProps) => {
             <label htmlFor="code">
               Kuponkód <span className="required">*</span>
             </label>
-            <input
-              id="code"
-              name="code"
-              type="text"
-              value={formData.code}
-              onChange={handleChange}
-              placeholder="pl. WELCOME10, SUMMER2024"
-              required
-              maxLength={50}
-              disabled={isEditing} // Szerkesztésnél nem lehet változtatni
-              className={isEditing ? 'readonly-input' : ''}
-            />
+            <div className="code-input-row">
+              <input
+                id="code"
+                name="code"
+                type="text"
+                value={formData.code}
+                onChange={handleChange}
+                placeholder="pl. WELCOME10, SUMMER2024"
+                required
+                maxLength={50}
+                disabled={isEditing} // Szerkesztésnél nem lehet változtatni
+                className={isEditing ? 'readonly-input' : ''}
+              />
+              {!isEditing && (
+                <button
+                  type="button"
+                  onClick={generateCouponCode}
+                  className="generate-code-btn"
+                  title="Automatikus kódgenerálás"
+                >
+                  🎲 Generálás
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Leírás */}

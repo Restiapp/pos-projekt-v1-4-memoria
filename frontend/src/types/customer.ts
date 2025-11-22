@@ -16,10 +16,12 @@ export interface Customer {
   sms_consent: boolean;
   birth_date?: string; // ISO datetime string
   notes?: string;
+  tags?: string[]; // Customer tags (e.g., ["VIP", "Vegetarian"])
   loyalty_points: number; // Decimal (2 places)
   total_spent: number; // Decimal (2 places) - HUF
   total_orders: number;
   is_active: boolean;
+  last_visit?: string; // ISO datetime string
   created_at: string; // ISO datetime string
   updated_at: string; // ISO datetime string
 }
@@ -33,6 +35,7 @@ export interface CustomerCreate {
   sms_consent: boolean;
   birth_date?: string; // ISO datetime string
   notes?: string;
+  tags?: string[]; // Customer tags
 }
 
 export interface CustomerUpdate {
@@ -44,6 +47,7 @@ export interface CustomerUpdate {
   sms_consent?: boolean;
   birth_date?: string; // ISO datetime string
   notes?: string;
+  tags?: string[]; // Customer tags
   is_active?: boolean;
 }
 

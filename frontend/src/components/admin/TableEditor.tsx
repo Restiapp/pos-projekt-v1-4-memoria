@@ -11,6 +11,12 @@
 import { useState } from 'react';
 import { createTable, updateTable } from '@/services/tableService';
 import type { Table, TableCreate, TableUpdate } from '@/types/table';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './TableEditor.css';
 
 interface TableEditorProps {
@@ -20,6 +26,8 @@ interface TableEditorProps {
 
 export const TableEditor = ({ table, onClose }: TableEditorProps) => {
   const isEditing = !!table; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -54,7 +62,11 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
 
     // Validáció
     if (!formData.table_number.trim()) {
-      alert('Az asztalszám kötelező!');
+<<<<<<< HEAD
+      notify.warning('Az asztalszám kötelező!');
+=======
+      showToast('Az asztalszám kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -70,7 +82,11 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
           capacity: formData.capacity === '' ? null : Number(formData.capacity),
         };
         await updateTable(table.id, updateData);
-        alert('Asztal sikeresen frissítve!');
+<<<<<<< HEAD
+        notify.success('Asztal sikeresen frissítve!');
+=======
+        showToast('Asztal sikeresen frissítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: TableCreate = {
@@ -80,7 +96,11 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
           capacity: formData.capacity === '' ? null : Number(formData.capacity),
         };
         await createTable(createData);
-        alert('Asztal sikeresen létrehozva!');
+<<<<<<< HEAD
+        notify.success('Asztal sikeresen létrehozva!');
+=======
+        showToast('Asztal sikeresen létrehozva!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -88,7 +108,11 @@ export const TableEditor = ({ table, onClose }: TableEditorProps) => {
       console.error('Hiba az asztal mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni az asztalt!';
-      alert(errorMessage);
+<<<<<<< HEAD
+      notify.error(errorMessage);
+=======
+      showToast(errorMessage, 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }

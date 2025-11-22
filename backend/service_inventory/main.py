@@ -23,8 +23,12 @@ from backend.service_inventory.routers import (
     invoice_router,
     recipes_router,
     daily_inventory_router,
+    waste_router,
     internal_router,
     osa_router,
+    incoming_invoices_router,
+    waste_router,
+    stock_movements_router,
 )
 
 # Create FastAPI application
@@ -111,6 +115,14 @@ app.include_router(
     dependencies=[Depends(require_permission("inventory:manage"))]
 )
 
+# Waste Logging Router (with RBAC)
+app.include_router(
+    waste_router,
+    prefix="/api/v1",
+    tags=["Waste Logging"],
+    dependencies=[Depends(require_permission("inventory:manage"))]
+)
+
 # V3.0/F3.A - NAV OSA Integration Router (with RBAC)
 app.include_router(
     osa_router,
@@ -125,6 +137,18 @@ app.include_router(
     prefix="/api/v1/inventory",
     tags=["Internal API"]
 )
+
+# C-INV - Incoming Invoices Router (Procurement/Purchasing)
+# Note: The router already has /api/v1/inventory/invoices prefix and RBAC
+app.include_router(incoming_invoices_router)
+
+# C-INV - Waste Management Router
+# Note: The router already has /api/v1/inventory/waste prefix and RBAC
+app.include_router(waste_router)
+
+# C-INV - Stock Movements Router (Audit Trail)
+# Note: The router already has /api/v1/inventory/stock-movements prefix and RBAC
+app.include_router(stock_movements_router)
 
 
 # Root endpoint

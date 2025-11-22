@@ -18,9 +18,22 @@ import {
 } from '@/services/assetService';
 import { AssetServiceEditor } from './AssetServiceEditor';
 import type { AssetService, Asset } from '@/types/asset';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './AssetServiceList.css';
 
 export const AssetServiceList = () => {
+  const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './AssetServiceList.css';
+
+export const AssetServiceList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [services, setServices] = useState<AssetService[]>([]);
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -60,7 +73,11 @@ export const AssetServiceList = () => {
       setServices(data);
     } catch (error) {
       console.error('Hiba a szerviz bejegyzések betöltésekor:', error);
-      alert('Nem sikerült betölteni a szerviz bejegyzéseket!');
+<<<<<<< HEAD
+      notify.error('Nem sikerült betölteni a szerviz bejegyzéseket!');
+=======
+      showToast('Nem sikerült betölteni a szerviz bejegyzéseket!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -68,12 +85,16 @@ export const AssetServiceList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchAssets();
-  }, []);
+    if (isAuthenticated) {
+      fetchAssets();
+    }
+  }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchServices();
-  }, [selectedAssetId, selectedServiceType]);
+    if (isAuthenticated) {
+      fetchServices();
+    }
+  }, [selectedAssetId, selectedServiceType, isAuthenticated]);
 
   // Új szerviz bejegyzés létrehozása
   const handleCreate = () => {
@@ -90,7 +111,7 @@ export const AssetServiceList = () => {
   // Szerviz bejegyzés törlése
   const handleDelete = async (service: AssetService) => {
     const asset = assets.find((a) => a.id === service.asset_id);
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a szerviz bejegyzést?\n\nEszköz: ${asset?.name || 'Ismeretlen'}\nTípus: ${getServiceTypeLabel(service.service_type)}\nDátum: ${new Date(service.service_date).toLocaleDateString('hu-HU')}`
     );
 
@@ -98,11 +119,19 @@ export const AssetServiceList = () => {
 
     try {
       await deleteAssetService(service.id);
-      alert('Szerviz bejegyzés sikeresen törölve!');
+<<<<<<< HEAD
+      notify.success('Szerviz bejegyzés sikeresen törölve!');
       fetchServices();
     } catch (error) {
       console.error('Hiba a szerviz bejegyzés törlésekor:', error);
-      alert('Nem sikerült törölni a szerviz bejegyzést!');
+      notify.error('Nem sikerült törölni a szerviz bejegyzést!');
+=======
+      showToast('Szerviz bejegyzés sikeresen törölve!', 'success');
+      fetchServices();
+    } catch (error) {
+      console.error('Hiba a szerviz bejegyzés törlésekor:', error);
+      showToast('Nem sikerült törölni a szerviz bejegyzést!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

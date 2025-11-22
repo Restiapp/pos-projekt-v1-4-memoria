@@ -7,10 +7,9 @@ Minden NTAK adatküldés, sztornó, és kritikus rendszeresemény naplózása.
 """
 
 from sqlalchemy import Column, Integer, String, Text, TIMESTAMP, Index
-from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.sql import func
 
-from backend.service_admin.models.database import Base
+from backend.service_admin.models.database import Base, CompatibleJSON
 
 
 class AuditLog(Base):
@@ -45,9 +44,10 @@ class AuditLog(Base):
     # Rövid leírás
     message = Column(Text, nullable=True)
 
-    # Részletes adatok JSONB formátumban
+    # Részletes adatok JSON formátumban
     # Pl. NTAK válasz, request payload, error details
-    details = Column(JSONB, nullable=True)
+    # PostgreSQL: JSONB, SQLite: TEXT with JSON serialization
+    details = Column(CompatibleJSON, nullable=True)
 
     # Hálózati információk
     ip_address = Column(String(45), nullable=True)  # IPv6 support (45 chars)

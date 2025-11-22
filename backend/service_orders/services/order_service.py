@@ -697,3 +697,109 @@ class OrderService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Hiba a rendelés típusának módosítása során: {str(e)}"
             )
+
+    @staticmethod
+    def assign_courier(
+        db: Session,
+        order_id: int,
+        courier_id: int
+    ) -> Order:
+        """
+        Futár hozzárendelése egy rendeléshez.
+
+        Ez a funkció lehetővé teszi egy futár hozzárendelését egy rendeléshez,
+        és értesíti a service_logistics-t, hogy a futár státusza ON_DELIVERY legyen.
+
+        V3.0 / LOGISTICS-FIX: Courier Assignment funkció
+
+        Args:
+            db: SQLAlchemy session
+            order_id: A rendelés azonosítója
+            courier_id: A futár azonosítója (service_logistics)
+
+        Returns:
+            Order: A módosított rendelés futár hozzárendeléssel
+
+        Raises:
+            HTTPException 404: Ha a rendelés nem található
+            HTTPException 400: Ha a futár hozzárendelés sikertelen
+
+        Example:
+            >>> order = OrderService.assign_courier(
+            ...     db,
+            ...     order_id=42,
+            ...     courier_id=5
+            ... )
+            >>> print(f"Futár {order.courier_id} hozzárendelve a rendeléshez {order.id}")
+        """
+        # Rendelés lekérdezése
+        order = OrderService.get_order(db, order_id)
+
+        # Ellenőrzés: csak kiszállítási rendelésekhez lehet futárt rendelni
+        if order.order_type != "Kiszállítás":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Csak 'Kiszállítás' típusú rendelésekhez lehet futárt rendelni. "
+                       f"Jelenlegi típus: {order.order_type}"
+            )
+
+        try:
+            # Futár státusz frissítése a service_logistics-on keresztül
+            try:
+                logger.info(
+                    f"Updating courier status for courier {courier_id} to ON_DELIVERY"
+                )
+
+                with httpx.Client() as client:
+                    # PATCH /api/v1/couriers/{courier_id}/status?new_status=on_delivery
+                    logistics_url = f"{settings.logistics_service_url}/couriers/{courier_id}/status"
+                    params = {"new_status": "on_delivery"}
+                    response = client.patch(logistics_url, params=params, timeout=5.0)
+
+                    if response.status_code == 200:
+                        logger.info(
+                            f"Courier {courier_id} status updated to ON_DELIVERY successfully"
+                        )
+                    else:
+                        logger.warning(
+                            f"Failed to update courier status: HTTP {response.status_code}. "
+                            f"Proceeding with assignment anyway."
+                        )
+            except httpx.HTTPError as e:
+                # Graceful failure: log but don't block courier assignment
+                logger.warning(f"Failed to update courier status for courier {courier_id}: {str(e)}")
+
+            # Rendelés futár hozzárendelése
+            order.courier_id = courier_id
+
+            # NTAK adatok frissítése (audit trail)
+            if order.ntak_data is None:
+                order.ntak_data = {}
+
+            order.ntak_data["courier_assignment"] = {
+                "courier_id": courier_id,
+                "assigned_at": datetime.now().isoformat()
+            }
+
+            # Notes mező frissítése
+            current_notes = order.notes or ""
+            order.notes = f"{current_notes}\n[Futár hozzárendelve] Futár ID: {courier_id}".strip()
+
+            db.commit()
+            db.refresh(order)
+
+            logger.info(
+                f"Courier assigned successfully: order_id={order_id}, courier_id={courier_id}"
+            )
+
+            return order
+
+        except HTTPException:
+            # HTTPException-öket tovább dobni
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Hiba a futár hozzárendelése során: {str(e)}"
+            )

@@ -8,11 +8,13 @@ Ez a service felelős a pénzügyi műveletek kezeléséért:
 - Pénzmozgások nyomon követése
 """
 
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime, date
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import desc, and_, func
+import httpx
+import logging
 
 from backend.service_admin.models.finance import (
     CashMovement,
@@ -20,6 +22,10 @@ from backend.service_admin.models.finance import (
     DailyClosure,
     ClosureStatus
 )
+from backend.service_admin.config import settings
+
+# Logger inicializálás
+logger = logging.getLogger(__name__)
 
 
 class FinanceService:
@@ -230,15 +236,20 @@ class FinanceService:
         self,
         opening_balance: Decimal,
         closed_by_employee_id: Optional[int] = None,
-        notes: Optional[str] = None
+        notes: Optional[str] = None,
+        closure_date: Optional[datetime] = None
     ) -> DailyClosure:
         """
         Napi pénztárzárás létrehozása.
+
+        Automatikusan aggregálja a lezárt rendelésekből a bevételeket
+        fizetési módok szerint (KESZPENZ, KARTYA, SZEP_KARTYA).
 
         Args:
             opening_balance: Nyitó egyenleg
             closed_by_employee_id: Munkatárs aki a zárást végrehajtja
             notes: Megjegyzések
+            closure_date: Zárás dátuma (opcionális, default: most)
 
         Returns:
             DailyClosure: Létrehozott napi zárás rekord
@@ -247,7 +258,8 @@ class FinanceService:
             ValueError: Ha már van nyitott zárás a mai napra
         """
         # Ellenőrizzük hogy van-e már nyitott zárás ma
-        today = datetime.now().date()
+        target_date = closure_date or datetime.now()
+        today = target_date.date()
         existing_closure = self.db.query(DailyClosure).filter(
             and_(
                 func.date(DailyClosure.closure_date) == today,
@@ -258,10 +270,18 @@ class FinanceService:
         if existing_closure:
             raise ValueError("Már van nyitott pénztárzárás a mai napra")
 
+        # Aggregáljuk a bevételeket fizetési módok szerint
+        # FONTOS: Csak LEZART státuszú rendelésekből és SIKERES fizetésekből számolunk
+        revenue_data = self._aggregate_daily_revenue(today)
+
         closure = DailyClosure(
-            closure_date=datetime.now(),
+            closure_date=target_date,
             status=ClosureStatus.OPEN,
             opening_balance=opening_balance,
+            total_cash=revenue_data['total_cash'],
+            total_card=revenue_data['total_card'],
+            total_szep_card=revenue_data['total_szep_card'],
+            total_revenue=revenue_data['total_revenue'],
             notes=notes,
             closed_by_employee_id=closed_by_employee_id
         )
@@ -271,6 +291,73 @@ class FinanceService:
         self.db.refresh(closure)
 
         return closure
+
+    def _aggregate_daily_revenue(self, target_date: date) -> dict:
+        """
+        Aggregálja a napi bevételeket fizetési módok szerint.
+
+        Csak LEZART státuszú rendelésekből és SIKERES fizetésekből számol.
+
+        Args:
+            target_date: Cél dátum amihez a bevételeket aggregáljuk
+
+        Returns:
+            dict: Bevételek fizetési módok szerint
+                {
+                    'total_cash': Decimal,
+                    'total_card': Decimal,
+                    'total_szep_card': Decimal,
+                    'total_revenue': Decimal
+                }
+        """
+        from backend.service_orders.models.order import Order
+        from backend.service_orders.models.payment import Payment
+
+        # Lekérdezzük a mai napi LEZART rendeléseket
+        start_of_day = datetime.combine(target_date, datetime.min.time())
+        end_of_day = datetime.combine(target_date, datetime.max.time())
+
+        # Összesítjük a fizetéseket típus szerint
+        # CSAK LEZART rendelésekből és SIKERES fizetésekből
+        payment_query = self.db.query(
+            Payment.payment_method,
+            func.sum(Payment.amount).label('total')
+        ).join(
+            Order, Payment.order_id == Order.id
+        ).filter(
+            and_(
+                Order.status == 'LEZART',
+                Payment.status == 'SIKERES',
+                Order.created_at >= start_of_day,
+                Order.created_at <= end_of_day
+            )
+        ).group_by(Payment.payment_method)
+
+        payment_results = payment_query.all()
+
+        # Inicializáljuk az összegeket nullára
+        total_cash = Decimal('0.00')
+        total_card = Decimal('0.00')
+        total_szep_card = Decimal('0.00')
+
+        # Osztályozzuk a fizetéseket
+        for payment_method, total in payment_results:
+            if payment_method == 'KESZPENZ':
+                total_cash += total
+            elif payment_method == 'KARTYA':
+                total_card += total
+            elif payment_method == 'SZEP_KARTYA':
+                total_szep_card += total
+
+        # Összes bevétel
+        total_revenue = total_cash + total_card + total_szep_card
+
+        return {
+            'total_cash': total_cash,
+            'total_card': total_card,
+            'total_szep_card': total_szep_card,
+            'total_revenue': total_revenue
+        }
 
     def close_daily_closure(
         self,
@@ -311,10 +398,14 @@ class FinanceService:
 
         expected_closing_balance = closure.opening_balance + movements_sum
 
+        # Fizetési módok szerinti összegzés lekérése a service_orders-től
+        payment_summary = self._fetch_payment_summary(closure.closure_date)
+
         # Frissítjük a zárást
         closure.expected_closing_balance = expected_closing_balance
         closure.actual_closing_balance = actual_closing_balance
         closure.difference = actual_closing_balance - expected_closing_balance
+        closure.payment_summary = payment_summary  # Fizetési módok szerinti bontás
         closure.status = ClosureStatus.CLOSED
         closure.closed_at = datetime.now()
 
@@ -330,6 +421,45 @@ class FinanceService:
         self.db.refresh(closure)
 
         return closure
+
+    def _fetch_payment_summary(self, closure_date: datetime) -> Optional[Dict[str, float]]:
+        """
+        Fizetési módok szerinti összegzés lekérése a service_orders-től.
+
+        Args:
+            closure_date: A zárás dátuma
+
+        Returns:
+            Optional[Dict[str, float]]: Fizetési módok szerinti összegzés vagy None hiba esetén
+        """
+        try:
+            # Dátum konvertálása ISO formátumra (YYYY-MM-DD)
+            target_date = closure_date.date().isoformat()
+
+            # HTTP kérés a service_orders felé
+            url = f"{settings.orders_service_url}/api/v1/reports/daily-payments"
+            params = {"target_date": target_date}
+
+            with httpx.Client(timeout=10.0) as client:
+                response = client.get(url, params=params)
+                response.raise_for_status()  # Raise exception for 4xx/5xx responses
+
+            payment_summary = response.json()
+            logger.info(f"Fizetési összegzés sikeresen lekérve: {payment_summary}")
+
+            return payment_summary
+
+        except httpx.HTTPStatusError as e:
+            logger.error(
+                f"HTTP hiba a fizetési összegzés lekérésekor: {e.response.status_code} - {e.response.text}"
+            )
+            return None
+        except httpx.RequestError as e:
+            logger.error(f"Hálózati hiba a fizetési összegzés lekérésekor: {str(e)}")
+            return None
+        except Exception as e:
+            logger.error(f"Váratlan hiba a fizetési összegzés lekérésekor: {str(e)}")
+            return None
 
     def get_daily_closures(
         self,
@@ -380,6 +510,20 @@ class FinanceService:
         """
         return self.db.query(DailyClosure).filter(
             DailyClosure.id == closure_id
+        ).first()
+
+    def get_daily_closure_by_date(self, target_date: date) -> Optional[DailyClosure]:
+        """
+        Napi zárás lekérdezése dátum alapján.
+
+        Args:
+            target_date: Cél dátum
+
+        Returns:
+            Optional[DailyClosure]: Napi zárás vagy None
+        """
+        return self.db.query(DailyClosure).filter(
+            func.date(DailyClosure.closure_date) == target_date
         ).first()
 
     def get_current_open_closure(self) -> Optional[DailyClosure]:

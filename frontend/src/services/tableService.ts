@@ -11,7 +11,7 @@
  */
 
 import apiClient from './api';
-import type { Table, Seat, TableCreate, TableUpdate } from '@/types/table';
+import type { Table, Seat, TableCreate, TableUpdate, Room } from '@/types/table';
 
 interface TableListResponse {
   items: Table[];
@@ -19,6 +19,53 @@ interface TableListResponse {
   page: number;
   page_size: number;
 }
+
+// =====================================================
+// ROOM MŰVELETEK
+// =====================================================
+
+export const getRooms = async (): Promise<Room[]> => {
+  try {
+    const response = await apiClient.get<Room[]>('/api/rooms');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching rooms:', error);
+    throw error;
+  }
+};
+
+export const createRoom = async (roomData: Omit<Room, 'id'>): Promise<Room> => {
+  try {
+    const response = await apiClient.post<Room>('/api/rooms', roomData);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating room:', error);
+    throw error;
+  }
+};
+
+export const updateRoom = async (id: number, roomData: Partial<Omit<Room, 'id'>>): Promise<Room> => {
+  try {
+    const response = await apiClient.put<Room>(`/api/rooms/${id}`, roomData);
+    return response.data;
+  } catch (error) {
+    console.error(`Error updating room ${id}:`, error);
+    throw error;
+  }
+};
+
+export const deleteRoom = async (id: number): Promise<void> => {
+  try {
+    await apiClient.delete(`/api/rooms/${id}`);
+  } catch (error) {
+    console.error(`Error deleting room ${id}:`, error);
+    throw error;
+  }
+};
+
+// =====================================================
+// TABLE MŰVELETEK
+// =====================================================
 
 /**
  * Összes asztal lekérése

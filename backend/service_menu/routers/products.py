@@ -16,11 +16,16 @@ from sqlalchemy.orm import Session
 from backend.service_menu.database import get_db_connection
 from backend.service_menu.services.product_service import ProductService
 from backend.service_menu.services.translation_service import TranslationService
+from backend.service_menu.services.allergen_service import AllergenService
 from backend.service_menu.schemas.product import (
     ProductCreate,
     ProductUpdate,
     ProductResponse,
     ProductListResponse
+)
+from backend.service_menu.schemas.allergen import (
+    ProductAllergenAssignment,
+    AllergenResponse
 )
 
 
@@ -342,6 +347,56 @@ def update_product(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while updating the product: {str(e)}"
         )
+
+
+@router.post(
+    "/{product_id}/allergens",
+    response_model=list[AllergenResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Assign allergens to product",
+    description="""
+    Assign allergens to a product.
+
+    This endpoint replaces all existing allergen assignments with the new list.
+    To remove all allergens, send an empty list.
+
+    **Path Parameters:**
+    - `product_id`: Unique product identifier (integer)
+
+    **Request Body:**
+    - `allergen_ids`: List of allergen IDs to assign to the product
+
+    **Returns:**
+    - 200: List of assigned allergens
+    - 404: Product or one of the allergens not found
+    - 400: Invalid request data
+    """
+)
+def assign_allergens_to_product(
+    product_id: int,
+    assignment: ProductAllergenAssignment,
+    db: Session = Depends(get_db_connection)
+):
+    """
+    Allergének hozzárendelése termékhez.
+
+    Args:
+        product_id: Product unique identifier
+        assignment: ProductAllergenAssignment with allergen IDs
+        db: Database session (injected)
+
+    Returns:
+        list[AllergenResponse]: List of assigned allergens
+
+    Raises:
+        HTTPException 404: If product or allergen not found
+        HTTPException 400: If validation fails
+    """
+    return AllergenService.assign_allergens_to_product(
+        db=db,
+        product_id=product_id,
+        allergen_ids=assignment.allergen_ids
+    )
 
 
 @router.delete(

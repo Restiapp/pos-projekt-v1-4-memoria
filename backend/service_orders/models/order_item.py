@@ -6,11 +6,19 @@ A rendeléstételek táblája, amely tartalmazza a rendeléshez tartozó
 termékeket, mennyiségeket, árakat és a kiválasztott módosítókat.
 """
 
-from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import JSONB
+import enum
+from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, Text, Enum as SQLEnum
 from sqlalchemy.orm import relationship
 
-from backend.service_orders.models.database import Base
+from backend.service_orders.models.database import Base, CompatibleJSON
+
+
+class KDSStatus(str, enum.Enum):
+    """Kitchen Display System status enumeration for order items."""
+    WAITING = "WAITING"
+    PREPARING = "PREPARING"
+    READY = "READY"
+    SERVED = "SERVED"
 
 
 class OrderItem(Base):
@@ -34,12 +42,12 @@ class OrderItem(Base):
     seat_id = Column(Integer, ForeignKey('seats.id'), nullable=True)
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)
-    selected_modifiers = Column(JSONB, nullable=True)  # [{'group_name': 'Zsemle', 'modifier_name': 'Szezamos', 'price': 0.00}]
+    selected_modifiers = Column(CompatibleJSON, nullable=True)  # [{'group_name': 'Zsemle', 'modifier_name': 'Szezamos', 'price': 0.00}]
     course = Column(String(50), nullable=True)  # V3.0: Fogás (pl. 'Előétel', 'Főétel', 'Desszert')
     notes = Column(Text, nullable=True)  # V3.0: Tétel szintű megjegyzések
-    discount_details = Column(JSONB, nullable=True)  # V3.0: Kedvezmény részletek {'type': 'percentage', 'value': 10}
-    kds_station = Column(String(50), nullable=True)  # 'Konyha', 'Pizza', 'Pult'
-    kds_status = Column(String(50), nullable=False, default='VÁRAKOZIK')  # 'VÁRAKOZIK', 'KÉSZÜL', 'KÉSZ'
+    discount_details = Column(CompatibleJSON, nullable=True)  # V3.0: Kedvezmény részletek {'type': 'percentage', 'value': 10}
+    kds_station = Column(String(50), nullable=True)  # Kitchen station: 'GRILL', 'COLD', 'BAR', etc.
+    kds_status = Column(SQLEnum(KDSStatus, native_enum=False), nullable=False, default=KDSStatus.WAITING, index=True)  # Kitchen Display System status
 
     # Relationships
     order = relationship('Order', back_populates='order_items')

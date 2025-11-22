@@ -38,22 +38,22 @@ from backend.service_crm.routers import customers_router, coupons_router, gift_c
 # Register routers
 app.include_router(
     customers_router,
-    prefix="/api/v1",
+    prefix="/api/v1/crm",
 )
 
 app.include_router(
     coupons_router,
-    prefix="/api/v1",
+    prefix="/api/v1/crm",
 )
 
 app.include_router(
     gift_cards_router,
-    prefix="/api/v1",
+    prefix="/api/v1/crm",
 )
 
 app.include_router(
     addresses_router,
-    prefix="/api/v1",
+    prefix="/api/v1/crm",
 )
 
 

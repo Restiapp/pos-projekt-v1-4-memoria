@@ -1,0 +1,76 @@
+/* InvoiceEditor.css */
+
+.invoice-modal {
+  max-width: 600px;
+}
+
+.mode-selector {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.detail-group {
+  margin-bottom: 1.5rem;
+}
+
+.detail-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.detail-value.ocr-data {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.detail-value.ocr-data pre {
+  margin: 0;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.file-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 2px dashed #ced4da;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.file-input:hover {
+  border-color: #2563eb;
+}
+
+.file-info {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #e7f3ff;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #004085;
+}
+
+.info-box {
+  padding: 1rem;
+  background-color: #e7f3ff;
+  border-left: 4px solid #2563eb;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #004085;
+  margin-bottom: 1.5rem;
+}
+
+/* Form elements inherited from InventoryItemEditor.css */

@@ -6,6 +6,11 @@
 import { useState } from 'react';
 import type { KdsItem, KdsStatus } from '@/types/kds';
 import { updateItemStatus } from '@/services/kdsService';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './KdsCard.css';
 
 interface KdsCardProps {
@@ -14,6 +19,7 @@ interface KdsCardProps {
 }
 
 export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
+  const { showToast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleStatusChange = async (newStatus: KdsStatus) => {
@@ -27,7 +33,11 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
       }
     } catch (error) {
       console.error('Failed to update KDS status:', error);
-      alert('Hiba történt a státusz frissítése közben!');
+<<<<<<< HEAD
+      notify.error('Hiba történt a státusz frissítése közben!');
+=======
+      showToast('Hiba történt a státusz frissítése közben!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsUpdating(false);
     }
@@ -42,6 +52,8 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
         return 'status-preparing';
       case 'READY':
         return 'status-ready';
+      case 'SERVED':
+        return 'status-served';
       default:
         return '';
     }
@@ -56,6 +68,8 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
         return 'Készül';
       case 'READY':
         return 'Kész';
+      case 'SERVED':
+        return 'Kiszolgálva';
       default:
         return item.kds_status;
     }
@@ -77,7 +91,21 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
 
       {/* Termék neve + mennyiség */}
       <div className="kds-card-body">
-        <h3 className="product-name">{item.product_name}</h3>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+          <h3 className="product-name" style={{ margin: 0 }}>{item.product_name}</h3>
+          {item.course && (
+            <span className="course-badge" style={{
+              fontSize: '0.75rem',
+              padding: '2px 8px',
+              borderRadius: '12px',
+              backgroundColor: '#f0f0f0',
+              color: '#555',
+              fontWeight: '500'
+            }}>
+              {item.course}
+            </span>
+          )}
+        </div>
         <p className="quantity">Mennyiség: {item.quantity}x</p>
         {item.notes && <p className="notes">📝 {item.notes}</p>}
       </div>
@@ -109,7 +137,16 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
           </button>
         )}
         {item.kds_status === 'READY' && (
-          <div className="btn-placeholder">Kész! ✨</div>
+          <button
+            onClick={() => handleStatusChange('SERVED')}
+            disabled={isUpdating}
+            className="btn btn-serve"
+          >
+            🍽️ Kiszolgálva
+          </button>
+        )}
+        {item.kds_status === 'SERVED' && (
+          <div className="btn-placeholder">Kiszolgálva! ✨</div>
         )}
       </div>
     </div>

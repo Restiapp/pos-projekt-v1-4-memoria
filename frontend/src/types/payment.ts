@@ -57,3 +57,18 @@ export interface Order {
   created_at: string;
   updated_at: string;
 }
+
+// Kedvezmény típusok
+export type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT' | 'COUPON';
+
+export interface AppliedDiscount {
+  id: number;
+  order_id?: number;
+  item_id?: number;
+  discount_type: DiscountType;
+  discount_value: number;
+  discount_amount: number; // Kalkulált kedvezmény összege HUF-ban
+  coupon_code?: string;
+  reason?: string;
+  applied_at: string;
+}

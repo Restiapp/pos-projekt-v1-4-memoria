@@ -13,9 +13,22 @@ import { useState, useEffect } from 'react';
 import { getRoles, deleteRole, getPermissions, getRoleById } from '@/services/roleService';
 import { RoleEditor } from './RoleEditor';
 import type { Role, Permission, RoleWithPermissions } from '@/types/role';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './RoleList.css';
 
 export const RoleList = () => {
+  const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './RoleList.css';
+
+export const RoleList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [roles, setRoles] = useState<Role[]>([]);
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,7 +49,11 @@ export const RoleList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a szerepkörök betöltésekor:', error);
-      alert('Nem sikerült betölteni a szerepköröket!');
+<<<<<<< HEAD
+      notify.error('Nem sikerült betölteni a szerepköröket!');
+=======
+      showToast('Nem sikerült betölteni a szerepköröket!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -54,12 +71,16 @@ export const RoleList = () => {
 
   // Első betöltés
   useEffect(() => {
-    fetchRoles();
-  }, [page]);
+    if (isAuthenticated) {
+      fetchRoles();
+    }
+  }, [page, isAuthenticated]);
 
   useEffect(() => {
-    fetchPermissions();
-  }, []);
+    if (isAuthenticated) {
+      fetchPermissions();
+    }
+  }, [isAuthenticated]);
 
   // Új szerepkör létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -76,13 +97,17 @@ export const RoleList = () => {
       setIsEditorOpen(true);
     } catch (error) {
       console.error('Hiba a szerepkör betöltésekor:', error);
-      alert('Nem sikerült betölteni a szerepkör részleteit!');
+<<<<<<< HEAD
+      notify.error('Nem sikerült betölteni a szerepkör részleteit!');
+=======
+      showToast('Nem sikerült betölteni a szerepkör részleteit!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 
   // Szerepkör törlése (megerősítéssel)
   const handleDelete = async (role: Role) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a szerepkört?\n\n${role.name} - ${role.description}\n\nFigyelem: A szerepkörhöz rendelt munkatársak jogosultságai megszűnnek!`
     );
 
@@ -90,11 +115,19 @@ export const RoleList = () => {
 
     try {
       await deleteRole(role.id);
-      alert('Szerepkör sikeresen törölve!');
+<<<<<<< HEAD
+      notify.success('Szerepkör sikeresen törölve!');
       fetchRoles(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a szerepkör törlésekor:', error);
-      alert('Nem sikerült törölni a szerepkört!');
+      notify.error('Nem sikerült törölni a szerepkört!');
+=======
+      showToast('Szerepkör sikeresen törölve!', 'success');
+      fetchRoles(); // Lista frissítése
+    } catch (error) {
+      console.error('Hiba a szerepkör törlésekor:', error);
+      showToast('Nem sikerült törölni a szerepkört!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

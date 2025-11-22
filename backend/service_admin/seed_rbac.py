@@ -258,8 +258,11 @@ SYSTEM_ROLES = [
         "permissions": [
             "admin:all",
             "orders:manage",
+            "orders:view",
             "menu:manage",
+            "menu:view",
             "inventory:manage",
+            "inventory:view",
             "reports:manage",
             "employees:manage",
             "roles:manage",
@@ -268,6 +271,23 @@ SYSTEM_ROLES = [
             "assets:manage",
             "vehicles:manage",
             "logistics:manage",
+        ]
+    },
+    {
+        "name": "Manager",
+        "display_name": "Menedzser / Vezető",
+        "description": "Vezetői hozzáférés riportokhoz, pénzügyekhez és készletkezeléshez",
+        "is_system": True,
+        "permissions": [
+            "orders:manage",
+            "menu:manage",
+            "inventory:manage",
+            "reports:manage",
+            "finance:manage",
+            "finance:view",
+            "assets:view",
+            "vehicles:view",
+            "logistics:view",
         ]
     },
     {

@@ -46,6 +46,11 @@ class Product(Base):
         secondary='product_modifier_group_associations',
         back_populates='products'
     )
+    allergens = relationship(
+        'Allergen',
+        secondary='product_allergen_associations',
+        back_populates='products'
+    )
     channel_visibilities = relationship('ChannelVisibility', back_populates='product', cascade='all, delete-orphan')
 
     def __repr__(self):

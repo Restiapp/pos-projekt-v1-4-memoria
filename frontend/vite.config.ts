@@ -42,6 +42,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/finance/, '/api/v1/finance')
       },
+      // ÚJ: Integrations API (Admin Service) - Számlázz.hu
+      '/api/integrations': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/integrations/, '/api/v1/integrations')
+      },
       // ÚJ: Assets API (Admin Service) - FÁZIS 3.3
       '/api/assets': {
         target: 'http://localhost:8008',
@@ -54,10 +60,21 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/vehicles/, '/api/v1/vehicles')
       },
+      // ÚJ: Reports API (Admin Service) - Dashboard Analytics
+      '/api/reports': {
+        target: 'http://localhost:8008',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/reports/, '/api/v1/reports')
+      },
 
       // ========================================
       // Orders Service (Port 8002)
       // ========================================
+      '/api/rooms': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/rooms/, '/api/v1/rooms')
+      },
       '/api/tables': {
         target: 'http://localhost:8002',
         changeOrigin: true,
@@ -88,6 +105,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/items/, '/api/v1/items')
       },
+      '/api/reservations': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/reservations/, '/api/v1/reservations')
+      },
 
       // ========================================
       // Menu Service (Port 8001)
@@ -106,6 +128,11 @@ export default defineConfig({
         target: 'http://localhost:8001',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/modifier_groups/, '/api/v1/modifier_groups')
+      },
+      '/api/modifier-groups': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/modifier-groups/, '/api/v1/modifier-groups')
       },
       '/api/images': {
         target: 'http://localhost:8001',
@@ -147,10 +174,10 @@ export default defineConfig({
       },
 
       // ========================================
-      // Logistics Service (Port 8006) - V3.0 Hullám 10
+      // Logistics Service (Port 8005) - V3.0 Hullám 10
       // ========================================
       '/api/logistics': {
-        target: 'http://localhost:8006',
+        target: 'http://localhost:8005',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/logistics/, '/api/v1')
       },

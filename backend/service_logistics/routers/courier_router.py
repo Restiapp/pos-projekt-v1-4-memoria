@@ -18,6 +18,8 @@ from backend.service_logistics.schemas.courier import (
     CourierUpdate,
     CourierResponse,
     CourierListResponse,
+    AssignOrderRequest,
+    AssignOrderResponse,
 )
 
 # Create APIRouter
@@ -424,3 +426,71 @@ def update_courier_status(
             detail=f"Courier (ID: {courier_id}) not found"
         )
     return courier
+
+
+@router.post(
+    "/{courier_id}/assign-order",
+    response_model=AssignOrderResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Assign order to courier",
+    description="""
+    Assign an order to a courier.
+
+    **Behavior:**
+    - Sets courier status to ON_DELIVERY
+    - Validates courier is active
+    - Stores order assignment (for now just updates status)
+
+    **Future integration:**
+    - Will integrate with service_orders to update order status
+    - Will track delivery progress
+    - Will calculate estimated delivery time
+
+    **Return values:**
+    - 200: Order successfully assigned
+    - 404: Courier not found
+    - 400: Courier is not active or other validation error
+    """,
+    response_description="Courier data with updated status",
+)
+def assign_order_to_courier(
+    courier_id: int,
+    request: AssignOrderRequest,
+    db: Session = Depends(get_db),
+) -> AssignOrderResponse:
+    """
+    Assign an order to a courier.
+
+    Args:
+        courier_id: Courier identifier
+        request: Order assignment request with order_id
+        db: Database session (dependency injection)
+
+    Returns:
+        AssignOrderResponse: Updated courier data and success message
+
+    Raises:
+        HTTPException 404: If courier not found
+        HTTPException 400: If courier is not active
+    """
+    try:
+        courier = CourierService.assign_order(
+            db=db,
+            courier_id=courier_id,
+            order_id=request.order_id
+        )
+        if not courier:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Courier (ID: {courier_id}) not found"
+            )
+
+        return AssignOrderResponse(
+            courier=courier,
+            message=f"Order {request.order_id} successfully assigned to courier '{courier.courier_name}'"
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )

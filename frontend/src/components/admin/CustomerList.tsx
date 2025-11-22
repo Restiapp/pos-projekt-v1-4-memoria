@@ -12,12 +12,25 @@
  */
 
 import { useState, useEffect } from 'react';
-import { getCustomers, deleteCustomer } from '@/services/crmService';
+import { getCustomers, deleteCustomer, updateLoyaltyPoints } from '@/services/crmService';
 import { CustomerEditor } from './CustomerEditor';
 import type { Customer } from '@/types/customer';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+import { useAuthStore } from '@/stores/authStore';
 import './CustomerList.css';
 
 export const CustomerList = () => {
+  const { isAuthenticated } = useAuthStore();
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+import './CustomerList.css';
+
+export const CustomerList = () => {
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -27,6 +40,12 @@ export const CustomerList = () => {
   // Modal állapot (editor)
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+
+  // Loyalty points modal állapot
+  const [isLoyaltyModalOpen, setIsLoyaltyModalOpen] = useState(false);
+  const [loyaltyCustomer, setLoyaltyCustomer] = useState<Customer | null>(null);
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number>(0);
+  const [loyaltyReason, setLoyaltyReason] = useState<string>('');
 
   // Szűrő állapot
   const [showOnlyActive, setShowOnlyActive] = useState(true);
@@ -46,7 +65,11 @@ export const CustomerList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a vendégek betöltésekor:', error);
-      alert('Nem sikerült betölteni a vendégeket!');
+<<<<<<< HEAD
+      notify.error('Nem sikerült betölteni a vendégeket!');
+=======
+      showToast('Nem sikerült betölteni a vendégeket!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -54,8 +77,10 @@ export const CustomerList = () => {
 
   // Első betöltés és frissítés szűrő/keresés változásakor
   useEffect(() => {
-    fetchCustomers();
-  }, [page, showOnlyActive, searchTerm]);
+    if (isAuthenticated) {
+      fetchCustomers();
+    }
+  }, [page, showOnlyActive, searchTerm, isAuthenticated]);
 
   // Új vendég létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -71,7 +96,7 @@ export const CustomerList = () => {
 
   // Vendég törlése (megerősítéssel)
   const handleDelete = async (customer: Customer) => {
-    const confirmed = window.confirm(
+    const confirmed = await showConfirm(
       `Biztosan törölni szeretnéd ezt a vendéget?\n\n${customer.first_name} ${customer.last_name} (${customer.email})`
     );
 
@@ -79,11 +104,19 @@ export const CustomerList = () => {
 
     try {
       await deleteCustomer(customer.id);
-      alert('Vendég sikeresen törölve!');
+<<<<<<< HEAD
+      notify.success('Vendég sikeresen törölve!');
       fetchCustomers(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a vendég törlésekor:', error);
-      alert('Nem sikerült törölni a vendéget!');
+      notify.error('Nem sikerült törölni a vendéget!');
+=======
+      showToast('Vendég sikeresen törölve!', 'success');
+      fetchCustomers(); // Lista frissítése
+    } catch (error) {
+      console.error('Hiba a vendég törlésekor:', error);
+      showToast('Nem sikerült törölni a vendéget!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 
@@ -93,6 +126,40 @@ export const CustomerList = () => {
     setEditingCustomer(null);
     if (shouldRefresh) {
       fetchCustomers();
+    }
+  };
+
+  // Pontjóváírás modal megnyitása
+  const handleOpenLoyaltyModal = (customer: Customer) => {
+    setLoyaltyCustomer(customer);
+    setLoyaltyPoints(0);
+    setLoyaltyReason('');
+    setIsLoyaltyModalOpen(true);
+  };
+
+  // Pontjóváírás mentése
+  const handleSaveLoyaltyPoints = async () => {
+    if (!loyaltyCustomer) return;
+
+    if (loyaltyPoints === 0) {
+      alert('A pontok értéke nem lehet 0!');
+      return;
+    }
+
+    try {
+      await updateLoyaltyPoints(loyaltyCustomer.id, {
+        points: loyaltyPoints,
+        reason: loyaltyReason || undefined,
+      });
+      alert('Hűségpontok sikeresen frissítve!');
+      setIsLoyaltyModalOpen(false);
+      setLoyaltyCustomer(null);
+      fetchCustomers(); // Lista frissítése
+    } catch (error: any) {
+      console.error('Hiba a pontok frissítésekor:', error);
+      const errorMessage =
+        error.response?.data?.detail || 'Nem sikerült frissíteni a pontokat!';
+      alert(errorMessage);
     }
   };
 
@@ -156,6 +223,8 @@ export const CustomerList = () => {
                   <th>Név</th>
                   <th>Email</th>
                   <th>Telefon</th>
+                  <th>Tag-ek</th>
+                  <th>Utolsó látogatás</th>
                   <th>Hűségpontok</th>
                   <th>Össz. költés</th>
                   <th>Rendelések</th>
@@ -166,7 +235,7 @@ export const CustomerList = () => {
               <tbody>
                 {customers.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="empty-state">
+                    <td colSpan={11} className="empty-state">
                       Nincsenek vendégek
                     </td>
                   </tr>
@@ -189,6 +258,20 @@ export const CustomerList = () => {
                       <td>{customer.email}</td>
                       <td>{customer.phone || '-'}</td>
                       <td>
+                        {customer.tags && customer.tags.length > 0 ? (
+                          <div className="customer-tags">
+                            {customer.tags.map((tag, idx) => (
+                              <span key={idx} className="tag-badge">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          '-'
+                        )}
+                      </td>
+                      <td>{formatDate(customer.last_visit)}</td>
+                      <td>
                         <span className="loyalty-points">{customer.loyalty_points} pt</span>
                       </td>
                       <td>{formatPrice(customer.total_spent)}</td>
@@ -204,6 +287,13 @@ export const CustomerList = () => {
                       </td>
                       <td>
                         <div className="action-buttons">
+                          <button
+                            onClick={() => handleOpenLoyaltyModal(customer)}
+                            className="loyalty-btn"
+                            title="Pontjóváírás"
+                          >
+                            💎
+                          </button>
                           <button
                             onClick={() => handleEdit(customer)}
                             className="edit-btn"
@@ -256,6 +346,94 @@ export const CustomerList = () => {
       {/* Editor Modal */}
       {isEditorOpen && (
         <CustomerEditor customer={editingCustomer} onClose={handleEditorClose} />
+      )}
+
+      {/* Loyalty Points Modal */}
+      {isLoyaltyModalOpen && loyaltyCustomer && (
+        <div
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsLoyaltyModalOpen(false);
+              setLoyaltyCustomer(null);
+            }
+          }}
+        >
+          <div className="modal-content">
+            <header className="modal-header">
+              <h2>💎 Pontjóváírás</h2>
+              <button
+                onClick={() => {
+                  setIsLoyaltyModalOpen(false);
+                  setLoyaltyCustomer(null);
+                }}
+                className="close-btn"
+              >
+                ✕
+              </button>
+            </header>
+
+            <div className="loyalty-modal-body">
+              <div className="customer-info">
+                <p>
+                  <strong>Vendég:</strong> {loyaltyCustomer.first_name}{' '}
+                  {loyaltyCustomer.last_name}
+                </p>
+                <p>
+                  <strong>Jelenlegi pontok:</strong>{' '}
+                  <span className="loyalty-points">{loyaltyCustomer.loyalty_points} pt</span>
+                </p>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="loyalty-points">
+                  Pontok <span className="required">*</span>
+                </label>
+                <input
+                  id="loyalty-points"
+                  type="number"
+                  value={loyaltyPoints}
+                  onChange={(e) => setLoyaltyPoints(parseFloat(e.target.value) || 0)}
+                  placeholder="Pozitív érték hozzáadáshoz, negatív kivonáshoz"
+                  step="0.01"
+                />
+                <small>
+                  Új egyenleg:{' '}
+                  <strong>
+                    {(loyaltyCustomer.loyalty_points + loyaltyPoints).toFixed(2)} pt
+                  </strong>
+                </small>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="loyalty-reason">Indoklás (opcionális)</label>
+                <textarea
+                  id="loyalty-reason"
+                  value={loyaltyReason}
+                  onChange={(e) => setLoyaltyReason(e.target.value)}
+                  placeholder="pl. Panaszkezelés, ajándék pontok, stb."
+                  rows={3}
+                />
+              </div>
+            </div>
+
+            <footer className="modal-footer">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsLoyaltyModalOpen(false);
+                  setLoyaltyCustomer(null);
+                }}
+                className="cancel-btn"
+              >
+                Mégse
+              </button>
+              <button onClick={handleSaveLoyaltyPoints} className="save-btn">
+                💾 Mentés
+              </button>
+            </footer>
+          </div>
+        </div>
       )}
     </div>
   );

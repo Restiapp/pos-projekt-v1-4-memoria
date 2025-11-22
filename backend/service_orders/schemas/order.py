@@ -53,6 +53,11 @@ class OrderBase(BaseModel):
         description="Customer identifier (V3.0: for CRM integration)",
         examples=[1, 42, None]
     )
+    courier_id: Optional[int] = Field(
+        None,
+        description="Courier identifier (V3.0: for delivery orders from service_logistics)",
+        examples=[1, 5, None]
+    )
     total_amount: Optional[Decimal] = Field(
         None,
         ge=0,
@@ -106,6 +111,10 @@ class OrderUpdate(BaseModel):
     customer_id: Optional[int] = Field(
         None,
         description="Customer identifier"
+    )
+    courier_id: Optional[int] = Field(
+        None,
+        description="Courier identifier"
     )
     total_amount: Optional[Decimal] = Field(
         None,
@@ -245,4 +254,47 @@ class OrderTypeChangeResponse(BaseModel):
         ...,
         description="Confirmation message",
         examples=["Rendelés típusa sikeresen megváltoztatva: Helyben -> Elvitel"]
+    )
+
+
+# ============================================================================
+# COURIER ASSIGNMENT SCHEMAS (V3.0 / LOGISTICS-FIX)
+# ============================================================================
+
+class CourierAssignmentRequest(BaseModel):
+    """
+    Schema for assigning a courier to an order.
+
+    V3.0 / LOGISTICS-FIX: Links orders to couriers from service_logistics.
+    """
+
+    courier_id: int = Field(
+        ...,
+        description="The courier ID to assign to the order",
+        examples=[1, 5, 10]
+    )
+
+
+class CourierAssignmentResponse(BaseModel):
+    """
+    Schema for courier assignment response.
+
+    Contains the updated order and confirmation.
+
+    V3.0 / LOGISTICS-FIX: Courier Assignment
+    """
+
+    order: OrderResponse = Field(
+        ...,
+        description="The updated order with assigned courier"
+    )
+    courier_id: int = Field(
+        ...,
+        description="The assigned courier ID",
+        examples=[1, 5, 10]
+    )
+    message: str = Field(
+        ...,
+        description="Confirmation message",
+        examples=["Futár sikeresen hozzárendelve a rendeléshez"]
     )

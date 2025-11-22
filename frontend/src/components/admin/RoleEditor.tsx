@@ -12,6 +12,12 @@
 import { useState } from 'react';
 import { createRole, updateRole } from '@/services/roleService';
 import type { RoleWithPermissions, Permission, RoleCreate, RoleUpdate } from '@/types/role';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './RoleEditor.css';
 
 interface RoleEditorProps {
@@ -22,6 +28,8 @@ interface RoleEditorProps {
 
 export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
   const isEditing = !!role; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -68,12 +76,20 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
 
     // Validáció
     if (!formData.name.trim()) {
-      alert('A szerepkör neve kötelező!');
+<<<<<<< HEAD
+      notify.warning('A szerepkör neve kötelező!');
+=======
+      showToast('A szerepkör neve kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.description.trim()) {
-      alert('A leírás kötelező!');
+<<<<<<< HEAD
+      notify.warning('A leírás kötelező!');
+=======
+      showToast('A leírás kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -89,7 +105,11 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
         };
 
         await updateRole(role.id, updateData);
-        alert('Szerepkör sikeresen frissítve!');
+<<<<<<< HEAD
+        notify.success('Szerepkör sikeresen frissítve!');
+=======
+        showToast('Szerepkör sikeresen frissítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: RoleCreate = {
@@ -99,7 +119,11 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
         };
 
         await createRole(createData);
-        alert('Szerepkör sikeresen létrehozva!');
+<<<<<<< HEAD
+        notify.success('Szerepkör sikeresen létrehozva!');
+=======
+        showToast('Szerepkör sikeresen létrehozva!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -107,7 +131,11 @@ export const RoleEditor = ({ role, permissions, onClose }: RoleEditorProps) => {
       console.error('Hiba a szerepkör mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a szerepkört!';
-      alert(errorMessage);
+<<<<<<< HEAD
+      notify.error(errorMessage);
+=======
+      showToast(errorMessage, 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }

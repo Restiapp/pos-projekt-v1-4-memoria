@@ -11,6 +11,9 @@ This package contains all API endpoints for the Inventory Service including:
 - Daily Inventory sheets
 - NAV OSA Integration (V3.0/F3.A)
 - Internal Service-to-Service API (V3.0/F3.A)
+- Incoming Invoices (C-INV - Procurement/Purchasing)
+- Waste Management (C-INV - Spoilage tracking)
+- Stock Movements (C-INV - Complete audit trail)
 """
 
 from backend.service_inventory.routers.inventory_items import router as inventory_items_router
@@ -19,6 +22,9 @@ from .recipes import router as recipes_router
 from .daily_inventory import daily_inventory_router
 from .internal_router import internal_router
 from .osa_integration_router import osa_router
+from .incoming_invoices import router as incoming_invoices_router
+from .waste_router import router as waste_router
+from .stock_movements import router as stock_movements_router
 
 __all__ = [
     # Inventory Items Router (Phase 5.1)
@@ -38,4 +44,13 @@ __all__ = [
 
     # NAV OSA Integration Router (V3.0/F3.A - NAV Invoice Integration)
     "osa_router",
+
+    # Incoming Invoices Router (C-INV - Procurement)
+    "incoming_invoices_router",
+
+    # Waste Management Router (C-INV)
+    "waste_router",
+
+    # Stock Movements Router (C-INV - Audit Trail)
+    "stock_movements_router",
 ]

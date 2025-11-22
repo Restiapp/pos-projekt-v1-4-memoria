@@ -11,6 +11,12 @@
 import { useState } from 'react';
 import { createCustomer, updateCustomer } from '@/services/crmService';
 import type { Customer, CustomerCreate, CustomerUpdate } from '@/types/customer';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+import { useConfirm } from '@/components/common/ConfirmDialog';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './CustomerEditor.css';
 
 interface CustomerEditorProps {
@@ -20,6 +26,8 @@ interface CustomerEditorProps {
 
 export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
   const isEditing = !!customer; // true = szerkesztés, false = új létrehozás
+  const { showToast } = useToast();
+  const { showConfirm } = useConfirm();
 
   // Form állapot
   const [formData, setFormData] = useState({
@@ -33,6 +41,10 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
     notes: customer?.notes || '',
     is_active: customer?.is_active ?? true,
   });
+
+  // Tags állapot
+  const [tags, setTags] = useState<string[]>(customer?.tags || []);
+  const [newTag, setNewTag] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,23 +65,49 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Tag hozzáadása
+  const handleAddTag = () => {
+    const trimmedTag = newTag.trim();
+    if (trimmedTag && !tags.includes(trimmedTag)) {
+      setTags([...tags, trimmedTag]);
+      setNewTag('');
+    }
+  };
+
+  // Tag eltávolítása
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter((tag) => tag !== tagToRemove));
+  };
+
   // Form submit (létrehozás / frissítés)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validáció
     if (!formData.first_name.trim()) {
-      alert('A keresztnév kötelező!');
+<<<<<<< HEAD
+      notify.warning('A keresztnév kötelező!');
+=======
+      showToast('A keresztnév kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.last_name.trim()) {
-      alert('A vezetéknév kötelező!');
+<<<<<<< HEAD
+      notify.warning('A vezetéknév kötelező!');
+=======
+      showToast('A vezetéknév kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.email.trim()) {
-      alert('Az email kötelező!');
+<<<<<<< HEAD
+      notify.warning('Az email kötelező!');
+=======
+      showToast('Az email kötelező!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -87,10 +125,15 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           sms_consent: formData.sms_consent,
           birth_date: formData.birth_date || undefined,
           notes: formData.notes || undefined,
+          tags: tags.length > 0 ? tags : undefined,
           is_active: formData.is_active,
         };
         await updateCustomer(customer.id, updateData);
-        alert('Vendég sikeresen frissítve!');
+<<<<<<< HEAD
+        notify.success('Vendég sikeresen frissítve!');
+=======
+        showToast('Vendég sikeresen frissítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: CustomerCreate = {
@@ -102,9 +145,14 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
           sms_consent: formData.sms_consent,
           birth_date: formData.birth_date || undefined,
           notes: formData.notes || undefined,
+          tags: tags.length > 0 ? tags : undefined,
         };
         await createCustomer(createData);
-        alert('Vendég sikeresen létrehozva!');
+<<<<<<< HEAD
+        notify.success('Vendég sikeresen létrehozva!');
+=======
+        showToast('Vendég sikeresen létrehozva!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -112,7 +160,11 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
       console.error('Hiba a vendég mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a vendéget!';
-      alert(errorMessage);
+<<<<<<< HEAD
+      notify.error(errorMessage);
+=======
+      showToast(errorMessage, 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }
@@ -223,6 +275,56 @@ export const CustomerEditor = ({ customer, onClose }: CustomerEditorProps) => {
               value={formData.birth_date}
               onChange={handleChange}
             />
+          </div>
+
+          {/* Tag-ek */}
+          <div className="form-group">
+            <label htmlFor="tags">Tag-ek</label>
+            <div className="tags-input-container">
+              <div className="tags-display">
+                {tags.length > 0 ? (
+                  tags.map((tag, idx) => (
+                    <span key={idx} className="tag-badge editable">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="tag-remove-btn"
+                        title="Tag eltávolítása"
+                      >
+                        ✕
+                      </button>
+                    </span>
+                  ))
+                ) : (
+                  <span className="no-tags">Nincsenek tag-ek</span>
+                )}
+              </div>
+              <div className="tag-input-row">
+                <input
+                  id="tags"
+                  type="text"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                  placeholder="pl. VIP, Vegetáriánus, Törzsvendég..."
+                  maxLength={50}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddTag}
+                  className="add-tag-btn"
+                  disabled={!newTag.trim()}
+                >
+                  ➕ Hozzáad
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Marketing hozzájárulás */}

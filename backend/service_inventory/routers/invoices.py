@@ -8,7 +8,7 @@ Implementálja az OCR-alapú számlafeldolgozást Google Cloud Document AI haszn
 Fázis 5.3: OCR Upload Router - POST /inventory/invoices/upload végpont
 """
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query, status
 from sqlalchemy.orm import Session
 
 from backend.service_inventory.services.ocr_service import OcrService
@@ -152,4 +152,156 @@ async def upload_invoice(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Váratlan hiba történt a számla feldolgozása során: {str(e)}"
+        )
+
+
+@router.get(
+    "",
+    response_model=list[SupplierInvoiceResponse],
+    summary="Get supplier invoices",
+    description="""
+    Szállítói számlák lekérdezése szűrési feltételekkel.
+
+    Támogatott szűrők:
+    - ocr_status: OCR feldolgozás státusza
+    - finalized: Véglegesítve van-e
+    - limit: Maximális találatok száma (alapértelmezett: 100)
+    - offset: Eltolás (alapértelmezett: 0)
+
+    **Visszatérési értékek:**
+    - 200: Sikeres lekérdezés (lista, akár üres is lehet)
+    - 500: Adatbázis hiba
+    """,
+)
+async def get_invoices(
+    ocr_status: str | None = Query(None, description="Filter by OCR status"),
+    finalized: bool | None = Query(None, description="Filter by finalized status"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of results"),
+    offset: int = Query(0, ge=0, description="Offset for pagination"),
+    db: Session = Depends(get_db)
+):
+    """
+    Számlák listázása szűrési feltételekkel.
+
+    Args:
+        ocr_status (Optional[str]): OCR státusz szerinti szűrés
+        finalized (Optional[bool]): Véglegesítés szerinti szűrés
+        limit (int): Maximális találatok száma
+        offset (int): Eltolás
+        db (Session): SQLAlchemy adatbázis session (dependency injection)
+
+    Returns:
+        list[SupplierInvoiceResponse]: Számlák listája
+
+    Raises:
+        HTTPException 500: Adatbázis hiba
+    """
+    try:
+        # Query építése
+        query = db.query(SupplierInvoice)
+
+        # Szűrők alkalmazása
+        if ocr_status is not None:
+            query = query.filter(SupplierInvoice.status == ocr_status)
+
+        if finalized is not None:
+            query = query.filter(SupplierInvoice.finalized == finalized)
+
+        # Sorrendezés (legújabb először)
+        query = query.order_by(SupplierInvoice.created_at.desc())
+
+        # Pagination
+        invoices = query.limit(limit).offset(offset).all()
+
+        return invoices
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error fetching invoices: {str(e)}"
+        )
+
+
+@router.post(
+    "/{invoice_id}/finalize",
+    response_model=SupplierInvoiceResponse,
+    summary="Finalize invoice",
+    description="""
+    Számla véglegesítése.
+
+    Ez a művelet:
+    1. Beállítja a finalized mezőt True-ra
+    2. Beállítja a finalized_at időbélyeget
+    3. Opcionálisan rögzíti a véglegesítő alkalmazott ID-ját
+
+    **FONTOS:** A véglegesítés nem visszavonható!
+
+    **Visszatérési értékek:**
+    - 200: Sikeresen véglegesített számla
+    - 404: Nem található számla
+    - 400: Már véglegesített számla
+    - 500: Adatbázis hiba
+    """,
+)
+async def finalize_invoice(
+    invoice_id: int,
+    employee_id: int | None = Query(None, description="Employee ID who finalizes"),
+    db: Session = Depends(get_db)
+):
+    """
+    Számla véglegesítése.
+
+    Args:
+        invoice_id (int): Számla azonosító
+        employee_id (Optional[int]): Véglegesítő alkalmazott ID
+        db (Session): SQLAlchemy adatbázis session (dependency injection)
+
+    Returns:
+        SupplierInvoiceResponse: Véglegesített számla adatai
+
+    Raises:
+        HTTPException 404: Nem található számla
+        HTTPException 400: Már véglegesített számla
+        HTTPException 500: Adatbázis hiba
+    """
+    try:
+        # Számla lekérdezése
+        invoice = db.query(SupplierInvoice).filter(
+            SupplierInvoice.id == invoice_id
+        ).first()
+
+        if not invoice:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Invoice with ID {invoice_id} not found"
+            )
+
+        # Ellenőrizzük, hogy már véglegesített-e
+        if invoice.finalized:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invoice with ID {invoice_id} is already finalized"
+            )
+
+        # Véglegesítés
+        invoice.finalized = True
+        from datetime import datetime
+        invoice.finalized_at = datetime.utcnow()
+        if employee_id:
+            invoice.finalized_by_employee_id = employee_id
+
+        # Mentés
+        db.commit()
+        db.refresh(invoice)
+
+        return invoice
+
+    except HTTPException:
+        raise
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error finalizing invoice: {str(e)}"
         )

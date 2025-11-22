@@ -8,9 +8,13 @@
  * Jogosultság: menu:manage (ProtectedRoute-ban ellenőrzött)
  */
 
-import { useState } from 'react';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+<<<<<<< HEAD
+import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './AdminPage.css';
 
 interface MenuItem {
@@ -44,6 +48,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/tables',
     permission: 'orders:manage',
   },
+  // HOTFIX: Foglalások komponens még nincs kifejlesztve
+  // {
+  //   id: 'reservations',
+  //   label: 'Foglalások',
+  //   icon: '📅',
+  //   path: '/admin/reservations',
+  //   permission: 'orders:manage',
+  // },
   {
     id: 'employees',
     label: 'Munkavállalók',
@@ -82,6 +94,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/vehicles',
     permission: 'vehicles:manage', // TODO: Add vehicles:manage permission to RBAC
   },
+  // ÚJ MENÜPONT - Dashboard Analytics (Reports)
+  {
+    id: 'reports',
+    label: 'Riportok',
+    icon: '📊',
+    path: '/admin/reports',
+    permission: 'reports:view', // TODO: Add reports:view permission to RBAC
+  },
   // CRM menüpontok
   {
     id: 'customers',
@@ -104,6 +124,14 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/gift_cards',
     permission: 'menu:manage', // TODO: Add crm:manage permission
   },
+  // HOTFIX: Hűségprogram komponens még nincs kifejlesztve
+  // {
+  //   id: 'loyalty',
+  //   label: 'Hűségprogram',
+  //   icon: '💎',
+  //   path: '/admin/loyalty',
+  //   permission: 'menu:manage', // TODO: Add crm:manage permission
+  // },
   // ÚJ MENÜPONT - V3.0 Hullám 10
   {
     id: 'logistics',
@@ -112,9 +140,26 @@ const MENU_ITEMS: MenuItem[] = [
     path: '/admin/logistics',
     permission: 'menu:manage', // TODO: Add logistics:manage permission
   },
+  // ÚJ MENÜPONT - MODULE 5 (Inventory)
+  {
+    id: 'inventory',
+    label: 'Raktárkezelés',
+    icon: '📦',
+    path: '/admin/inventory',
+    permission: 'menu:manage', // TODO: Add inventory:manage permission
+  },
+  // ÚJ MENÜPONT - Analytics Dashboard (FE-REP)
+  {
+    id: 'reports',
+    label: 'Riportok',
+    icon: '📊',
+    path: '/admin/reports',
+    permission: 'menu:manage', // TODO: Add reports:view permission
+  },
 ];
 
 export const AdminPage = () => {
+  const { showToast } = useToast();
   const { user, logout, hasPermission } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -123,7 +168,11 @@ export const AdminPage = () => {
   const handleMenuClick = (item: MenuItem) => {
     // Jogosultság ellenőrzés (opcionális, a route is védett)
     if (item.permission && !hasPermission(item.permission)) {
-      alert('Nincs jogosultságod ehhez a funkcióhoz!');
+<<<<<<< HEAD
+      notify.warning('Nincs jogosultságod ehhez a funkcióhoz!');
+=======
+      showToast('Nincs jogosultságod ehhez a funkcióhoz!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
     navigate(item.path);

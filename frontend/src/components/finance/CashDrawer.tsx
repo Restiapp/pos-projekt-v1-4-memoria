@@ -11,11 +11,23 @@
 import { useState, useEffect } from 'react';
 import { getCashBalance, cashDeposit, cashWithdraw } from '@/services/financeService';
 import type { CashDepositRequest, CashWithdrawRequest } from '@/types/finance';
+<<<<<<< HEAD
+import { useAuthStore } from '@/stores/authStore';
+import { notify } from '@/utils/notifications';
+=======
+import { useToast } from '@/components/common/Toast';
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './Finance.css';
 
 type OperationType = 'deposit' | 'withdraw';
 
 export const CashDrawer = () => {
+<<<<<<< HEAD
+  const { isAuthenticated } = useAuthStore();
+=======
+  const { showToast } = useToast();
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+
   // State
   const [balance, setBalance] = useState<number>(0);
   const [isLoadingBalance, setIsLoadingBalance] = useState(true);
@@ -32,15 +44,21 @@ export const CashDrawer = () => {
       setBalance(data.balance);
     } catch (error) {
       console.error('Hiba az egyenleg betöltésekor:', error);
-      alert('Nem sikerült betölteni a pénztár egyenleget!');
+<<<<<<< HEAD
+      notify.error('Nem sikerült betölteni a pénztár egyenleget!');
+=======
+      showToast('Nem sikerült betölteni a pénztár egyenleget!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoadingBalance(false);
     }
   };
 
   useEffect(() => {
-    fetchBalance();
-  }, []);
+    if (isAuthenticated) {
+      fetchBalance();
+    }
+  }, [isAuthenticated]);
 
   // Form submit kezelése
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,7 +66,11 @@ export const CashDrawer = () => {
 
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      alert('Érvénytelen összeg!');
+<<<<<<< HEAD
+      notify.error('Érvénytelen összeg!');
+=======
+      showToast('Érvénytelen összeg!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -61,14 +83,22 @@ export const CashDrawer = () => {
           description: description || undefined,
         };
         await cashDeposit(request);
-        alert('Befizetés sikeresen rögzítve!');
+<<<<<<< HEAD
+        notify.success('Befizetés sikeresen rögzítve!');
+=======
+        showToast('Befizetés sikeresen rögzítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         const request: CashWithdrawRequest = {
           amount: numAmount,
           description: description || undefined,
         };
         await cashWithdraw(request);
-        alert('Kivétel sikeresen rögzítve!');
+<<<<<<< HEAD
+        notify.success('Kivétel sikeresen rögzítve!');
+=======
+        showToast('Kivétel sikeresen rögzítve!', 'success');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       // Form reset és egyenleg frissítése
@@ -77,7 +107,11 @@ export const CashDrawer = () => {
       fetchBalance();
     } catch (error: any) {
       console.error('Hiba a művelet során:', error);
-      alert(error.response?.data?.detail || 'Nem sikerült a művelet!');
+<<<<<<< HEAD
+      notify.error(error.response?.data?.detail || 'Nem sikerült a művelet!');
+=======
+      showToast(error.response?.data?.detail || 'Nem sikerült a művelet!', 'error');
+>>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }

@@ -22,6 +22,9 @@ import type {
   Category,
   CategoryListResponse,
 } from '@/types/menu';
+import type {
+  ModifierGroupWithModifiers,
+} from '@/types/modifier';
 
 // =====================================================
 // PRODUCTS
@@ -34,11 +37,15 @@ import type {
 export const getProducts = async (
   page: number = 1,
   page_size: number = 20,
-  is_active?: boolean
+  is_active?: boolean,
+  search?: string
 ): Promise<ProductListResponse> => {
   const params: Record<string, any> = { page, page_size };
   if (is_active !== undefined) {
     params.is_active = is_active;
+  }
+  if (search) {
+    params.search = search;
   }
 
   const response = await apiClient.get<ProductListResponse>('/api/products', {
@@ -125,5 +132,27 @@ export const getCategories = async (
  */
 export const getCategoryById = async (id: number): Promise<Category> => {
   const response = await apiClient.get<Category>(`/api/categories/${id}`);
+  return response.data;
+};
+
+// =====================================================
+// MODIFIER GROUPS
+// =====================================================
+
+/**
+ * GET /api/modifier-groups/products/{product_id}/modifier-groups
+ * Get all modifier groups for a specific product
+ * Proxy Target: http://localhost:8001/api/v1/modifier-groups/products/{product_id}/modifier-groups
+ */
+export const getModifierGroupsByProduct = async (
+  productId: number,
+  includeModifiers: boolean = true
+): Promise<ModifierGroupWithModifiers[]> => {
+  const response = await apiClient.get<ModifierGroupWithModifiers[]>(
+    `/api/modifier-groups/products/${productId}/modifier-groups`,
+    {
+      params: { include_modifiers: includeModifiers },
+    }
+  );
   return response.data;
 };

@@ -42,7 +42,9 @@ router = APIRouter(
 
     **Üzleti szabályok:**
     - Az asztal száma (table_number) egyedi kell legyen
-    - A position_x, position_y koordináták opcionálisak (térképes megjelenítéshez)
+    - A room_id opcionális (helyiséghez rendelés)
+    - A x, y koordináták opcionálisak (térképes megjelenítéshez)
+    - A width, height, shape, rotation opcionálisak (vizuális megjelenés)
     - A capacity opcionális, de ha meg van adva, minimum 1 kell legyen
 
     **Visszatérési értékek:**
@@ -59,7 +61,7 @@ def create_table(
     Új asztal létrehozása.
 
     Args:
-        table_data: Asztal adatok (table_number, pozíció, kapacitás)
+        table_data: Asztal adatok (table_number, room_id, pozíció, méret, kapacitás)
         db: Database session (dependency injection)
 
     Returns:

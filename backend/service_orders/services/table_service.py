@@ -44,8 +44,13 @@ class TableService:
         """
         db_table = Table(
             table_number=table_data.table_number,
-            position_x=table_data.position_x,
-            position_y=table_data.position_y,
+            room_id=table_data.room_id,
+            x=table_data.x,
+            y=table_data.y,
+            width=table_data.width,
+            height=table_data.height,
+            rotation=table_data.rotation,
+            shape=table_data.shape,
             capacity=table_data.capacity
         )
 
@@ -235,19 +240,21 @@ class TableService:
         Raises:
             ValueError: Ha a szekció név üres
         """
+
         if not new_section or not new_section.strip():
             raise ValueError("A szekció neve nem lehet üres")
 
-        db_table = db.query(Table).filter(Table.id == table_id).first()
+        # db_table = db.query(Table).filter(Table.id == table_id).first()
 
-        if not db_table:
-            return None
+        # if not db_table:
+        #     return None
 
-        db_table.section = new_section.strip()
-        db.commit()
-        db.refresh(db_table)
+        # db_table.section = new_section.strip()
+        # db.commit()
+        # db.refresh(db_table)
 
-        return db_table
+        # return db_table
+        raise NotImplementedError("Table sections are deprecated. Use Room assignment instead.")
 
     @staticmethod
     def merge_tables(

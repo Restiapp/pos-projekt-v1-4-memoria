@@ -268,6 +268,48 @@ class CourierService:
             Courier.is_active == True
         ).all()
 
+    @staticmethod
+    def assign_order(
+        db: Session,
+        courier_id: int,
+        order_id: int
+    ) -> Optional[Courier]:
+        """
+        Assign an order to a courier.
+
+        This method:
+        - Updates courier status to ON_DELIVERY
+        - Stores the order assignment (for now just changes status)
+        - In future phases, will integrate with service_orders
+
+        Args:
+            db: SQLAlchemy session
+            courier_id: The courier's unique identifier
+            order_id: The order ID to assign
+
+        Returns:
+            Courier | None: The updated courier object or None if not found
+
+        Raises:
+            ValueError: If courier is not available for delivery
+        """
+        db_courier = db.query(Courier).filter(Courier.id == courier_id).first()
+
+        if not db_courier:
+            return None
+
+        # Validate courier can accept order
+        if not db_courier.is_active:
+            raise ValueError(f"Courier (ID: {courier_id}) is not active")
+
+        # Update status to ON_DELIVERY
+        db_courier.status = CourierStatus.ON_DELIVERY
+
+        db.commit()
+        db.refresh(db_courier)
+
+        return db_courier
+
 
 # Singleton instance for export
 courier_service = CourierService()

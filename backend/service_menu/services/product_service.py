@@ -12,7 +12,7 @@ metódusok támogatják az automatikus fordítást a TranslationService használ
 
 import logging
 from typing import Optional, List
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import IntegrityError
 
 from backend.service_menu.models.product import Product
@@ -79,7 +79,9 @@ class ProductService:
         Returns:
             Optional[Product]: A termék objektum vagy None, ha nem található
         """
-        return db.query(Product).filter(Product.id == product_id).first()
+        return db.query(Product).options(
+            joinedload(Product.allergens)
+        ).filter(Product.id == product_id).first()
 
     @staticmethod
     def get_all_products(
@@ -100,7 +102,9 @@ class ProductService:
         Returns:
             List[Product]: Termékek listája
         """
-        query = db.query(Product)
+        query = db.query(Product).options(
+            joinedload(Product.allergens)
+        )
 
         # Filter by active status if needed
         if not include_inactive:
@@ -232,7 +236,9 @@ class ProductService:
         Returns:
             List[Product]: Termékek listája a megadott kategóriából
         """
-        query = db.query(Product).filter(Product.category_id == category_id)
+        query = db.query(Product).options(
+            joinedload(Product.allergens)
+        ).filter(Product.category_id == category_id)
 
         if not include_inactive:
             query = query.filter(Product.is_active == True)

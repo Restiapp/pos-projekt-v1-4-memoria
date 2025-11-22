@@ -6,12 +6,37 @@
 // KDS Állomások típusa
 export type KdsStation = 'KONYHA' | 'PIZZA' | 'PULT';
 
-// KDS Státuszok (Backend enum-nak megfelelően)
+// KDS Státuszok (Frontend enum - UI használatra)
 export enum KdsStatus {
   PENDING = 'PENDING',     // Várakozik
   PREPARING = 'PREPARING', // Készül
   READY = 'READY',         // Kész
+  SERVED = 'SERVED',       // Kiszolgálva
 }
+
+// Backend API státusz értékek (Magyar)
+export enum KdsStatusBackend {
+  VARAKOZIK = 'VÁRAKOZIK',     // Pending/Waiting
+  KESZUL = 'KÉSZÜL',           // Preparing
+  KESZ = 'KÉSZ',               // Ready
+  KISZOLGALVA = 'KISZOLGÁLVA', // Served
+}
+
+// Mapping: Frontend -> Backend
+export const KDS_STATUS_TO_BACKEND: Record<KdsStatus, KdsStatusBackend> = {
+  [KdsStatus.PENDING]: KdsStatusBackend.VARAKOZIK,
+  [KdsStatus.PREPARING]: KdsStatusBackend.KESZUL,
+  [KdsStatus.READY]: KdsStatusBackend.KESZ,
+  [KdsStatus.SERVED]: KdsStatusBackend.KISZOLGALVA,
+};
+
+// Mapping: Backend -> Frontend
+export const KDS_STATUS_FROM_BACKEND: Record<string, KdsStatus> = {
+  'VÁRAKOZIK': KdsStatus.PENDING,
+  'KÉSZÜL': KdsStatus.PREPARING,
+  'KÉSZ': KdsStatus.READY,
+  'KISZOLGÁLVA': KdsStatus.SERVED,
+};
 
 // KDS Tétel (egy rendelési tétel)
 export interface KdsItem {
@@ -24,6 +49,7 @@ export interface KdsItem {
   created_at: string;      // Létrehozás időpontja (ISO datetime)
   notes: string | null;    // Megjegyzések (ha van)
   table_number?: string;   // Asztalszám (opcionális, ha rendeléshez tartozik)
+  course?: string | null;  // Fogás típusa (pl. "Előétel", "Főétel", "Desszert")
 }
 
 // API Response típus (GET /api/v1/kds/stations/{station}/items)
@@ -33,7 +59,8 @@ export interface KdsItemsResponse {
   station: KdsStation;
 }
 
-// Státusz frissítés Request típus (PATCH /api/v1/items/{item_id}/kds-status)
+// DEPRECATED: Backend uses query parameter, not request body
+// Státusz frissítés Request típus (PATCH /api/v1/items/{item_id}/kds-status?status=VALUE)
 export interface UpdateKdsStatusRequest {
   kds_status: KdsStatus;
 }

@@ -11,12 +11,13 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
-from backend.service_orders.models.order_item import OrderItem
+from backend.service_orders.models.order_item import OrderItem, KDSStatus
 from backend.service_orders.schemas.order_item import (
     OrderItemCreate,
     OrderItemUpdate,
     OrderItemResponse,
-    SelectedModifierSchema
+    SelectedModifierSchema,
+    KDSStatusEnum
 )
 
 
@@ -62,6 +63,14 @@ class OrderItemService:
                     modifier.model_dump() for modifier in order_item_data.selected_modifiers
                 ]
 
+            # Convert KDSStatusEnum to KDSStatus if needed
+            kds_status_value = order_item_data.kds_status
+            if kds_status_value:
+                # Convert from schema enum to model enum
+                kds_status_value = KDSStatus(kds_status_value.value)
+            else:
+                kds_status_value = KDSStatus.WAITING
+
             # Új OrderItem létrehozása
             new_order_item = OrderItem(
                 order_id=order_item_data.order_id,
@@ -73,7 +82,7 @@ class OrderItemService:
                 course=order_item_data.course,
                 notes=order_item_data.notes,
                 kds_station=order_item_data.kds_station,
-                kds_status=order_item_data.kds_status or 'VÁRAKOZIK'
+                kds_status=kds_status_value
             )
 
             # Adatbázisba mentés
@@ -308,20 +317,30 @@ class OrderItemService:
         Egy tétel KDS státuszának frissítése.
 
         Hasznos a Kitchen Display System munkafolyamatához
-        (VÁRAKOZIK -> KÉSZÜL -> KÉSZ -> KISZOLGÁLVA).
+        (WAITING -> PREPARING -> READY -> SERVED).
 
         Args:
             db: SQLAlchemy database session
             item_id: A tétel azonosítója
-            new_status: Az új KDS státusz
+            new_status: Az új KDS státusz (must be valid KDSStatus value)
 
         Returns:
             Optional[OrderItemResponse]: A frissített tétel adatai, vagy None ha nem található
 
         Raises:
+            ValueError: If status is invalid
             SQLAlchemyError: Adatbázis hiba esetén
         """
         try:
+            # Validate the status
+            try:
+                validated_status = KDSStatus(new_status)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid KDS status: {new_status}. "
+                    f"Valid values: {', '.join([s.value for s in KDSStatus])}"
+                )
+
             order_item = db.query(OrderItem).filter(
                 OrderItem.id == item_id
             ).first()
@@ -329,7 +348,7 @@ class OrderItemService:
             if not order_item:
                 return None
 
-            order_item.kds_status = new_status
+            order_item.kds_status = validated_status
             db.commit()
             db.refresh(order_item)
 

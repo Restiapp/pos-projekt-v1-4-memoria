@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from backend.service_orders.models.database import get_db
 from backend.service_orders.services.order_service import OrderService
 from backend.service_orders.services.payment_service import PaymentService
+from backend.service_orders.services.printer_service import PrinterService
 from backend.service_orders.schemas.order import (
     OrderCreate,
     OrderUpdate,
@@ -24,7 +25,9 @@ from backend.service_orders.schemas.order import (
     OrderStatusEnum,
     OrderTypeEnum,
     OrderTypeChangeRequest,
-    OrderTypeChangeResponse
+    OrderTypeChangeResponse,
+    CourierAssignmentRequest,
+    CourierAssignmentResponse
 )
 from backend.service_orders.schemas.payment import (
     PaymentCreate,
@@ -630,4 +633,158 @@ def change_order_type(
         previous_type=previous_type,
         new_type=request.new_order_type,
         message=f"Rendelés típusa sikeresen megváltoztatva: {previous_type} -> {request.new_order_type.value}"
+    )
+
+
+# ============================================================================
+# RECEIPT PRINTING ENDPOINT ([D-PRN] - Thermal Receipt Printing)
+# ============================================================================
+
+@orders_router.post(
+    "/{order_id}/print-receipt",
+    status_code=status.HTTP_200_OK,
+    summary="Print receipt for an order",
+    description="""
+    **[D-PRN] Thermal Receipt Printing Feature**: Print a formatted receipt for a completed order.
+
+    This endpoint generates a formatted text receipt containing:
+    - Restaurant information (name, address, tax ID)
+    - Order details (number, type, date)
+    - Order items with quantities and prices
+    - Modifiers and notes for each item
+    - Total amount with VAT breakdown
+    - Payment methods and amounts
+    - "Thank you" footer
+
+    The receipt is saved to a text file in the `printer_output/` directory and
+    also printed to the console (for development purposes).
+
+    In production, this can be replaced with an ESC/POS driver for actual
+    thermal printer integration.
+
+    **Important notes:**
+    - Receipt files are named: `receipt_{order_id}_{timestamp}.txt`
+    - All amounts are displayed in HUF currency
+    - VAT breakdown is calculated based on the order's final_vat_rate
+    """
+)
+async def print_receipt(
+    order_id: int,
+    db: Session = Depends(get_db)
+) -> dict:
+    """
+    Blokk nyomtatása egy rendeléshez.
+
+    Args:
+        order_id: A rendelés azonosítója
+        db: Database session (injected)
+
+    Returns:
+        dict: Nyomtatás eredménye (success, message, file_path, order_id)
+
+    Raises:
+        HTTPException 404: Ha a rendelés nem található
+        HTTPException 400: Ha a nyomtatás sikertelen
+
+    Example:
+        POST /orders/42/print-receipt
+
+    Example success response:
+        {
+            "success": true,
+            "message": "Blokk sikeresen kinyomtatva: receipt_42_20240115_143000.txt",
+            "file_path": "/path/to/printer_output/receipt_42_20240115_143000.txt",
+            "order_id": 42
+        }
+    """
+    printer_service = PrinterService()
+    result = await printer_service.print_receipt(db, order_id)
+    return result
+
+
+# ============================================================================
+# COURIER ASSIGNMENT ENDPOINT (V3.0 / LOGISTICS-FIX)
+# ============================================================================
+
+@orders_router.post(
+    "/{order_id}/assign-courier",
+    response_model=CourierAssignmentResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Assign courier to order",
+    description="""
+    **V3.0 / LOGISTICS-FIX Feature**: Assign a courier to a delivery order.
+
+    This endpoint allows assigning a courier from service_logistics to a delivery order.
+
+    **Important constraints:**
+    - Only works for orders with type "Kiszállítás" (Delivery)
+    - Automatically updates courier status to ON_DELIVERY via service_logistics API
+
+    **Side effects:**
+    - Updates the order's courier_id field
+    - Calls service_logistics to update courier status to ON_DELIVERY
+    - Updates NTAK metadata for audit trail
+    - Adds a note to the order with the courier assignment details
+    """
+)
+def assign_courier_to_order(
+    order_id: int,
+    request: CourierAssignmentRequest,
+    db: Session = Depends(get_db)
+) -> CourierAssignmentResponse:
+    """
+    **[V3.0 / LOGISTICS-FIX FEATURE]**
+
+    Assign a courier to a delivery order.
+
+    This endpoint is critical for logistics management, allowing the system
+    to track which courier is assigned to which delivery order.
+
+    Args:
+        order_id: The unique order identifier
+        request: CourierAssignmentRequest with courier_id
+        db: Database session (injected)
+
+    Returns:
+        CourierAssignmentResponse: The updated order with assigned courier
+
+    Raises:
+        HTTPException 404: If order is not found
+        HTTPException 400: If order type is not "Kiszállítás"
+        HTTPException 400: If courier assignment fails
+
+    Example request body:
+        {
+            "courier_id": 5
+        }
+
+    Example success response:
+        {
+            "order": {
+                "id": 42,
+                "order_type": "Kiszállítás",
+                "courier_id": 5,
+                ...
+            },
+            "courier_id": 5,
+            "message": "Futár sikeresen hozzárendelve a rendeléshez"
+        }
+
+    Example error response (not delivery order):
+        {
+            "detail": "Csak 'Kiszállítás' típusú rendelésekhez lehet futárt rendelni. Jelenlegi típus: Helyben"
+        }
+    """
+    # Call the service layer which handles all business logic and validation
+    updated_order = OrderService.assign_courier(
+        db=db,
+        order_id=order_id,
+        courier_id=request.courier_id
+    )
+
+    # Build the response
+    return CourierAssignmentResponse(
+        order=OrderResponse.model_validate(updated_order),
+        courier_id=request.courier_id,
+        message="Futár sikeresen hozzárendelve a rendeléshez"
     )
