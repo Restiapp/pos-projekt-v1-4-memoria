@@ -490,7 +490,7 @@ export const AdminFloorPlanPage = () => {
                   onChange={(event) =>
                     updateTableState(selectedTable.id, (table) => ({
                       ...table,
-                      table_number: event.currentTarget.value,
+                      table_number: event.target.value,
                     }))
                   }
                 />
@@ -637,7 +637,7 @@ export const AdminFloorPlanPage = () => {
           <TextInput
             label="Terem neve"
             value={roomForm.name}
-            onChange={(event) => setRoomForm((prev) => ({ ...prev, name: event.currentTarget.value }))}
+            onChange={(event) => setRoomForm((prev) => ({ ...prev, name: event.target.value }))}
           />
           <NumberInput
             label="Szélesség"
