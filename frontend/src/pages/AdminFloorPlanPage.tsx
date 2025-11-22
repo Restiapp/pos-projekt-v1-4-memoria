@@ -54,6 +54,24 @@ const statusColors: Record<TableStatus, { bg: string; text: string; border: stri
   INACTIVE: { bg: '#e9ecef', text: '#495057', border: '#ced4da' },
 };
 
+/**
+ * Színpaletta asztalokhoz - gyönyörű, előre definiált design színek
+ */
+const tableColorPresets: Array<{ name: string; bg: string; text: string; border: string }> = [
+  { name: 'Alapértelmezett', bg: '#ffffff', text: '#000000', border: '#e9ecef' },
+  { name: 'Lágy menta', bg: '#d3f9d8', text: '#2b8a3e', border: '#8ce99a' },
+  { name: 'Égszínkék', bg: '#d0ebff', text: '#1c7ed6', border: '#91d5ff' },
+  { name: 'Barackvirág', bg: '#ffe3e3', text: '#c92a2a', border: '#ffc9c9' },
+  { name: 'Napsárga', bg: '#fff4e6', text: '#e67700', border: '#ffd8a8' },
+  { name: 'Levendula', bg: '#e5dbff', text: '#6741d9', border: '#b197fc' },
+  { name: 'Rózsaszín', bg: '#ffdeeb', text: '#c2255c', border: '#faa2c1' },
+  { name: 'Korall', bg: '#ffe0d4', text: '#d9480f', border: '#ff8a65' },
+  { name: 'Smaragdzöld', bg: '#d0f4de', text: '#087f5b', border: '#96f2d7' },
+  { name: 'Platina', bg: '#f1f3f5', text: '#495057', border: '#dee2e6' },
+  { name: 'Arany', bg: '#fff9db', text: '#c08552', border: '#ffe066' },
+  { name: 'Oceán', bg: '#d8f3fc', text: '#0b7285', border: '#99e9f2' },
+];
+
 const shapeVariant = (shape?: TableShape): 'round' | 'square' | 'rect' => {
   if (shape === 'ROUND') return 'round';
   if (shape === 'SQUARE') return 'square';
@@ -78,6 +96,20 @@ const deriveBoolean = (
     table as Partial<Record<'is_active' | 'is_online_bookable' | 'is_smoking', boolean>>
   )[key];
   return directValue ?? metaValue ?? fallback;
+};
+
+/**
+ * Egyedi szín lekérése a metadata-ból, ha van
+ */
+const getCustomColor = (table: Table): { bg: string; text: string; border: string } | null => {
+  const meta = table.metadata_json as Record<string, unknown> | null | undefined;
+  if (meta?.customColor && typeof meta.customColor === 'object') {
+    const color = meta.customColor as { bg?: string; text?: string; border?: string };
+    if (color.bg && color.text && color.border) {
+      return { bg: color.bg, text: color.text, border: color.border };
+    }
+  }
+  return null;
 };
 
 const defaultRoomSize = { width: 1200, height: 720 };
@@ -585,7 +617,8 @@ export const AdminFloorPlanPage = () => {
               >
                 {filteredTables.map((table) => {
                   const status = deriveStatus(table);
-                  const palette = statusColors[status];
+                  const customColor = getCustomColor(table);
+                  const palette = customColor ?? statusColors[status];
                   const variant = shapeVariant(table.shape);
                   const tableWidth = table.width ?? 96;
                   const height = variant === 'square' ? tableWidth : table.height ?? 96;
@@ -681,6 +714,68 @@ export const AdminFloorPlanPage = () => {
                     }));
                   }}
                 />
+
+                <Divider label="Asztal színe" labelPosition="center" />
+                <Stack gap="xs">
+                  <Text size="sm" c="dimmed">
+                    Válassz színpalettát:
+                  </Text>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                    {tableColorPresets.map((preset, index) => {
+                      const currentCustomColor = getCustomColor(selectedTable);
+                      const isActive =
+                        currentCustomColor?.bg === preset.bg &&
+                        currentCustomColor?.text === preset.text &&
+                        currentCustomColor?.border === preset.border;
+
+                      return (
+                        <div
+                          key={index}
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => {
+                            updateTableState(selectedTable.id, (table) => ({
+                              ...table,
+                              metadata_json: {
+                                ...(table.metadata_json ?? {}),
+                                customColor: { bg: preset.bg, text: preset.text, border: preset.border },
+                              },
+                            }));
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              updateTableState(selectedTable.id, (table) => ({
+                                ...table,
+                                metadata_json: {
+                                  ...(table.metadata_json ?? {}),
+                                  customColor: { bg: preset.bg, text: preset.text, border: preset.border },
+                                },
+                              }));
+                            }
+                          }}
+                          style={{
+                            padding: '8px',
+                            borderRadius: '8px',
+                            backgroundColor: preset.bg,
+                            border: `2px solid ${isActive ? '#228be6' : preset.border}`,
+                            cursor: 'pointer',
+                            textAlign: 'center',
+                            fontSize: '0.75rem',
+                            fontWeight: isActive ? 600 : 400,
+                            color: preset.text,
+                            transition: 'transform 120ms ease, border-color 120ms ease',
+                            boxShadow: isActive ? '0 4px 12px rgba(34, 139, 230, 0.25)' : 'none',
+                            transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                          }}
+                        >
+                          {preset.name}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Stack>
+
+                <Divider />
                 <NumberInput
                   label="X pozíció"
                   value={selectedTable.position_x ?? 0}
