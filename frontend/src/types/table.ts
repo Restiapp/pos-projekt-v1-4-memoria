@@ -3,6 +3,11 @@
  * Backend API sémáknak megfelelően
  */
 
+import type { TableStatus } from '@/utils/tableStatusColor';
+
+// Re-export Room from room.ts for convenience
+export type { Room, RoomCreate, RoomUpdate } from './room';
+
 export interface Table {
     id: number;
     table_number: string;
@@ -15,6 +20,7 @@ export interface Table {
     shape: 'rect' | 'round';
     capacity: number | null;
     metadata_json?: any;
+    status?: TableStatus; // Frontend-computed status
 }
 
 export interface Seat {

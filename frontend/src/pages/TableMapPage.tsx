@@ -1,5 +1,6 @@
 import { MobileAppShell } from '@/components/layout/MobileAppShell';
 import { TableMap } from '@/components/table-map/TableMap';
+import { TableStatusLegend } from '@/components/table-map/TableStatusLegend';
 import { Tabs } from '@mantine/core';
 import { useState } from 'react';
 import './TableMapPage.css';
@@ -28,6 +29,7 @@ export const TableMapPage = () => {
                 position: 'relative'
             }}>
                  <TableMap activeRoom={activeRoom} />
+                 <TableStatusLegend />
             </div>
         </MobileAppShell>
     );

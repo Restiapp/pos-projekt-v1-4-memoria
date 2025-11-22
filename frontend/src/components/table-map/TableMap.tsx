@@ -1,53 +1,85 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Stage, Layer, Group } from 'react-konva';
 import { getTables } from '@/services/tableService';
 import type { Table } from '@/types/table';
-<<<<<<< HEAD
 import { FurnitureShape } from './FurnitureShape';
+import { computeTableStatus } from '@/utils/tableStatusColor';
 
 interface TableMapProps {
     activeRoom: string | null; // room ID or name
 }
-=======
-import { useToast } from '@/components/common/Toast';
-import './TableMap.css';
 
-export const TableMap = () => {
-  const { showToast } = useToast();
-  const [tables, setTables] = useState<Table[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+const POLLING_INTERVAL = 5000; // 5 seconds
 
 export const TableMap = ({ activeRoom }: TableMapProps) => {
     const [tables, setTables] = useState<Table[]>([]);
     const [selectedTableId, setSelectedTableId] = useState<number | null>(null);
+    const [loading, setLoading] = useState(true);
 
     // Canvas dimensions
     const width = window.innerWidth;
     const height = window.innerHeight - 180; // Approximate available height
 
-<<<<<<< HEAD
-    useEffect(() => {
-        const fetchTables = async () => {
-            try {
-                const data = await getTables();
-                // Filter locally for now (until backend filter is active/passed)
-                // Assuming mock activeRoom logic or just showing all
-                setTables(data);
-            } catch (e) {
-                console.error("Failed to load tables", e);
-            }
-        };
-        fetchTables();
+    // Fetch tables with status computation
+    const fetchTables = useCallback(async () => {
+        try {
+            const data = await getTables();
+
+            // Compute status for each table (mock implementation for now)
+            // TODO: Replace with real backend data when available
+            const tablesWithStatus = data.map(table => ({
+                ...table,
+                // For demo purposes, assign random statuses
+                // In production, this should come from orders/reservations data
+                status: computeTableStatus(
+                    Math.random() > 0.7, // hasActiveOrder
+                    Math.random() > 0.8, // isPreparing
+                    Math.random() > 0.9, // isPaying
+                    Math.random() > 0.85  // isReserved
+                )
+            }));
+
+            // Filter by room if activeRoom is set
+            const filteredTables = activeRoom
+                ? tablesWithStatus.filter(t => t.room_id?.toString() === activeRoom)
+                : tablesWithStatus;
+
+            setTables(filteredTables);
+        } catch (e) {
+            console.error("Failed to load tables", e);
+        } finally {
+            setLoading(false);
+        }
     }, [activeRoom]);
-=======
-  // Asztal kattintás kezelése
-  const handleTableClick = (table: Table) => {
-    // TODO: Navigáció a rendelés oldalra vagy részletek megjelenítése
-    showToast(`Asztal: ${table.table_number} (ID: ${table.id})`, 'info');
-  };
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
+
+    // Initial fetch
+    useEffect(() => {
+        fetchTables();
+    }, [fetchTables]);
+
+    // Set up polling for live refresh
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            fetchTables();
+        }, POLLING_INTERVAL);
+
+        // Cleanup interval on unmount
+        return () => clearInterval(intervalId);
+    }, [fetchTables]);
+
+    if (loading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100%',
+                color: '#fff'
+            }}>
+                Betöltés...
+            </div>
+        );
+    }
 
     return (
         <Stage
@@ -83,6 +115,7 @@ export const TableMap = ({ activeRoom }: TableMapProps) => {
                             rotation={table.rotation || 0}
                             capacity={table.capacity || 4}
                             tableNumber={table.table_number}
+                            status={table.status}
                             isSelected={selectedTableId === table.id}
                         />
                     </Group>

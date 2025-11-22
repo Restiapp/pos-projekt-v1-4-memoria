@@ -1,6 +1,7 @@
 import { Group, Rect, Circle, Text } from 'react-konva';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import Konva from 'konva';
+import { getTableStatusColor, type TableStatus } from '@/utils/tableStatusColor';
 
 interface FurnitureShapeProps {
     shape: 'rect' | 'round';
@@ -9,6 +10,7 @@ interface FurnitureShapeProps {
     rotation: number;
     capacity: number;
     tableNumber: string;
+    status?: TableStatus;
     isSelected?: boolean;
     onSelect?: () => void;
 }
@@ -20,9 +22,11 @@ export const FurnitureShape = ({
     rotation,
     capacity,
     tableNumber,
+    status = 'free',
     isSelected
 }: FurnitureShapeProps) => {
     const groupRef = useRef<Konva.Group>(null);
+    const colors = getTableStatusColor(status);
 
     // Helper to calculate chair positions
     const getChairPositions = () => {
@@ -93,9 +97,9 @@ export const FurnitureShape = ({
                 <Circle
                     width={width}
                     height={height}
-                    fill="#694832"
-                    stroke={isSelected ? '#228BE6' : '#3E2C1F'}
-                    strokeWidth={isSelected ? 3 : 1}
+                    fill={colors.primary}
+                    stroke={isSelected ? '#228BE6' : colors.border}
+                    strokeWidth={isSelected ? 3 : 2}
                     shadowBlur={5}
                     x={width/2}
                     y={height/2}
@@ -104,10 +108,10 @@ export const FurnitureShape = ({
                 <Rect
                     width={width}
                     height={height}
-                    fill="#694832"
+                    fill={colors.primary}
                     cornerRadius={4}
-                    stroke={isSelected ? '#228BE6' : '#3E2C1F'}
-                    strokeWidth={isSelected ? 3 : 1}
+                    stroke={isSelected ? '#228BE6' : colors.border}
+                    strokeWidth={isSelected ? 3 : 2}
                     shadowBlur={5}
                 />
             )}
@@ -117,7 +121,7 @@ export const FurnitureShape = ({
                 text={tableNumber}
                 fontSize={16}
                 fontStyle="bold"
-                fill="white"
+                fill={colors.text}
                 align="center"
                 verticalAlign="middle"
                 width={width}

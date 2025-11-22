@@ -1,0 +1,47 @@
+.table-status-legend {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: rgba(44, 46, 51, 0.95);
+  border: 1px solid #4B5563;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 180px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+}
+
+.legend-title {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #F9FAFB;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.legend-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 2px solid;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  font-size: 13px;
+  color: #E5E7EB;
+  font-weight: 500;
+}
