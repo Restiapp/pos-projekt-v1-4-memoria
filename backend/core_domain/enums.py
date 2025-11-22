@@ -46,3 +46,21 @@ class VatRate(str, Enum):
     """
     VAT_27 = "27.00"
     VAT_5 = "5.00"
+
+class RoomType(str, Enum):
+    """
+    Helyiség típusok.
+    """
+    BAR = "BAR"
+    INDOOR = "INDOOR"
+    TERRACE_SMOKING = "TERRACE_SMOKING"
+    TERRACE_NONSMOKING = "TERRACE_NONSMOKING"
+    VIP = "VIP"
+
+class TableShape(str, Enum):
+    """
+    Asztal formák.
+    """
+    ROUND = "ROUND"
+    SQUARE = "SQUARE"
+    RECTANGLE = "RECTANGLE"

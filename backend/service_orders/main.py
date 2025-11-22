@@ -21,7 +21,8 @@ from backend.service_orders.routers import (
     tables_router,
     seats_router,
     orders_router,
-    order_items_router
+    order_items_router,
+    floorplan_router
 )
 from backend.service_orders.routers.rooms import router as rooms_router
 
@@ -73,6 +74,11 @@ app.include_router(
     prefix="/api/v1",
     tags=["Order Items"],
     dependencies=[Depends(require_permission("orders:manage"))]
+)
+app.include_router(
+    floorplan_router.floorplan_router,
+    prefix="/api/v1",
+    tags=["Floorplan"]
 )
 
 
