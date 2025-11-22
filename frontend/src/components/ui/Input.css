@@ -1,0 +1,307 @@
+/**
+ * Input Component Styles - Dark POS Theme
+ */
+
+/* =====================================================
+   WRAPPER & LAYOUT
+   ===================================================== */
+
+.ui-input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.ui-input-wrapper--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   LABEL
+   ===================================================== */
+
+.ui-input-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e5e7eb;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.ui-input-label__required {
+  color: #ef4444;
+  margin-left: 4px;
+  font-weight: 700;
+}
+
+.ui-input-wrapper--disabled .ui-input-label {
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   INPUT CONTAINER
+   ===================================================== */
+
+.ui-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* =====================================================
+   BASE INPUT STYLES
+   ===================================================== */
+
+.ui-input {
+  width: 100%;
+  font-family: inherit;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #f3f4f6;
+  background-color: #1f2937;
+  border: 2px solid #374151;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
+
+.ui-input::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+
+.ui-input:focus {
+  outline: none;
+}
+
+.ui-input:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+.ui-input:disabled {
+  cursor: not-allowed;
+  background-color: #111827;
+  color: #6b7280;
+  border-color: #1f2937;
+}
+
+/* =====================================================
+   SIZES
+   ===================================================== */
+
+.ui-input--md {
+  padding: 12px 16px;
+  font-size: 14px;
+  min-height: 44px;
+}
+
+.ui-input--lg {
+  padding: 16px 20px;
+  font-size: 16px;
+  min-height: 56px;
+}
+
+/* Adjust padding when icons are present */
+.ui-input--has-left-icon.ui-input--md {
+  padding-left: 44px;
+}
+
+.ui-input--has-left-icon.ui-input--lg {
+  padding-left: 56px;
+}
+
+.ui-input--has-right-icon.ui-input--md {
+  padding-right: 44px;
+}
+
+.ui-input--has-right-icon.ui-input--lg {
+  padding-right: 56px;
+}
+
+/* =====================================================
+   VARIANTS
+   ===================================================== */
+
+/* Primary Variant - Blue accent */
+.ui-input--primary:focus {
+  border-color: #3b82f6;
+  background-color: #1f2937;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ui-input--primary:hover:not(:disabled):not(:focus) {
+  border-color: #4b5563;
+}
+
+/* Secondary Variant - Purple/Indigo accent */
+.ui-input--secondary {
+  background-color: #1f2937;
+  border-color: #4b5563;
+}
+
+.ui-input--secondary:focus {
+  border-color: #6366f1;
+  background-color: #1f2937;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.ui-input--secondary:hover:not(:disabled):not(:focus) {
+  border-color: #6b7280;
+}
+
+/* Outline Variant - Subtle border */
+.ui-input--outline {
+  background-color: transparent;
+  border-color: #4b5563;
+}
+
+.ui-input--outline:focus {
+  border-color: #9ca3af;
+  background-color: rgba(31, 41, 55, 0.3);
+  box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.1);
+}
+
+.ui-input--outline:hover:not(:disabled):not(:focus) {
+  border-color: #6b7280;
+  background-color: rgba(31, 41, 55, 0.2);
+}
+
+/* =====================================================
+   STATES
+   ===================================================== */
+
+/* Error State */
+.ui-input--error {
+  border-color: #ef4444 !important;
+  background-color: rgba(239, 68, 68, 0.05);
+}
+
+.ui-input--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Success State */
+.ui-input--success {
+  border-color: #10b981 !important;
+  background-color: rgba(16, 185, 129, 0.05);
+}
+
+.ui-input--success:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+/* =====================================================
+   ICONS
+   ===================================================== */
+
+.ui-input-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  color: #9ca3af;
+  font-size: 18px;
+}
+
+.ui-input-icon--left {
+  left: 14px;
+}
+
+.ui-input-icon--right {
+  right: 14px;
+}
+
+.ui-input-wrapper--md .ui-input-icon {
+  font-size: 18px;
+}
+
+.ui-input-wrapper--lg .ui-input-icon {
+  font-size: 20px;
+}
+
+/* =====================================================
+   MESSAGES (Helper, Error, Success)
+   ===================================================== */
+
+.ui-input-message {
+  font-size: 13px;
+  line-height: 1.4;
+  min-height: 18px;
+}
+
+.ui-input-message--helper {
+  color: #9ca3af;
+}
+
+.ui-input-message--error {
+  color: #f87171;
+  font-weight: 500;
+}
+
+.ui-input-message--error::before {
+  content: '⚠ ';
+  margin-right: 4px;
+}
+
+.ui-input-message--success {
+  color: #34d399;
+  font-weight: 500;
+}
+
+.ui-input-message--success::before {
+  content: '✓ ';
+  margin-right: 4px;
+}
+
+/* =====================================================
+   ACCESSIBILITY - High Contrast Mode
+   ===================================================== */
+
+@media (prefers-contrast: high) {
+  .ui-input {
+    border-width: 3px;
+  }
+
+  .ui-input--error {
+    border-width: 3px;
+  }
+
+  .ui-input--success {
+    border-width: 3px;
+  }
+}
+
+/* =====================================================
+   ACCESSIBILITY - Reduced Motion
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-input {
+    transition: none;
+  }
+}
+
+/* =====================================================
+   BROWSER AUTOFILL STYLES
+   ===================================================== */
+
+.ui-input:-webkit-autofill,
+.ui-input:-webkit-autofill:hover,
+.ui-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f3f4f6;
+  -webkit-box-shadow: 0 0 0 1000px #1f2937 inset;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.ui-input:-moz-autofill,
+.ui-input:-moz-autofill:hover,
+.ui-input:-moz-autofill:focus {
+  background-color: #1f2937;
+  color: #f3f4f6;
+}

@@ -1,0 +1,230 @@
+/**
+ * Button Component Styles - Dark POS Theme
+ */
+
+/* =====================================================
+   BASE BUTTON STYLES
+   ===================================================== */
+
+.ui-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  line-height: 1;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ui-button:focus {
+  outline: none;
+}
+
+.ui-button:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+/* =====================================================
+   SIZES
+   ===================================================== */
+
+.ui-button--md {
+  padding: 12px 24px;
+  font-size: 14px;
+  min-height: 44px;
+  min-width: 100px;
+}
+
+.ui-button--lg {
+  padding: 16px 32px;
+  font-size: 16px;
+  min-height: 56px;
+  min-width: 120px;
+}
+
+/* =====================================================
+   VARIANTS
+   ===================================================== */
+
+/* Primary Variant - Bright blue for main actions */
+.ui-button--primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.ui-button--primary:active:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+/* Secondary Variant - Purple/Indigo for secondary actions */
+.ui-button--secondary {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  color: #ffffff;
+  border-color: transparent;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.ui-button--secondary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.ui-button--secondary:active:not(:disabled) {
+  background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+}
+
+/* Outline Variant - Dark theme with border */
+.ui-button--outline {
+  background: transparent;
+  color: #e5e7eb;
+  border-color: #4b5563;
+  box-shadow: none;
+}
+
+.ui-button--outline:hover:not(:disabled) {
+  background: rgba(75, 85, 99, 0.2);
+  border-color: #6b7280;
+  color: #f3f4f6;
+  transform: translateY(-1px);
+}
+
+.ui-button--outline:active:not(:disabled) {
+  background: rgba(75, 85, 99, 0.3);
+  border-color: #9ca3af;
+  transform: translateY(0);
+}
+
+/* =====================================================
+   STATES
+   ===================================================== */
+
+/* Disabled State */
+.ui-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.ui-button--primary:disabled {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: #9ca3af;
+}
+
+.ui-button--secondary:disabled {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  color: #9ca3af;
+}
+
+.ui-button--outline:disabled {
+  background: transparent;
+  border-color: #374151;
+  color: #6b7280;
+}
+
+/* Loading State */
+.ui-button--loading {
+  cursor: wait;
+  pointer-events: none;
+}
+
+.ui-button__content--loading {
+  opacity: 0.6;
+}
+
+/* =====================================================
+   LOADING SPINNER
+   ===================================================== */
+
+.ui-button__spinner {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.ui-button__spinner-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: ui-button-pulse 1.4s ease-in-out infinite;
+}
+
+.ui-button__spinner-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.ui-button__spinner-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.ui-button__spinner-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes ui-button-pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =====================================================
+   ACCESSIBILITY - High Contrast Mode
+   ===================================================== */
+
+@media (prefers-contrast: high) {
+  .ui-button {
+    border-width: 3px;
+  }
+
+  .ui-button--primary,
+  .ui-button--secondary {
+    border-color: currentColor;
+  }
+}
+
+/* =====================================================
+   ACCESSIBILITY - Reduced Motion
+   ===================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-button,
+  .ui-button__spinner-dot {
+    animation: none;
+    transition: none;
+  }
+
+  .ui-button:hover:not(:disabled),
+  .ui-button:active:not(:disabled) {
+    transform: none;
+  }
+}
