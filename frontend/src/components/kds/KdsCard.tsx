@@ -141,7 +141,7 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
       <div className="kds-card-actions">
         {item.kds_status === 'PENDING' && (
           <button
-            onClick={() => handleStatusChange('PREPARING')}
+            onClick={() => handleStatusChange('PREPARING' as KdsStatus)}
             disabled={isUpdating}
             className="btn btn-start"
           >
@@ -150,7 +150,7 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
         )}
         {item.kds_status === 'PREPARING' && (
           <button
-            onClick={() => handleStatusChange('READY')}
+            onClick={() => handleStatusChange('READY' as KdsStatus)}
             disabled={isUpdating}
             className="btn btn-complete"
           >
@@ -159,7 +159,7 @@ export const KdsCard = ({ item, onStatusChange }: KdsCardProps) => {
         )}
         {item.kds_status === 'READY' && (
           <button
-            onClick={() => handleStatusChange('SERVED')}
+            onClick={() => handleStatusChange('SERVED' as KdsStatus)}
             disabled={isUpdating}
             className="btn btn-serve"
           >
