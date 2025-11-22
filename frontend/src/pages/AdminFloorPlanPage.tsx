@@ -482,8 +482,16 @@ export const AdminFloorPlanPage = () => {
   };
 
   const openTableModal = () => {
+    // Következő szabad asztalszám megkeresése
+    const existingNumbers = tables.map(t => {
+      const num = parseInt(t.table_number, 10);
+      return isNaN(num) ? 0 : num;
+    });
+    const maxNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) : 0;
+    const nextNumber = maxNumber + 1;
+
     setTableForm({
-      table_number: '',
+      table_number: nextNumber.toString(),
       shape: 'RECTANGLE',
       capacity: 4,
     });
