@@ -14,22 +14,16 @@ import { useState, useEffect } from 'react';
 import { getAssetGroups, deleteAssetGroup } from '@/services/assetService';
 import { AssetGroupEditor } from './AssetGroupEditor';
 import type { AssetGroup } from '@/types/asset';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-import { useAuthStore } from '@/stores/authStore';
-import './AssetGroupList.css';
-
-export const AssetGroupList = () => {
-  const { isAuthenticated } = useAuthStore();
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetGroupList.css';
 
 export const AssetGroupList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [assetGroups, setAssetGroups] = useState<AssetGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -52,11 +46,7 @@ export const AssetGroupList = () => {
       setAssetGroups(data);
     } catch (error) {
       console.error('Hiba az eszközcsoportok betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni az eszközcsoportokat!');
-=======
       showToast('Nem sikerült betölteni az eszközcsoportokat!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -91,19 +81,11 @@ export const AssetGroupList = () => {
 
     try {
       await deleteAssetGroup(group.id);
-<<<<<<< HEAD
-      notify.success('Eszközcsoport sikeresen törölve!');
-      fetchAssetGroups(); // Lista frissítése
-    } catch (error) {
-      console.error('Hiba az eszközcsoport törlésekor:', error);
-      notify.error('Nem sikerült törölni az eszközcsoportot!');
-=======
       showToast('Eszközcsoport sikeresen törölve!', 'success');
       fetchAssetGroups(); // Lista frissítése
     } catch (error) {
       console.error('Hiba az eszközcsoport törlésekor:', error);
       showToast('Nem sikerült törölni az eszközcsoportot!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

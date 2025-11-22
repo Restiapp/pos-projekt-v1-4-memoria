@@ -15,22 +15,16 @@ import { useState, useEffect } from 'react';
 import { getCustomers, deleteCustomer, updateLoyaltyPoints } from '@/services/crmService';
 import { CustomerEditor } from './CustomerEditor';
 import type { Customer } from '@/types/customer';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-import { useAuthStore } from '@/stores/authStore';
-import './CustomerList.css';
-
-export const CustomerList = () => {
-  const { isAuthenticated } = useAuthStore();
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
 import './CustomerList.css';
 
 export const CustomerList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [total, setTotal] = useState(0);
@@ -65,11 +59,7 @@ export const CustomerList = () => {
       setTotal(response.total);
     } catch (error) {
       console.error('Hiba a vendégek betöltésekor:', error);
-<<<<<<< HEAD
-      notify.error('Nem sikerült betölteni a vendégeket!');
-=======
       showToast('Nem sikerült betölteni a vendégeket!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsLoading(false);
     }
@@ -104,19 +94,11 @@ export const CustomerList = () => {
 
     try {
       await deleteCustomer(customer.id);
-<<<<<<< HEAD
-      notify.success('Vendég sikeresen törölve!');
-      fetchCustomers(); // Lista frissítése
-    } catch (error) {
-      console.error('Hiba a vendég törlésekor:', error);
-      notify.error('Nem sikerült törölni a vendéget!');
-=======
       showToast('Vendég sikeresen törölve!', 'success');
       fetchCustomers(); // Lista frissítése
     } catch (error) {
       console.error('Hiba a vendég törlésekor:', error);
       showToast('Nem sikerült törölni a vendéget!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     }
   };
 

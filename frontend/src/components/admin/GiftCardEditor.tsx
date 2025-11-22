@@ -11,12 +11,8 @@
 import { useState } from 'react';
 import { createGiftCard, updateGiftCard } from '@/services/crmService';
 import type { GiftCard, GiftCardCreate, GiftCardUpdate } from '@/types/giftCard';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './GiftCardEditor.css';
 
 interface GiftCardEditorProps {
@@ -67,11 +63,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
 
     // Validáció
     if (!formData.card_code.trim()) {
-<<<<<<< HEAD
-      notify.warning('A kártyakód kötelező!');
-=======
       showToast('A kártyakód kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -80,21 +72,13 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
       // Ha PIN kódot adtak meg, ellenőrizzük a formátumot
       const pinRegex = /^[0-9]{4,10}$/; // 4-10 számjegy
       if (!pinRegex.test(formData.pin_code)) {
-<<<<<<< HEAD
-        notify.warning('A PIN kód 4-10 számjegyből kell álljon!');
-=======
         showToast('A PIN kód 4-10 számjegyből kell álljon!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
         return;
       }
     }
 
     if (formData.initial_balance <= 0 && !isEditing) {
-<<<<<<< HEAD
-      notify.warning('A kezdeti egyenleg nagyobb kell legyen nullánál!');
-=======
       showToast('A kezdeti egyenleg nagyobb kell legyen nullánál!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -109,11 +93,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
           is_active: formData.is_active,
         };
         await updateGiftCard(giftCard.id, updateData);
-<<<<<<< HEAD
-        notify.success('Ajándékkártya sikeresen frissítve!');
-=======
         showToast('Ajándékkártya sikeresen frissítve!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: GiftCardCreate = {
@@ -124,11 +104,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
           is_active: formData.is_active,
         };
         await createGiftCard(createData);
-<<<<<<< HEAD
-        notify.success('Ajándékkártya sikeresen létrehozva!');
-=======
         showToast('Ajándékkártya sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -136,11 +112,7 @@ export const GiftCardEditor = ({ giftCard, onClose }: GiftCardEditorProps) => {
       console.error('Hiba az ajándékkártya mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni az ajándékkártyát!';
-<<<<<<< HEAD
-      notify.error(errorMessage);
-=======
       showToast(errorMessage, 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }

@@ -12,12 +12,8 @@
 import { useState } from 'react';
 import { createEmployee, updateEmployee } from '@/services/employeeService';
 import type { Employee, Role, EmployeeCreate, EmployeeUpdate } from '@/types/employee';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
 import { useToast } from '@/components/common/Toast';
 import { useConfirm } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './EmployeeEditor.css';
 
 interface EmployeeEditorProps {
@@ -79,59 +75,35 @@ export const EmployeeEditor = ({
 
     // Validáció
     if (!formData.full_name.trim()) {
-<<<<<<< HEAD
-      notify.warning('A teljes név kötelező!');
-=======
       showToast('A teljes név kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.username.trim()) {
-<<<<<<< HEAD
-      notify.warning('A felhasználónév kötelező!');
-=======
       showToast('A felhasználónév kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (!formData.email.trim()) {
-<<<<<<< HEAD
-      notify.warning('Az email cím kötelező!');
-=======
       showToast('Az email cím kötelező!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     // Email formátum validáció (egyszerű)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-<<<<<<< HEAD
-      notify.warning('Érvénytelen email formátum!');
-=======
       showToast('Érvénytelen email formátum!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     // Jelszó validáció (csak új munkatársnál kötelező)
     if (!isEditing && !formData.password) {
-<<<<<<< HEAD
-      notify.warning('A jelszó (PIN kód) kötelező új munkatársnál!');
-=======
       showToast('A jelszó (PIN kód) kötelező új munkatársnál!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
     if (formData.password && formData.password.length < 4) {
-<<<<<<< HEAD
-      notify.warning('A jelszó (PIN kód) legalább 4 karakter hosszú legyen!');
-=======
       showToast('A jelszó (PIN kód) legalább 4 karakter hosszú legyen!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
 
@@ -154,11 +126,7 @@ export const EmployeeEditor = ({
         }
 
         await updateEmployee(employee.id, updateData);
-<<<<<<< HEAD
-        notify.success('Munkatárs sikeresen frissítve!');
-=======
         showToast('Munkatárs sikeresen frissítve!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       } else {
         // Létrehozás
         const createData: EmployeeCreate = {
@@ -171,11 +139,7 @@ export const EmployeeEditor = ({
         };
 
         await createEmployee(createData);
-<<<<<<< HEAD
-        notify.success('Munkatárs sikeresen létrehozva!');
-=======
         showToast('Munkatárs sikeresen létrehozva!', 'success');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       }
 
       onClose(true); // Bezárás + lista frissítése
@@ -183,11 +147,7 @@ export const EmployeeEditor = ({
       console.error('Hiba a munkatárs mentésekor:', error);
       const errorMessage =
         error.response?.data?.detail || 'Nem sikerült menteni a munkatársat!';
-<<<<<<< HEAD
-      notify.error(errorMessage);
-=======
       showToast(errorMessage, 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
     } finally {
       setIsSubmitting(false);
     }
