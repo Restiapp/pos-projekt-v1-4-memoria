@@ -1,0 +1,185 @@
+/**
+ * TakeawayOrders Styles
+ */
+
+.takeaway-orders {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.takeaway-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border-bottom: 2px solid #e04e5f;
+}
+
+.takeaway-section-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.order-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.takeaway-orders-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.takeaway-order-card {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.takeaway-order-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.order-number {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+}
+
+.order-time {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.order-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.order-status {
+  display: flex;
+  align-items: center;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-nyitott {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-feldolgozva {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-lezart {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.status-sztornó {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.order-notes {
+  font-size: 0.875rem;
+  color: #555;
+  font-style: italic;
+}
+
+.order-total {
+  font-size: 1rem;
+  color: #333;
+  text-align: right;
+  margin-top: 0.25rem;
+}
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  color: #999;
+  font-size: 1rem;
+}
+
+.takeaway-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  color: #d32f2f;
+}
+
+.retry-btn {
+  padding: 0.5rem 1rem;
+  background: #f5576c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.retry-btn:hover {
+  background: #e04e5f;
+}
+
+.retry-btn:active {
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .takeaway-section-header h2 {
+    font-size: 1rem;
+  }
+
+  .takeaway-orders-list {
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .takeaway-order-card {
+    padding: 0.75rem;
+  }
+}
