@@ -3,7 +3,7 @@
  */
 
 import { api } from '@/utils/api';
-import type { Room, RoomCreate, RoomUpdate } from '@/types/room';
+import type { Room, RoomCreate, RoomUpdate, RoomReorder } from '@/types/room';
 
 export const getRooms = async (): Promise<Room[]> => {
     const response = await api.get<Room[]>('/rooms/');
@@ -27,4 +27,14 @@ export const updateRoom = async (id: number, data: RoomUpdate): Promise<Room> =>
 
 export const deleteRoom = async (id: number): Promise<void> => {
     await api.delete(`/rooms/${id}`);
+};
+
+export const toggleRoomActive = async (id: number): Promise<Room> => {
+    const response = await api.patch<Room>(`/rooms/${id}/deactivate`);
+    return response.data;
+};
+
+export const reorderRooms = async (roomIds: number[]): Promise<Room[]> => {
+    const response = await api.patch<Room[]>('/rooms/order', { room_ids: roomIds });
+    return response.data;
 };

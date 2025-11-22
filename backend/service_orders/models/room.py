@@ -5,7 +5,7 @@ Module 1: Floor Plan Management
 Helyiségek (pl. Terasz, Nagyterem) definíciója.
 """
 
-from sqlalchemy import Column, Integer, String, Enum
+from sqlalchemy import Column, Integer, String, Enum, Boolean
 from sqlalchemy.orm import relationship
 from backend.service_orders.models.database import Base
 
@@ -18,9 +18,11 @@ class Room(Base):
     width = Column(Integer, default=800) # Canvas width
     height = Column(Integer, default=600) # Canvas height
     background_image_url = Column(String(255), nullable=True)
+    is_active = Column(Boolean, default=True, nullable=False)
+    display_order = Column(Integer, default=0, nullable=False)
 
     # Relationships
     tables = relationship('Table', back_populates='room', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f"<Room(id={self.id}, name='{self.name}')>"
+        return f"<Room(id={self.id}, name='{self.name}', is_active={self.is_active})>"

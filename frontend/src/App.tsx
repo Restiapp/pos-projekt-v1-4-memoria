@@ -31,20 +31,21 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
-<<<<<<< HEAD
 // ÚJ IMPORT - Dashboard Analytics (Reports)
 import { ReportsPage } from '@/pages/ReportsPage';
 
 // ÚJ IMPORT - Fázis 4 (Inventory)
 import { InventoryPage } from '@/pages/InventoryPage';
 
+// ÚJ IMPORT - Admin Room Editor (Sprint 1)
+import { RoomEditorPage } from '@/pages/admin/RoomEditorPage';
+
 // DEBUG
 import { DebugAuthPage } from '@/pages/DebugAuthPage';
-=======
+
 // Toast and ConfirmDialog Providers
 import { ToastProvider } from '@/components/common/Toast';
 import { ConfirmProvider } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 
 function App() {
   const { loadUserFromStorage } = useAuth();
@@ -147,6 +148,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="orders:manage">
                 <TableMapPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ÚJ: Nested Route: /admin/rooms - Room Management (Sprint 1) */}
+          <Route
+            path="rooms"
+            element={
+              <ProtectedRoute requiredPermission="orders:manage">
+                <RoomEditorPage />
               </ProtectedRoute>
             }
           />

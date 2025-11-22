@@ -9,6 +9,8 @@ export interface Room {
     width: number;
     height: number;
     background_image_url?: string;
+    is_active: boolean;
+    display_order: number;
 }
 
 export interface RoomCreate {
@@ -16,6 +18,8 @@ export interface RoomCreate {
     type?: string;
     width?: number;
     height?: number;
+    is_active?: boolean;
+    display_order?: number;
 }
 
 export interface RoomUpdate {
@@ -23,4 +27,10 @@ export interface RoomUpdate {
     type?: string;
     width?: number;
     height?: number;
+    is_active?: boolean;
+    display_order?: number;
+}
+
+export interface RoomReorder {
+    room_ids: number[];
 }

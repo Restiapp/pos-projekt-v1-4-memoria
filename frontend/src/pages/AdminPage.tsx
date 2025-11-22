@@ -10,11 +10,7 @@
 
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-<<<<<<< HEAD
-import { notify } from '@/utils/notifications';
-=======
 import { useToast } from '@/components/common/Toast';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 import './AdminPage.css';
 
 interface MenuItem {
@@ -46,6 +42,13 @@ const MENU_ITEMS: MenuItem[] = [
     label: 'Asztalok',
     icon: '🪑',
     path: '/admin/tables',
+    permission: 'orders:manage',
+  },
+  {
+    id: 'rooms',
+    label: 'Helyiségek',
+    icon: '🏠',
+    path: '/admin/rooms',
     permission: 'orders:manage',
   },
   // HOTFIX: Foglalások komponens még nincs kifejlesztve
@@ -168,11 +171,7 @@ export const AdminPage = () => {
   const handleMenuClick = (item: MenuItem) => {
     // Jogosultság ellenőrzés (opcionális, a route is védett)
     if (item.permission && !hasPermission(item.permission)) {
-<<<<<<< HEAD
-      notify.warning('Nincs jogosultságod ehhez a funkcióhoz!');
-=======
       showToast('Nincs jogosultságod ehhez a funkcióhoz!', 'error');
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
       return;
     }
     navigate(item.path);

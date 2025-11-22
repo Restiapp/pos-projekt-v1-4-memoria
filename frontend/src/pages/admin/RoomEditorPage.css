@@ -1,0 +1,178 @@
+/**
+ * RoomEditorPage Styles
+ */
+
+.room-editor-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #333;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.loading-state,
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #666;
+  font-size: 16px;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* Rooms List */
+.rooms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.room-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: move;
+  transition: all 0.2s ease;
+}
+
+.room-card:hover {
+  border-color: #228be6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.room-card.dragging {
+  opacity: 0.5;
+  border-color: #228be6;
+  border-style: dashed;
+}
+
+.room-card.inactive {
+  background: #f5f5f5;
+  opacity: 0.7;
+}
+
+.drag-handle {
+  font-size: 24px;
+  color: #999;
+  cursor: grab;
+  user-select: none;
+  line-height: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.room-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-name {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.room-details {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #666;
+}
+
+.room-type,
+.room-dimensions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.room-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Modal Form */
+.room-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .room-editor-page {
+    padding: 16px;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .header-actions button {
+    flex: 1;
+  }
+
+  .room-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .room-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
