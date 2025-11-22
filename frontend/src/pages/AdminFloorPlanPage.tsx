@@ -83,21 +83,26 @@ const tableColorPresets: Array<{ name: string; bg: string; text: string; border:
 ];
 
 /**
- * Színpaletta termekhez - gyönyörű hátterek és színek
+ * Mintázat paletta termekhez - vibráló modern minták és textúrák
  */
 const roomColorPresets: Array<{ name: string; bg: string }> = [
   { name: 'Alapértelmezett', bg: '#f8fafc' },
-  { name: 'Szenes szürke', bg: '#e9ecef' },
-  { name: 'Világos menta', bg: '#e6fcf5' },
-  { name: 'Lágy kék', bg: '#e7f5ff' },
-  { name: 'Barack árnyalat', bg: '#fff5f5' },
-  { name: 'Krém sárga', bg: '#fffbeb' },
-  { name: 'Levendula pasztell', bg: '#f3f0ff' },
-  { name: 'Rózsa pasztell', bg: '#fff0f6' },
-  { name: 'Barackbarna', bg: '#fff4e6' },
-  { name: 'Tengerzöld', bg: '#e3fafc' },
-  { name: 'Bézs', bg: '#f8f9fa' },
-  { name: 'Homok', bg: '#fef6e7' },
+  // CSS Gradient alapú minták
+  { name: 'Elektromos Fa', bg: 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%), repeating-linear-gradient(90deg, transparent, transparent 20px, rgba(57, 255, 20, 0.3) 20px, rgba(57, 255, 20, 0.3) 22px)' },
+  { name: 'Neon Terrazzo', bg: 'radial-gradient(circle at 20% 30%, #FF00FF 0px, transparent 8px), radial-gradient(circle at 60% 70%, #00FFFF 0px, transparent 6px), radial-gradient(circle at 80% 20%, #FEFE22 0px, transparent 10px), radial-gradient(circle at 30% 80%, #FF6EC7 0px, transparent 7px), radial-gradient(circle at 50% 50%, #39FF14 0px, transparent 5px), #f0f0f0' },
+  { name: 'Halszálka Blokk', bg: 'repeating-linear-gradient(45deg, #228be6 0px, #228be6 40px, #ffd43b 40px, #ffd43b 80px, #ff6b6b 80px, #ff6b6b 120px)' },
+  { name: 'Gyanta Folyó', bg: 'linear-gradient(90deg, #3d3d3d 0%, #3d3d3d 40%, #9F00FF 40%, #9F00FF 45%, #00F5FF 45%, #00F5FF 50%, #9F00FF 50%, #9F00FF 55%, #00F5FF 55%, #00F5FF 60%, #3d3d3d 60%, #3d3d3d 100%)' },
+  { name: 'Beton Geometria', bg: 'linear-gradient(45deg, transparent 30%, rgba(255, 0, 144, 0.7) 30%, rgba(255, 0, 144, 0.7) 40%, transparent 40%), linear-gradient(-45deg, transparent 60%, rgba(0, 255, 255, 0.7) 60%, rgba(0, 255, 255, 0.7) 70%, transparent 70%), #6c757d' },
+  { name: 'Ombre Plywood', bg: 'linear-gradient(180deg, #9F00FF 0%, #BF00FF 25%, #FF00FF 50%, #7FFF00 75%, #39FF14 100%)' },
+  { name: 'Pixel Mozaik', bg: 'repeating-conic-gradient(from 0deg at 50% 50%, #00FFFF 0deg 90deg, #FF00FF 90deg 180deg, #FEFE22 180deg 270deg, #000000 270deg 360deg) 0 0 / 20px 20px' },
+  { name: 'Kromatikus Olvadás', bg: 'radial-gradient(ellipse at 30% 50%, #FF00FF 0%, transparent 50%), radial-gradient(ellipse at 70% 60%, #00FFFF 0%, transparent 50%), radial-gradient(ellipse at 50% 30%, #FEFE22 0%, transparent 50%), linear-gradient(135deg, #9F00FF, #FF6EC7)' },
+  { name: 'Acid Jungle', bg: 'radial-gradient(ellipse at 20% 80%, rgba(159, 0, 255, 0.6) 0%, transparent 50%), radial-gradient(ellipse at 60% 20%, rgba(0, 255, 255, 0.6) 0%, transparent 50%), radial-gradient(ellipse at 80% 70%, rgba(255, 110, 199, 0.6) 0%, transparent 50%), #000000' },
+  { name: 'Cyberpunk Rács', bg: 'linear-gradient(0deg, transparent 24%, rgba(0, 255, 255, 0.5) 25%, rgba(0, 255, 255, 0.5) 26%, transparent 27%, transparent 74%, rgba(255, 0, 144, 0.5) 75%, rgba(255, 0, 144, 0.5) 76%, transparent 77%), linear-gradient(90deg, transparent 24%, rgba(0, 255, 255, 0.5) 25%, rgba(0, 255, 255, 0.5) 26%, transparent 27%, transparent 74%, rgba(255, 0, 144, 0.5) 75%, rgba(255, 0, 144, 0.5) 76%, transparent 77%), #0a0a1a' },
+  { name: 'Memphis Max', bg: 'repeating-linear-gradient(45deg, #FF00FF 0px, #FF00FF 10px, #00FFFF 10px, #00FFFF 20px, #FEFE22 20px, #FEFE22 30px), repeating-linear-gradient(-45deg, transparent 0px, transparent 10px, rgba(255, 255, 255, 0.3) 10px, rgba(255, 255, 255, 0.3) 11px)' },
+  { name: 'Elektromos Márvány', bg: 'linear-gradient(135deg, #ffffff 25%, transparent 25%), linear-gradient(225deg, #ffffff 25%, transparent 25%), linear-gradient(45deg, rgba(0, 255, 255, 0.3) 10%, transparent 10%), linear-gradient(135deg, rgba(159, 0, 255, 0.3) 10%, transparent 10%), linear-gradient(225deg, rgba(255, 215, 0, 0.3) 10%, transparent 10%), #f5f5f5' },
+  { name: 'Neon Wireframe', bg: 'linear-gradient(0deg, transparent 48%, rgba(0, 255, 255, 0.8) 49%, rgba(0, 255, 255, 0.8) 51%, transparent 52%), linear-gradient(90deg, transparent 48%, rgba(255, 0, 144, 0.8) 49%, rgba(255, 0, 144, 0.8) 51%, transparent 52%), #0a0a0a' },
+  { name: 'Gradient Halftone', bg: 'radial-gradient(circle, #FF00FF 20%, transparent 20%), radial-gradient(circle, #00FFFF 20%, transparent 20%), radial-gradient(circle, #FEFE22 20%, transparent 20%), linear-gradient(90deg, #FF00FF, #00FFFF, #FEFE22)' },
+  { name: 'Izzó Topográfia', bg: 'repeating-radial-gradient(circle at 50% 50%, transparent 0px, transparent 20px, rgba(0, 255, 255, 0.4) 20px, rgba(0, 255, 255, 0.4) 21px, transparent 21px, transparent 40px, rgba(255, 0, 144, 0.4) 40px, rgba(255, 0, 144, 0.4) 41px), #000000' },
 ];
 
 const shapeVariant = (shape?: TableShape): 'round' | 'square' | 'rect' => {
@@ -389,10 +394,12 @@ export const AdminFloorPlanPage = () => {
 
   const openRoomModal = (mode: RoomModalMode, room?: Room) => {
     setRoomModalMode(mode);
-    // Extract color from background_image_url if it's a color: value
-    const bgColor =
+    // Extract color or pattern from background_image_url
+    const bgValue =
       room?.background_image_url?.startsWith('color:') ?
         room.background_image_url.substring(6) :
+        room?.background_image_url?.startsWith('pattern:') ?
+        room.background_image_url.substring(8) :
         '#f8fafc';
 
     setRoomForm({
@@ -401,7 +408,7 @@ export const AdminFloorPlanPage = () => {
       width: room?.width ?? defaultRoomSize.width,
       height: room?.height ?? defaultRoomSize.height,
       type: room?.type ?? 'indoor',
-      backgroundColor: bgColor,
+      backgroundColor: bgValue,
     });
     setRoomModalOpen(true);
   };
@@ -413,12 +420,14 @@ export const AdminFloorPlanPage = () => {
     }
 
     try {
+      // Check if backgroundColor is a gradient/pattern or simple color
+      const isPattern = roomForm.backgroundColor.includes('gradient') || roomForm.backgroundColor.includes('repeating');
       const roomData = {
         name: roomForm.name.trim(),
         width: roomForm.width,
         height: roomForm.height,
         type: roomForm.type,
-        background_image_url: `color:${roomForm.backgroundColor}`,
+        background_image_url: isPattern ? `pattern:${roomForm.backgroundColor}` : `color:${roomForm.backgroundColor}`,
       };
 
       if (roomModalMode === 'add') {
@@ -762,10 +771,12 @@ export const AdminFloorPlanPage = () => {
                 style={{
                   width: activeRoom?.width ?? defaultRoomSize.width,
                   height: activeRoom?.height ?? defaultRoomSize.height,
-                  backgroundColor:
-                    activeRoom?.background_image_url?.startsWith('color:') ?
-                      activeRoom.background_image_url.substring(6) :
-                      '#f8fafc',
+                  ...(activeRoom?.background_image_url?.startsWith('color:') ?
+                    { backgroundColor: activeRoom.background_image_url.substring(6) } :
+                    activeRoom?.background_image_url?.startsWith('pattern:') ?
+                    { background: activeRoom.background_image_url.substring(8) } :
+                    { backgroundColor: '#f8fafc' }
+                  ),
                 }}
               >
                 {filteredTables.map((table) => {
@@ -1109,14 +1120,24 @@ export const AdminFloorPlanPage = () => {
             onChange={(value) => setRoomForm((prev) => ({ ...prev, type: value ?? prev.type }))}
           />
 
-          <Divider label="Terem színe" labelPosition="center" />
+          <Divider label="Terem mintázat" labelPosition="center" />
           <Stack gap="xs">
             <Text size="sm" c="dimmed">
-              Válassz háttérszínt:
+              Válassz háttér mintázatot:
             </Text>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '6px',
+                maxHeight: '320px',
+                overflowY: 'auto',
+                padding: '4px',
+              }}
+            >
               {roomColorPresets.map((preset, index) => {
                 const isActive = roomForm.backgroundColor === preset.bg;
+                const isPattern = preset.bg.includes('gradient') || preset.bg.includes('repeating');
 
                 return (
                   <div
@@ -1132,18 +1153,24 @@ export const AdminFloorPlanPage = () => {
                       }
                     }}
                     style={{
-                      padding: '12px 8px',
-                      borderRadius: '8px',
-                      backgroundColor: preset.bg,
+                      padding: '8px 6px',
+                      borderRadius: '6px',
+                      background: isPattern ? preset.bg : 'none',
+                      backgroundColor: isPattern ? 'transparent' : preset.bg,
                       border: `2px solid ${isActive ? '#228be6' : '#dee2e6'}`,
                       cursor: 'pointer',
                       textAlign: 'center',
-                      fontSize: '0.7rem',
-                      fontWeight: isActive ? 600 : 400,
-                      color: '#495057',
-                      transition: 'transform 120ms ease, border-color 120ms ease',
-                      boxShadow: isActive ? '0 4px 12px rgba(34, 139, 230, 0.25)' : 'none',
+                      fontSize: '0.65rem',
+                      fontWeight: isActive ? 700 : 500,
+                      color: isPattern ? '#ffffff' : '#495057',
+                      textShadow: isPattern ? '0 1px 3px rgba(0,0,0,0.8)' : 'none',
+                      transition: 'all 120ms ease',
+                      boxShadow: isActive ? '0 2px 8px rgba(34, 139, 230, 0.35)' : '0 1px 3px rgba(0,0,0,0.1)',
                       transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                      minHeight: '48px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
                   >
                     {preset.name}
