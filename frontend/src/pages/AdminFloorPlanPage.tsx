@@ -23,7 +23,7 @@ import {
 } from '@tabler/icons-react';
 import { useToast } from '@/components/common/Toast';
 import { getRooms, createRoom, updateRoom } from '@/services/roomService';
-import { getTables, updateTable } from '@/services/tableService';
+import { getTables, updateTable, createTable } from '@/services/tableService';
 import type { Room } from '@/types/room';
 import type { Table, TableShape, TableStatus } from '@/types/table';
 import './AdminFloorPlanPage.css';
@@ -40,9 +40,9 @@ const statusOptions: { label: string; value: TableStatus }[] = [
 ];
 
 const shapeOptions: { label: string; value: TableShape }[] = [
-  { label: 'Kör', value: 'round' },
-  { label: 'Négyzet', value: 'square' },
-  { label: 'Téglalap', value: 'rect' },
+  { label: 'Kör', value: 'ROUND' },
+  { label: 'Négyzet', value: 'SQUARE' },
+  { label: 'Téglalap', value: 'RECTANGLE' },
 ];
 
 const statusColors: Record<TableStatus, { bg: string; text: string; border: string }> = {
@@ -55,9 +55,9 @@ const statusColors: Record<TableStatus, { bg: string; text: string; border: stri
 };
 
 const shapeVariant = (shape?: TableShape): 'round' | 'square' | 'rect' => {
-  if (shape === 'round') return 'round';
-  if (shape === 'square') return 'square';
-  return 'rect';
+  if (shape === 'ROUND') return 'round';
+  if (shape === 'SQUARE') return 'square';
+  return 'rect'; // RECTANGLE -> rect for visual rendering
 };
 
 const deriveStatus = (table: Table): TableStatus => {
@@ -98,6 +98,16 @@ export const AdminFloorPlanPage = () => {
     width: defaultRoomSize.width,
     height: defaultRoomSize.height,
     type: 'indoor',
+  });
+  const [tableModalOpen, setTableModalOpen] = useState<boolean>(false);
+  const [tableForm, setTableForm] = useState<{
+    table_number: string;
+    shape: TableShape;
+    capacity: number;
+  }>({
+    table_number: '',
+    shape: 'RECTANGLE',
+    capacity: 4,
   });
   const [draggingRoomId, setDraggingRoomId] = useState<number | null>(null);
 
@@ -329,6 +339,52 @@ export const AdminFloorPlanPage = () => {
     }
   };
 
+  const openTableModal = () => {
+    setTableForm({
+      table_number: '',
+      shape: 'RECTANGLE',
+      capacity: 4,
+    });
+    setTableModalOpen(true);
+  };
+
+  const handleCreateTable = async () => {
+    if (!tableForm.table_number.trim()) {
+      showToast('Az asztalszám megadása kötelező.', 'error');
+      return;
+    }
+    if (!selectedRoomId) {
+      showToast('Válassz ki egy termet az asztal létrehozásához.', 'error');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const newTable = await createTable({
+        table_number: tableForm.table_number,
+        room_id: selectedRoomId,
+        position_x: 0,  // Alapértelmezett pozíció - utána szabadon mozgatható
+        position_y: 0,
+        width: 80,
+        height: 80,
+        rotation: 0,
+        shape: tableForm.shape,
+        capacity: tableForm.capacity,
+      });
+
+      // Frissítjük a tables listát az új asztallal
+      setTables((prev) => [...prev, newTable]);
+      setSelectedTableId(newTable.id);
+      setTableModalOpen(false);
+      showToast('Asztal létrehozva. Most már szabadon mozgathatod!', 'success');
+    } catch (err) {
+      console.error('Failed to create table', err);
+      showToast('Nem sikerült létrehozni az asztalt.', 'error');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="admin-floorplan-page">
       <Group justify="space-between" align="center" mb="md">
@@ -347,6 +403,14 @@ export const AdminFloorPlanPage = () => {
             onClick={() => openRoomModal('add')}
           >
             Új terem
+          </Button>
+          <Button
+            leftSection={<IconPlus size={16} />}
+            variant="filled"
+            onClick={openTableModal}
+            disabled={!selectedRoomId}
+          >
+            Új asztal
           </Button>
           <ActionIcon variant="light" color="blue" onClick={loadData} aria-label="Frissítés">
             <IconRefresh size={18} />
@@ -464,7 +528,7 @@ export const AdminFloorPlanPage = () => {
                       </div>
                       <div className="floorplan-table__meta">
                         {table.capacity ?? '-'} fő ·{' '}
-                        {table.shape === 'round' ? 'Kör' : table.shape === 'square' ? 'Négyzet' : 'Téglalap'}
+                        {table.shape === 'ROUND' ? 'Kör' : table.shape === 'SQUARE' ? 'Négyzet' : 'Téglalap'}
                       </div>
                       <div
                         className="resize-handle"
@@ -666,6 +730,52 @@ export const AdminFloorPlanPage = () => {
             </Button>
             <Button leftSection={<IconDeviceFloppy size={16} />} onClick={handleSaveRoom}>
               Mentés
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      <Modal
+        opened={tableModalOpen}
+        onClose={() => setTableModalOpen(false)}
+        title="Új asztal létrehozása"
+        centered
+      >
+        <Stack gap="sm">
+          <TextInput
+            label="Asztalszám"
+            placeholder="pl. 1, A1, T01"
+            value={tableForm.table_number}
+            onChange={(event) => setTableForm((prev) => ({ ...prev, table_number: event.target.value }))}
+            required
+          />
+          <Select
+            label="Forma"
+            data={shapeOptions}
+            value={tableForm.shape}
+            onChange={(value) => setTableForm((prev) => ({ ...prev, shape: (value as TableShape) ?? prev.shape }))}
+            required
+          />
+          <NumberInput
+            label="Kapacitás (fő)"
+            value={tableForm.capacity}
+            min={1}
+            max={20}
+            onChange={(value) => setTableForm((prev) => ({ ...prev, capacity: Number(value) || prev.capacity }))}
+          />
+          <Alert color="blue" title="Pozíció" variant="light">
+            Az asztal a (0,0) pozícióban jön létre. Mentés után szabadon mozgathatod az alaprajzon.
+          </Alert>
+          <Group justify="flex-end" mt="sm">
+            <Button variant="default" onClick={() => setTableModalOpen(false)}>
+              Mégse
+            </Button>
+            <Button
+              leftSection={<IconDeviceFloppy size={16} />}
+              onClick={handleCreateTable}
+              loading={isSaving}
+            >
+              Létrehozás
             </Button>
           </Group>
         </Stack>

@@ -45,9 +45,9 @@ const statusLabels: Record<TableStatus, string> = {
 };
 
 const shapeVariant = (shape?: TableShape): 'round' | 'square' | 'rect' => {
-  if (shape === 'round') return 'round';
-  if (shape === 'square') return 'square';
-  return 'rect';
+  if (shape === 'ROUND') return 'round';
+  if (shape === 'SQUARE') return 'square';
+  return 'rect'; // RECTANGLE -> rect for visual rendering
 };
 
 const deriveStatus = (table: Table): TableStatus => {
@@ -193,7 +193,7 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
                     {table.capacity ?? '-'} fő
                   </Text>
                   <Text size="xs" className="table-meta">
-                    {table.shape === 'round' ? 'Kör' : table.shape === 'square' ? 'Négyzet' : 'Téglalap'}
+                    {table.shape === 'ROUND' ? 'Kör' : table.shape === 'SQUARE' ? 'Négyzet' : 'Téglalap'}
                   </Text>
                 </button>
               );

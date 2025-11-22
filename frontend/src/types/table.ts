@@ -10,7 +10,7 @@ export type TableStatus =
   | 'RESERVED'
   | 'INACTIVE';
 
-export type TableShape = 'rect' | 'round' | 'square' | 'rectangle';
+export type TableShape = 'ROUND' | 'SQUARE' | 'RECTANGLE';
 
 export interface Table {
   id: number;
