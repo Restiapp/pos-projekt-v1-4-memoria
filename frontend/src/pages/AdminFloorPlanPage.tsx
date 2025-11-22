@@ -56,21 +56,30 @@ const statusColors: Record<TableStatus, { bg: string; text: string; border: stri
 };
 
 /**
- * Színpaletta asztalokhoz - gyönyörű, előre definiált design színek
+ * Színpaletta asztalokhoz - vibráló neon színek
  */
 const tableColorPresets: Array<{ name: string; bg: string; text: string; border: string }> = [
-  { name: 'Alapértelmezett', bg: '#ffffff', text: '#000000', border: '#e9ecef' },
-  { name: 'Lágy menta', bg: '#d3f9d8', text: '#2b8a3e', border: '#8ce99a' },
-  { name: 'Égszínkék', bg: '#d0ebff', text: '#1c7ed6', border: '#91d5ff' },
-  { name: 'Barackvirág', bg: '#ffe3e3', text: '#c92a2a', border: '#ffc9c9' },
-  { name: 'Napsárga', bg: '#fff4e6', text: '#e67700', border: '#ffd8a8' },
-  { name: 'Levendula', bg: '#e5dbff', text: '#6741d9', border: '#b197fc' },
-  { name: 'Rózsaszín', bg: '#ffdeeb', text: '#c2255c', border: '#faa2c1' },
-  { name: 'Korall', bg: '#ffe0d4', text: '#d9480f', border: '#ff8a65' },
-  { name: 'Smaragdzöld', bg: '#d0f4de', text: '#087f5b', border: '#96f2d7' },
-  { name: 'Platina', bg: '#f1f3f5', text: '#495057', border: '#dee2e6' },
-  { name: 'Arany', bg: '#fff9db', text: '#c08552', border: '#ffe066' },
-  { name: 'Oceán', bg: '#d8f3fc', text: '#0b7285', border: '#99e9f2' },
+  { name: 'Neon Pink', bg: '#FF6EC7', text: '#000000', border: '#FF99D6' },
+  { name: 'Electric Lime', bg: '#CCFF00', text: '#000000', border: '#DDFF66' },
+  { name: 'Bright Cyan', bg: '#00FFFF', text: '#000000', border: '#66FFFF' },
+  { name: 'Hot Magenta', bg: '#FF00FF', text: '#ffffff', border: '#FF66FF' },
+  { name: 'Laser Lemon', bg: '#FEFE22', text: '#000000', border: '#FEFE88' },
+  { name: 'Electric Blue', bg: '#7DF9FF', text: '#000000', border: '#A8FBFF' },
+  { name: 'Radioactive Green', bg: '#39FF14', text: '#000000', border: '#7AFF5C' },
+  { name: 'Vivid Violet', bg: '#9F00FF', text: '#ffffff', border: '#BF66FF' },
+  { name: 'Blaze Orange', bg: '#FF6700', text: '#000000', border: '#FF9966' },
+  { name: 'Shocking Pink', bg: '#FC0FC0', text: '#ffffff', border: '#FD6FD6' },
+  { name: 'Neon Turquoise', bg: '#00F5FF', text: '#000000', border: '#66F8FF' },
+  { name: 'Electric Purple', bg: '#BF00FF', text: '#ffffff', border: '#D966FF' },
+  { name: 'Chartreuse', bg: '#7FFF00', text: '#000000', border: '#A8FF66' },
+  { name: 'Highlighter Yellow', bg: '#FFF700', text: '#000000', border: '#FFF966' },
+  { name: 'Neon Red', bg: '#FF073A', text: '#ffffff', border: '#FF6780' },
+  { name: 'Atomic Tangerine', bg: '#FF9966', text: '#000000', border: '#FFB999' },
+  { name: 'Electric Indigo', bg: '#6F00FF', text: '#ffffff', border: '#9F66FF' },
+  { name: 'Wild Strawberry', bg: '#FF43A4', text: '#000000', border: '#FF87C3' },
+  { name: 'Vivid Raspberry', bg: '#FF0090', text: '#ffffff', border: '#FF66B8' },
+  { name: 'Electric Ultramarine', bg: '#120A8F', text: '#ffffff', border: '#4F48B8' },
+  { name: 'Csillogó Fekete', bg: '#28282B', text: '#ffffff', border: '#5A5A5F' },
 ];
 
 /**
