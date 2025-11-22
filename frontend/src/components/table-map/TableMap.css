@@ -1,50 +1,98 @@
-/**
- * TableMap stílusok
- */
-
-.table-map-container {
-  padding: 20px;
+.table-map-card {
+  background: linear-gradient(145deg, #f8f9fb 0%, #ffffff 45%, #f3f5f9 100%);
 }
 
-.table-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+.table-map-canvas {
+  position: relative;
+  border-radius: 12px;
+  background-image:
+    linear-gradient(0deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-color: #f8fafc;
+  min-height: 540px;
+  border: 1px solid #e9ecef;
+  overflow: hidden;
 }
 
-.table-map-loading,
-.table-map-error,
-.table-map-empty {
+.table-map-node {
+  position: absolute;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  min-height: 400px;
-  text-align: center;
-  padding: 40px;
-}
-
-.table-map-error p {
-  color: #f44336;
-  margin-bottom: 16px;
-}
-
-.table-map-error button {
-  padding: 10px 20px;
-  background-color: #2196f3;
-  color: white;
-  border: none;
-  border-radius: 4px;
+  align-items: center;
+  gap: 4px;
+  padding: 12px;
   cursor: pointer;
-  font-size: 14px;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+  transform-origin: center;
 }
 
-.table-map-error button:hover {
-  background-color: #1976d2;
+.table-map-node:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 32px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
 }
 
-.table-map-empty p {
-  color: #757575;
+.table-map-node:active {
+  transform: scale(0.99);
+}
+
+.table-shape-round {
+  border-radius: 999px;
+}
+
+.table-shape-square {
+  border-radius: 12px;
+}
+
+.table-shape-rect {
+  border-radius: 16px;
+}
+
+.table-node-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.table-status-badge {
+  pointer-events: none;
+}
+
+.table-meta {
+  color: var(--mantine-color-dark-1);
+  opacity: 0.8;
+}
+
+.table-map-legend {
+  border-top: 1px dashed #e9ecef;
+  padding-top: 8px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  display: inline-block;
+}
+
+.table-map-skeleton {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.table-map-empty {
+  min-height: 320px;
+  padding: 24px;
 }

@@ -22,6 +22,7 @@ import { GiftCardList } from '@/components/admin/GiftCardList';
 import { OperatorPage } from '@/pages/OperatorPage';
 import { OrderPage } from '@/pages/OrderPage';
 import { LogisticsPage } from '@/pages/LogisticsPage';
+import { AdminFloorPlanPage } from '@/pages/AdminFloorPlanPage';
 
 // ÚJ IMPORT - Fázis 3 (Finance)
 import { FinancePage } from '@/pages/FinancePage';
@@ -158,6 +159,14 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="orders:manage">
                 <TableMapPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="floorplan"
+            element={
+              <ProtectedRoute requiredPermission="orders:manage">
+                <AdminFloorPlanPage />
               </ProtectedRoute>
             }
           />

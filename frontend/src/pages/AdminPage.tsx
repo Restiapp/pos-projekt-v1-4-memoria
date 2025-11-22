@@ -1,14 +1,4 @@
-/**
- * AdminPage - Adminisztrációs Dashboard
- *
- * Layout:
- *   - Bal oldal: Sidebar (navigációs menü)
- *   - Jobb oldal: Tartalom (gyermek komponens renderelése)
- *
- * Jogosultság: menu:manage (ProtectedRoute-ban ellenőrzött)
- */
-
-import { useNavigate, Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/common/Toast';
 import './AdminPage.css';
@@ -18,140 +8,24 @@ interface MenuItem {
   label: string;
   icon: string;
   path: string;
-  permission?: string; // Opcionális jogosultság-ellenőrzés
+  permission?: string;
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  {
-    id: 'products',
-    label: 'Termékek',
-    icon: '📦',
-    path: '/admin/products',
-    permission: 'menu:manage',
-  },
-  // CRITICAL FIX (C8.1): Comment out Categories link until CategoryList component is created
-  // {
-  //   id: 'categories',
-  //   label: 'Kategóriák',
-  //   icon: '📁',
-  //   path: '/admin/categories',
-  //   permission: 'menu:manage',
-  // },
-  {
-    id: 'tables',
-    label: 'Asztalok',
-    icon: '🪑',
-    path: '/admin/tables',
-    permission: 'orders:manage',
-  },
-  // HOTFIX: Foglalások komponens még nincs kifejlesztve
-  // {
-  //   id: 'reservations',
-  //   label: 'Foglalások',
-  //   icon: '📅',
-  //   path: '/admin/reservations',
-  //   permission: 'orders:manage',
-  // },
-  {
-    id: 'employees',
-    label: 'Munkavállalók',
-    icon: '👥',
-    path: '/admin/employees',
-    permission: 'employees:manage',
-  },
-  {
-    id: 'roles',
-    label: 'Szerepkörök',
-    icon: '🔐',
-    path: '/admin/roles',
-    permission: 'roles:manage',
-  },
-  // ÚJ MENÜPONT - FÁZIS 3 (Finance)
-  {
-    id: 'finance',
-    label: 'Pénzügy',
-    icon: '💰',
-    path: '/admin/finance',
-    permission: 'finance:manage', // TODO: Add finance:manage permission to RBAC
-  },
-  // ÚJ MENÜPONT - FÁZIS 3.3 (Assets)
-  {
-    id: 'assets',
-    label: 'Tárgyi Eszközök',
-    icon: '🏭',
-    path: '/admin/assets',
-    permission: 'assets:manage', // TODO: Add assets:manage permission to RBAC
-  },
-  // ÚJ MENÜPONT - FÁZIS 3.5 (Vehicles)
-  {
-    id: 'vehicles',
-    label: 'Gépjárművek',
-    icon: '🚗',
-    path: '/admin/vehicles',
-    permission: 'vehicles:manage', // TODO: Add vehicles:manage permission to RBAC
-  },
-  // ÚJ MENÜPONT - Dashboard Analytics (Reports)
-  {
-    id: 'reports',
-    label: 'Riportok',
-    icon: '📊',
-    path: '/admin/reports',
-    permission: 'reports:view', // TODO: Add reports:view permission to RBAC
-  },
-  // CRM menüpontok
-  {
-    id: 'customers',
-    label: 'Vendégek',
-    icon: '👤',
-    path: '/admin/customers',
-    permission: 'menu:manage', // TODO: Add crm:manage permission
-  },
-  {
-    id: 'coupons',
-    label: 'Kuponok',
-    icon: '🎫',
-    path: '/admin/coupons',
-    permission: 'menu:manage', // TODO: Add crm:manage permission
-  },
-  {
-    id: 'gift_cards',
-    label: 'Ajándékkártyák',
-    icon: '🎁',
-    path: '/admin/gift_cards',
-    permission: 'menu:manage', // TODO: Add crm:manage permission
-  },
-  // HOTFIX: Hűségprogram komponens még nincs kifejlesztve
-  // {
-  //   id: 'loyalty',
-  //   label: 'Hűségprogram',
-  //   icon: '💎',
-  //   path: '/admin/loyalty',
-  //   permission: 'menu:manage', // TODO: Add crm:manage permission
-  // },
-  // ÚJ MENÜPONT - V3.0 Hullám 10
-  {
-    id: 'logistics',
-    label: 'Logisztika',
-    icon: '🚚',
-    path: '/admin/logistics',
-    permission: 'menu:manage', // TODO: Add logistics:manage permission
-  },
-  // ÚJ MENÜPONT - MODULE 5 (Inventory)
-  {
-    id: 'inventory',
-    label: 'Raktárkezelés',
-    icon: '📦',
-    path: '/admin/inventory',
-    permission: 'menu:manage', // TODO: Add inventory:manage permission
-  },
-  // ÚJ MENÜPONT - Analytics Dashboard (FE-REP)
-  {
-    id: 'reports',
-    label: 'Riportok',
-    icon: '📊',
-    path: '/admin/reports',
-    permission: 'menu:manage', // TODO: Add reports:view permission
-  },
+  { id: 'products', label: 'Termékek', icon: 'PRD', path: '/admin/products', permission: 'menu:manage' },
+  { id: 'tables', label: 'Asztalok', icon: 'TBL', path: '/admin/tables', permission: 'orders:manage' },
+  { id: 'floorplan', label: 'Alaprajz', icon: 'MAP', path: '/admin/floorplan', permission: 'orders:manage' },
+  { id: 'employees', label: 'Munkavállalók', icon: 'EMP', path: '/admin/employees', permission: 'employees:manage' },
+  { id: 'roles', label: 'Szerepkörök', icon: 'ROL', path: '/admin/roles', permission: 'roles:manage' },
+  { id: 'finance', label: 'Pénzügy', icon: 'FIN', path: '/admin/finance', permission: 'finance:manage' },
+  { id: 'assets', label: 'Tárgyi eszközök', icon: 'AST', path: '/admin/assets', permission: 'assets:manage' },
+  { id: 'vehicles', label: 'Gépjárművek', icon: 'VEH', path: '/admin/vehicles', permission: 'vehicles:manage' },
+  { id: 'reports', label: 'Riportok', icon: 'RPT', path: '/admin/reports', permission: 'reports:view' },
+  { id: 'customers', label: 'Vendégek', icon: 'CUS', path: '/admin/customers', permission: 'menu:manage' },
+  { id: 'coupons', label: 'Kuponok', icon: 'CPN', path: '/admin/coupons', permission: 'menu:manage' },
+  { id: 'gift_cards', label: 'Ajándékkártyák', icon: 'GFT', path: '/admin/gift_cards', permission: 'menu:manage' },
+  { id: 'logistics', label: 'Logisztika', icon: 'LOG', path: '/admin/logistics', permission: 'menu:manage' },
+  { id: 'inventory', label: 'Raktárkezelés', icon: 'INV', path: '/admin/inventory', permission: 'menu:manage' },
 ];
 
 export const AdminPage = () => {
@@ -160,9 +34,7 @@ export const AdminPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Menüpont kattintás
   const handleMenuClick = (item: MenuItem) => {
-    // Jogosultság ellenőrzés (opcionális, a route is védett)
     if (item.permission && !hasPermission(item.permission)) {
       showToast('Nincs jogosultságod ehhez a funkcióhoz!', 'error');
       return;
@@ -170,57 +42,41 @@ export const AdminPage = () => {
     navigate(item.path);
   };
 
-  // Aktív menüpont meghatározása (jelenlegi URL alapján)
   const isActiveMenuItem = (path: string): boolean => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
   return (
     <div className="admin-page">
-      {/* Oldalsáv (Sidebar) */}
       <aside className="admin-sidebar">
         <div className="sidebar-header">
-          <h2>⚙️ Admin</h2>
+          <h2>Admin</h2>
           <div className="user-badge">
             <span className="user-name">{user?.name}</span>
-            <span className="user-role">
-              {user?.roles.map((r) => r.name).join(', ')}
-            </span>
+            <span className="user-role">{user?.roles.map((role) => role.name).join(', ')}</span>
           </div>
         </div>
 
-        {/* Navigációs menü */}
         <nav className="sidebar-menu">
-          {MENU_ITEMS.map((item) => {
-            // Rejtett menüpont, ha nincs jogosultság
-            if (item.permission && !hasPermission(item.permission)) {
-              return null;
-            }
-
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleMenuClick(item)}
-                className={`menu-item ${
-                  isActiveMenuItem(item.path) ? 'active' : ''
-                }`}
-              >
-                <span className="menu-icon">{item.icon}</span>
-                <span className="menu-label">{item.label}</span>
-              </button>
-            );
-          })}
+          {MENU_ITEMS.filter((item) => !item.permission || hasPermission(item.permission)).map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleMenuClick(item)}
+              className={`menu-item ${isActiveMenuItem(item.path) ? 'active' : ''}`}
+            >
+              <span className="menu-icon">{item.icon}</span>
+              <span className="menu-label">{item.label}</span>
+            </button>
+          ))}
         </nav>
 
-        {/* Kijelentkezés gomb */}
         <div className="sidebar-footer">
           <button onClick={logout} className="logout-btn">
-            🚪 Kijelentkezés
+            Kilépés
           </button>
         </div>
       </aside>
 
-      {/* Főtartalom (Route-ok renderelése) */}
       <main className="admin-content">
         <Outlet />
       </main>
