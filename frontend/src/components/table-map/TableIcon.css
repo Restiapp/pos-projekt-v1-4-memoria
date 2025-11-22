@@ -21,12 +21,27 @@
 }
 
 .table-icon.available {
-  background-color: #4caf50; /* Zöld */
+  background-color: #4caf50; /* Green - Available */
   color: white;
 }
 
 .table-icon.occupied {
-  background-color: #f44336; /* Piros */
+  background-color: #2196f3; /* Blue - Occupied (active order) */
+  color: white;
+}
+
+.table-icon.reserved {
+  background-color: #ff9800; /* Yellow/Orange - Reserved */
+  color: white;
+}
+
+.table-icon.needs-cleaning {
+  background-color: #f44336; /* Red - Needs cleaning */
+  color: white;
+}
+
+.table-icon.inactive {
+  background-color: #9e9e9e; /* Grey - Inactive/Disabled */
   color: white;
 }
 

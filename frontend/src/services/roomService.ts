@@ -28,3 +28,13 @@ export const updateRoom = async (id: number, data: RoomUpdate): Promise<Room> =>
 export const deleteRoom = async (id: number): Promise<void> => {
     await api.delete(`/rooms/${id}`);
 };
+
+/**
+ * Get all tables for a specific room
+ * Note: Backend endpoint /rooms/{id}/tables should be implemented
+ * For now, we filter on the client side
+ */
+export const getRoomTables = async (roomId: number): Promise<any[]> => {
+    const response = await api.get<any[]>(`/rooms/${roomId}/tables`);
+    return response.data;
+};
