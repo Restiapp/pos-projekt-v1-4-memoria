@@ -31,7 +31,6 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
-<<<<<<< HEAD
 // ÚJ IMPORT - Dashboard Analytics (Reports)
 import { ReportsPage } from '@/pages/ReportsPage';
 
@@ -40,11 +39,10 @@ import { InventoryPage } from '@/pages/InventoryPage';
 
 // DEBUG
 import { DebugAuthPage } from '@/pages/DebugAuthPage';
-=======
+
 // Toast and ConfirmDialog Providers
 import { ToastProvider } from '@/components/common/Toast';
 import { ConfirmProvider } from '@/components/common/ConfirmDialog';
->>>>>>> origin/claude/remove-alert-confirm-calls-01C1xe4YBUCvTLwxWG8qCNJE
 
 function App() {
   const { loadUserFromStorage } = useAuth();

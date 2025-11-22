@@ -1,23 +1,20 @@
 import { MobileAppShell } from '@/components/layout/MobileAppShell';
 import { TableMap } from '@/components/table-map/TableMap';
-import { Tabs } from '@mantine/core';
+import { RoomNavigation } from '@/components/rooms/RoomNavigation';
 import { useState } from 'react';
 import './TableMapPage.css';
 
 export const TableMapPage = () => {
-    // Mock Rooms for now - will come from API later
-    const [activeRoom, setActiveRoom] = useState<string | null>('terasz');
+    // Active room ID from RoomNavigation
+    const [activeRoomId, setActiveRoomId] = useState<number | null>(null);
 
     return (
         <MobileAppShell>
-             {/* Room Switcher Tabs at the top of the content area */}
-             <Tabs value={activeRoom} onChange={setActiveRoom} variant="pills" radius="md" mb="md">
-                <Tabs.List justify="center">
-                    <Tabs.Tab value="terasz">Terasz</Tabs.Tab>
-                    <Tabs.Tab value="belso">Belső Terem</Tabs.Tab>
-                    <Tabs.Tab value="vip">VIP Szoba</Tabs.Tab>
-                </Tabs.List>
-             </Tabs>
+             {/* Room Switcher - Sprint 1 Module 1 */}
+             <RoomNavigation
+                activeRoomId={activeRoomId}
+                onChange={setActiveRoomId}
+             />
 
             {/* The actual Floor Plan Canvas */}
             <div style={{
@@ -25,9 +22,10 @@ export const TableMapPage = () => {
                 border: '1px solid var(--mantine-color-dark-4)',
                 borderRadius: '8px',
                 overflow: 'hidden',
-                position: 'relative'
+                position: 'relative',
+                marginTop: '1rem'
             }}>
-                 <TableMap activeRoom={activeRoom} />
+                 <TableMap activeRoom={activeRoomId?.toString() ?? null} />
             </div>
         </MobileAppShell>
     );
