@@ -309,15 +309,20 @@ export const AdminFloorPlanPage = () => {
       // Save table position after drag
       if (dragState.current) {
         const draggedTable = tables.find(t => t.id === dragState.current?.id);
+        console.log('🔍 Drag ended, draggedTable:', draggedTable);
         if (draggedTable) {
           try {
-            await updateTable(draggedTable.id, {
+            const payload = {
               position_x: draggedTable.position_x,
               position_y: draggedTable.position_y,
-              metadata_json: draggedTable.metadata_json, // Preserve table name and custom color
-            });
+              metadata_json: draggedTable.metadata_json,
+            };
+            console.log('📤 Saving table position:', payload);
+            await updateTable(draggedTable.id, payload);
+            console.log('✅ Table position saved successfully');
+            showToast('Asztal pozíció mentve!', 'success');
           } catch (err) {
-            console.error('Failed to save table position:', err);
+            console.error('❌ Failed to save table position:', err);
             showToast('Nem sikerült menteni az asztal pozícióját.', 'error');
           }
         }
@@ -326,15 +331,20 @@ export const AdminFloorPlanPage = () => {
       // Save table size after resize
       if (resizeState.current) {
         const resizedTable = tables.find(t => t.id === resizeState.current?.id);
+        console.log('🔍 Resize ended, resizedTable:', resizedTable);
         if (resizedTable) {
           try {
-            await updateTable(resizedTable.id, {
+            const payload = {
               width: resizedTable.width,
               height: resizedTable.height,
-              metadata_json: resizedTable.metadata_json, // Preserve table name and custom color
-            });
+              metadata_json: resizedTable.metadata_json,
+            };
+            console.log('📤 Saving table size:', payload);
+            await updateTable(resizedTable.id, payload);
+            console.log('✅ Table size saved successfully');
+            showToast('Asztal méret mentve!', 'success');
           } catch (err) {
-            console.error('Failed to save table size:', err);
+            console.error('❌ Failed to save table size:', err);
             showToast('Nem sikerült menteni az asztal méretét.', 'error');
           }
         }
@@ -343,13 +353,16 @@ export const AdminFloorPlanPage = () => {
       // Save room resize to backend
       if (roomResizeState.current && activeRoom) {
         try {
-          await updateRoom(roomResizeState.current.roomId, {
+          const payload = {
             width: activeRoom.width,
             height: activeRoom.height,
-          });
+          };
+          console.log('📤 Saving room size:', payload);
+          await updateRoom(roomResizeState.current.roomId, payload);
+          console.log('✅ Room size saved successfully');
           showToast('Terem mérete mentve!', 'success');
         } catch (err) {
-          console.error('Failed to save room size:', err);
+          console.error('❌ Failed to save room size:', err);
           showToast('Nem sikerült menteni a terem méretét.', 'error');
         }
       }
@@ -464,13 +477,19 @@ export const AdminFloorPlanPage = () => {
         background_image_url: isPattern ? `pattern:${roomForm.backgroundColor}` : `color:${roomForm.backgroundColor}`,
       };
 
+      console.log('🎨 Room Form Data:', roomForm);
+      console.log('📤 Saving room with payload:', roomData);
+      console.log('🔍 isPattern:', isPattern);
+
       if (roomModalMode === 'add') {
         const created = await createRoom(roomData);
+        console.log('✅ Room created:', created);
         setRooms((prev) => [...prev, created]);
         setSelectedRoomId(created.id);
         showToast('Új terem hozzáadva.', 'success');
       } else if (roomForm.id) {
         const updated = await updateRoom(roomForm.id, roomData);
+        console.log('✅ Room updated:', updated);
         setRooms((prev) => prev.map((room) => (room.id === updated.id ? updated : room)));
         showToast('Terem frissítve.', 'success');
       }
@@ -888,15 +907,28 @@ export const AdminFloorPlanPage = () => {
                   label="Asztal név"
                   placeholder="pl. VIP asztal, Panoráma"
                   value={getTableName(selectedTable)}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const newName = event.target.value;
+                    console.log('✏️ Table name changed to:', newName);
                     updateTableState(selectedTable.id, (table) => ({
                       ...table,
                       metadata_json: {
                         ...(table.metadata_json ?? {}),
-                        table_name: event.target.value,
+                        table_name: newName,
                       },
-                    }))
-                  }
+                    }));
+                  }}
+                  onBlur={async () => {
+                    console.log('💾 Auto-saving table name on blur');
+                    try {
+                      await updateTable(selectedTable.id, {
+                        metadata_json: selectedTable.metadata_json,
+                      });
+                      console.log('✅ Table name auto-saved');
+                    } catch (err) {
+                      console.error('❌ Failed to auto-save table name:', err);
+                    }
+                  }}
                 />
                 <TextInput
                   label="Asztalszám"
@@ -973,7 +1005,8 @@ export const AdminFloorPlanPage = () => {
                           key={index}
                           role="button"
                           tabIndex={0}
-                          onClick={() => {
+                          onClick={async () => {
+                            console.log('🎨 Table color changed to:', preset.name);
                             updateTableState(selectedTable.id, (table) => ({
                               ...table,
                               metadata_json: {
@@ -981,6 +1014,20 @@ export const AdminFloorPlanPage = () => {
                                 customColor: { bg: preset.bg, text: preset.text, border: preset.border },
                               },
                             }));
+                            // Auto-save color change
+                            try {
+                              await updateTable(selectedTable.id, {
+                                metadata_json: {
+                                  ...(selectedTable.metadata_json ?? {}),
+                                  customColor: { bg: preset.bg, text: preset.text, border: preset.border },
+                                },
+                              });
+                              console.log('✅ Table color auto-saved');
+                              showToast('Asztal szín mentve!', 'success');
+                            } catch (err) {
+                              console.error('❌ Failed to auto-save table color:', err);
+                              showToast('Nem sikerült menteni az asztal színét.', 'error');
+                            }
                           }}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ' ') {
