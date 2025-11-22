@@ -188,6 +188,13 @@ export const AdminFloorPlanPage = () => {
     startWidth: number;
     startHeight: number;
   } | null>(null);
+  const roomResizeState = useRef<{
+    roomId: number;
+    startX: number;
+    startY: number;
+    startWidth: number;
+    startHeight: number;
+  } | null>(null);
 
   const activeRoom = useMemo(
     () => rooms.find((room) => room.id === selectedRoomId) ?? null,
@@ -266,11 +273,42 @@ export const AdminFloorPlanPage = () => {
           height: Math.round(nextHeight),
         }));
       }
+
+      if (roomResizeState.current) {
+        const { roomId, startX, startY, startWidth, startHeight } = roomResizeState.current;
+        const deltaX = event.clientX - startX;
+        const deltaY = event.clientY - startY;
+        const nextWidth = Math.max(400, startWidth + deltaX);
+        const nextHeight = Math.max(300, startHeight + deltaY);
+
+        setRooms((prev) =>
+          prev.map((room) =>
+            room.id === roomId
+              ? { ...room, width: Math.round(nextWidth), height: Math.round(nextHeight) }
+              : room
+          )
+        );
+      }
     };
 
-    const handlePointerUp = () => {
+    const handlePointerUp = async () => {
+      // Save room resize to backend
+      if (roomResizeState.current && activeRoom) {
+        try {
+          await updateRoom(roomResizeState.current.roomId, {
+            width: activeRoom.width,
+            height: activeRoom.height,
+          });
+          showToast('Terem mérete mentve!', 'success');
+        } catch (err) {
+          console.error('Failed to save room size:', err);
+          showToast('Nem sikerült menteni a terem méretét.', 'error');
+        }
+      }
+
       dragState.current = null;
       resizeState.current = null;
+      roomResizeState.current = null;
     };
 
     window.addEventListener('pointermove', handlePointerMove);
@@ -303,6 +341,18 @@ export const AdminFloorPlanPage = () => {
       startHeight: table.height ?? 96,
     };
     setSelectedTableId(table.id);
+  };
+
+  const startRoomResize = (event: React.PointerEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (!activeRoom) return;
+    roomResizeState.current = {
+      roomId: activeRoom.id,
+      startX: event.clientX,
+      startY: event.clientY,
+      startWidth: activeRoom.width,
+      startHeight: activeRoom.height,
+    };
   };
 
   const handleRoomDragOver = (roomId: number, event: React.DragEvent<HTMLElement>) => {
@@ -755,6 +805,13 @@ export const AdminFloorPlanPage = () => {
                     </div>
                   );
                 })}
+                {/* Room Resize Handle */}
+                <div
+                  className="room-resize-handle"
+                  onPointerDown={startRoomResize}
+                  role="presentation"
+                  title="Húzd a termet átméretezni"
+                />
               </div>
             </ScrollArea>
           </div>

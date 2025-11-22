@@ -178,3 +178,32 @@
 .inspector-panel {
   min-height: 640px;
 }
+
+.room-resize-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4dabf7 0%, #228be6 100%);
+  right: -10px;
+  bottom: -10px;
+  border: 3px solid #ffffff;
+  box-shadow:
+    0 8px 16px rgba(34, 139, 230, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  cursor: se-resize;
+  z-index: 1000;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.room-resize-handle:hover {
+  transform: scale(1.2);
+  box-shadow:
+    0 10px 20px rgba(34, 139, 230, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+}
+
+.room-resize-handle:active {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #339af0 0%, #1c7ed6 100%);
+}
