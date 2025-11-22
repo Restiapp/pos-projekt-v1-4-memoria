@@ -254,3 +254,81 @@ def get_items_by_station(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while retrieving station items: {str(e)}"
         )
+
+
+@router.patch(
+    "/items/{item_id}/urgent",
+    response_model=OrderItemResponse,
+    summary="Toggle urgent flag for KDS item",
+    description="""
+    Toggle the urgent flag for a Kitchen Display System item.
+
+    This endpoint allows waiters to mark drinks or other items as urgent,
+    which will display them with visual priority indicators (red border, flashing icon)
+    in the KDS display.
+
+    **Path Parameters:**
+    - `item_id`: Unique order item identifier (integer)
+
+    **Request Body:**
+    - `is_urgent`: Boolean flag (true/false)
+
+    **Returns:**
+    - 200: Updated order item with new urgent flag
+    - 404: Order item not found
+
+    **Example Request:**
+    ```json
+    {
+        "is_urgent": true
+    }
+    ```
+
+    **Use Cases:**
+    - Marking urgent drink orders at the bar
+    - Priority handling for time-sensitive items
+    - VIP customer orders
+    """
+)
+def toggle_urgent_flag(
+    item_id: int,
+    is_urgent: bool = Body(
+        ...,
+        description="Urgent flag value",
+        embed=True,
+        examples=[True, False]
+    ),
+    db: Session = Depends(get_db),
+    service: KDSService = Depends(get_kds_service)
+):
+    """
+    Toggle urgent flag for a KDS item.
+
+    Args:
+        item_id: Order item unique identifier
+        is_urgent: New urgent flag value (True/False)
+        db: Database session (injected)
+        service: KDSService instance (injected)
+
+    Returns:
+        OrderItemResponse: Updated order item details
+
+    Raises:
+        HTTPException 404: If order item not found
+    """
+    try:
+        item = service.toggle_urgent_flag(db, item_id, is_urgent)
+
+        if not item:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Order item with ID {item_id} not found"
+            )
+
+        return item
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while toggling urgent flag: {str(e)}"
+        )

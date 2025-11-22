@@ -116,6 +116,11 @@ class OrderItemBase(BaseModel):
         description="Kitchen Display System status for this item",
         examples=["WAITING", "PREPARING", "READY", "SERVED"]
     )
+    is_urgent: bool = Field(
+        False,
+        description="Urgent flag for priority handling in KDS (e.g., urgent drink orders)",
+        examples=[True, False]
+    )
 
 
 class OrderItemCreate(OrderItemBase):
@@ -170,6 +175,10 @@ class OrderItemUpdate(BaseModel):
     kds_status: Optional[KDSStatusEnum] = Field(
         None,
         description="KDS status"
+    )
+    is_urgent: Optional[bool] = Field(
+        None,
+        description="Urgent flag for priority handling"
     )
 
 

@@ -176,3 +176,50 @@
   background: #e8f5e9;
   border-radius: 4px;
 }
+
+/* ============================================
+   URGENT FLAG STYLING
+   ============================================ */
+
+/* Red left border for urgent items */
+.kds-card.urgent {
+  border-left-color: #ff4d4d !important;
+  border-left-width: 6px;
+}
+
+/* Flashing icon animation */
+@keyframes flash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.urgent-icon {
+  animation: flash 1.5s ease-in-out infinite;
+}
+
+/* Urgent toggle button */
+.btn-urgent-toggle {
+  flex: 1;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffc107;
+}
+
+.btn-urgent-toggle:hover:not(:disabled) {
+  background: #ffc107;
+  color: #fff;
+}
+
+.btn-urgent-toggle.active {
+  background: #ff4d4d;
+  color: white;
+  border: 1px solid #ff4d4d;
+}
+
+.btn-urgent-toggle.active:hover:not(:disabled) {
+  background: #e60000;
+}
