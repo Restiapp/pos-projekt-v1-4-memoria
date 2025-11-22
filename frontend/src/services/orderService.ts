@@ -127,3 +127,22 @@ export const addItemToOrder = async (orderId: number, itemData: any): Promise<an
   const response = await apiClient.post(`/api/orders/${orderId}/items`, itemData);
   return response.data;
 };
+
+// =====================================================
+// VAT MANAGEMENT
+// =====================================================
+
+/**
+ * Update VAT rate for an order
+ * Uses PUT /api/orders/{id} to update the final_vat_rate field
+ *
+ * @param orderId - Order ID to update
+ * @param newVat - New VAT rate (5 or 27)
+ * @returns Updated order
+ */
+export const updateVAT = async (orderId: number, newVat: number): Promise<Order> => {
+  const response = await apiClient.put<Order>(`/api/orders/${orderId}`, {
+    final_vat_rate: newVat,
+  });
+  return response.data;
+};

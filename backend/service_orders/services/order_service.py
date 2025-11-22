@@ -75,6 +75,16 @@ class OrderService:
             >>> new_order = OrderService.create_order(db, order_data)
         """
         try:
+            # Automatikus VAT beállítás a rendelés típusa alapján, ha nincs explicit megadva
+            # Helyben (bar consumption) = 5% VAT
+            # Elvitel és Kiszállítás (takeaway/delivery) = 27% VAT
+            vat_rate = order_data.final_vat_rate
+            if vat_rate is None:
+                if order_data.order_type.value == "Helyben":
+                    vat_rate = Decimal("5.00")
+                else:  # Elvitel or Kiszállítás
+                    vat_rate = Decimal("27.00")
+
             # Új Order objektum létrehozása
             db_order = Order(
                 order_type=order_data.order_type.value,
@@ -82,7 +92,7 @@ class OrderService:
                 table_id=order_data.table_id,
                 customer_id=order_data.customer_id,
                 total_amount=order_data.total_amount,
-                final_vat_rate=order_data.final_vat_rate,
+                final_vat_rate=vat_rate,
                 ntak_data=order_data.ntak_data,
                 notes=order_data.notes
             )
@@ -662,6 +672,15 @@ class OrderService:
             # Rendelés típusának módosítása
             order.order_type = new_order_type
 
+            # VAT frissítése az új rendelés típus alapján
+            # Helyben (bar consumption) = 5% VAT
+            # Elvitel és Kiszállítás (takeaway/delivery) = 27% VAT
+            previous_vat_rate = order.final_vat_rate
+            if new_order_type == "Helyben":
+                order.final_vat_rate = Decimal("5.00")
+            else:  # Elvitel or Kiszállítás
+                order.final_vat_rate = Decimal("27.00")
+
             # NTAK adatok frissítése (audit trail)
             if order.ntak_data is None:
                 order.ntak_data = {}
@@ -669,6 +688,8 @@ class OrderService:
             order.ntak_data["order_type_change"] = {
                 "previous_type": previous_order_type,
                 "new_type": new_order_type,
+                "previous_vat_rate": str(previous_vat_rate),
+                "new_vat_rate": str(order.final_vat_rate),
                 "reason": reason or "Nincs megadva",
                 "changed_at": datetime.now().isoformat()
             }
