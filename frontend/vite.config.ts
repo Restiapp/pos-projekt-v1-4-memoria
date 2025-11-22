@@ -110,6 +110,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/reservations/, '/api/v1/reservations')
       },
+      '/api/order-sequence': {
+        target: 'http://localhost:8002',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/order-sequence/, '/api/v1/order-sequence')
+      },
 
       // ========================================
       // Menu Service (Port 8001)

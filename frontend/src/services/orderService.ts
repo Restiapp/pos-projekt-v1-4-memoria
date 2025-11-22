@@ -127,3 +127,17 @@ export const addItemToOrder = async (orderId: number, itemData: any): Promise<an
   const response = await apiClient.post(`/api/orders/${orderId}/items`, itemData);
   return response.data;
 };
+
+// =====================================================
+// ORDER SEQUENCE
+// =====================================================
+
+/**
+ * POST /api/order-sequence/next - Új rendelés sorszám generálása
+ * Proxy Target: http://localhost:8002/api/v1/order-sequence/next
+ * @returns Új sorszám
+ */
+export const getNextOrderSequence = async (): Promise<{ sequence_number: number }> => {
+  const response = await apiClient.post<{ sequence_number: number }>('/api/order-sequence/next');
+  return response.data;
+};
