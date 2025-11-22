@@ -23,6 +23,9 @@ import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetServiceList.css';
 
 export const AssetServiceList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
   const [services, setServices] = useState<AssetService[]>([]);

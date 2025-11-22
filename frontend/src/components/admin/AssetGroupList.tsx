@@ -19,6 +19,9 @@ import { useConfirm } from '@/components/common/ConfirmDialog';
 import './AssetGroupList.css';
 
 export const AssetGroupList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
   const [assetGroups, setAssetGroups] = useState<AssetGroup[]>([]);

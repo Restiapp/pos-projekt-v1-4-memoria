@@ -20,6 +20,9 @@ import { useConfirm } from '@/components/common/ConfirmDialog';
 import './EmployeeList.css';
 
 export const EmployeeList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
   const [employees, setEmployees] = useState<Employee[]>([]);

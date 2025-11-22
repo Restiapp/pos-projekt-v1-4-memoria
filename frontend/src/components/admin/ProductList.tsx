@@ -19,6 +19,9 @@ import { useConfirm } from '@/components/common/ConfirmDialog';
 import './ProductList.css';
 
 export const ProductList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
   const [products, setProducts] = useState<Product[]>([]);

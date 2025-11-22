@@ -19,6 +19,9 @@ import { useConfirm } from '@/components/common/ConfirmDialog';
 import './GiftCardList.css';
 
 export const GiftCardList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
   const [giftCards, setGiftCards] = useState<GiftCard[]>([]);

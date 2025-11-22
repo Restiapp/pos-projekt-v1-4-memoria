@@ -18,6 +18,9 @@ import { useConfirm } from '@/components/common/ConfirmDialog';
 import './RoleList.css';
 
 export const RoleList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
   const [roles, setRoles] = useState<Role[]>([]);

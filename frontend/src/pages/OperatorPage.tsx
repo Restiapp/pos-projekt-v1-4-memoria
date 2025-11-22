@@ -105,6 +105,34 @@ export const OperatorPage = () => {
     }).format(price);
   };
 
+  // TODO-S0-STUB: Cart handler functions need real implementation
+  const handleAddToCart = (item: CartItem) => {
+    console.warn('TODO-S0-STUB: handleAddToCart needs implementation');
+    setCartItems([...cartItems, item]);
+  };
+
+  const handleUpdateQuantity = (itemId: number, quantity: number) => {
+    console.warn('TODO-S0-STUB: handleUpdateQuantity needs implementation');
+    setCartItems(cartItems.map(item =>
+      item.product.id === itemId ? { ...item, quantity } : item
+    ));
+  };
+
+  const handleRemoveItem = (itemId: number) => {
+    console.warn('TODO-S0-STUB: handleRemoveItem needs implementation');
+    setCartItems(cartItems.filter(item => item.product.id !== itemId));
+  };
+
+  const handleClearCart = () => {
+    console.warn('TODO-S0-STUB: handleClearCart needs implementation');
+    setCartItems([]);
+  };
+
+  const handleCheckout = () => {
+    console.warn('TODO-S0-STUB: handleCheckout needs implementation');
+    showToast('Checkout functionality not yet implemented', 'info');
+  };
+
   // If products are shown, display the product builder interface
   if (showProducts) {
     return (

@@ -17,6 +17,9 @@ import './Finance.css';
 type OperationType = 'deposit' | 'withdraw';
 
 export const CashDrawer = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
 
   // State

@@ -20,6 +20,9 @@ import { useConfirm } from '@/components/common/ConfirmDialog';
 import './VehicleList.css';
 
 export const VehicleList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);

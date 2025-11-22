@@ -4,7 +4,8 @@
  */
 
 import { useContext } from 'react';
-import { ToastContext, ToastContextValue } from '@/components/ui/ToastProvider';
+import { ToastContext } from '@/components/ui/ToastProvider';
+import type { ToastContextValue } from '@/components/ui/ToastProvider';
 
 /**
  * useToast hook - Access toast notification methods

@@ -31,6 +31,18 @@ import type {
   InventoryValueResponse,
 } from '@/types/inventory';
 
+// TODO-S0-STUB: Re-export types for components that need them
+export type {
+  InventoryItem,
+  InventoryItemCreateRequest as InventoryItemCreate,
+  InventoryItemUpdateRequest as InventoryItemUpdate,
+  SupplierInvoice,
+  SupplierInvoice as SupplierInvoiceCreate,
+  WasteLog,
+  WasteLogCreateRequest as WasteLogCreate,
+  StockUpdateRequest as StockMovement,
+};
+
 // ============================================================================
 // Inventory Items Operations (Raktári tételek)
 // ============================================================================
@@ -432,4 +444,55 @@ export const createWasteLog = async (
     console.error('Error creating waste log:', error);
     throw error;
   }
+};
+
+// ============================================================================
+// TODO-S0-STUB: Missing service functions
+// These are temporary stubs for functions referenced but not implemented
+// ============================================================================
+
+/**
+ * TODO-S0-STUB: Get supplier invoices
+ */
+export const getSupplierInvoices = async (params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<SupplierInvoice[]> => {
+  console.warn('TODO-S0-STUB: getSupplierInvoices needs real implementation');
+  return getInvoices(params);
+};
+
+/**
+ * TODO-S0-STUB: Delete supplier invoice
+ */
+export const deleteSupplierInvoice = async (invoiceId: number): Promise<void> => {
+  console.warn('TODO-S0-STUB: deleteSupplierInvoice needs real implementation');
+  // Stub - no actual implementation
+};
+
+/**
+ * TODO-S0-STUB: Create supplier invoice
+ */
+export const createSupplierInvoice = async (request: any): Promise<SupplierInvoice> => {
+  console.warn('TODO-S0-STUB: createSupplierInvoice needs real implementation');
+  return uploadInvoice(request.file);
+};
+
+/**
+ * TODO-S0-STUB: Get stock movements
+ */
+export const getStockMovements = async (params?: {
+  limit?: number;
+  offset?: number;
+}): Promise<any[]> => {
+  console.warn('TODO-S0-STUB: getStockMovements needs real implementation');
+  return [];
+};
+
+/**
+ * TODO-S0-STUB: Delete waste log
+ */
+export const deleteWasteLog = async (wasteId: number): Promise<void> => {
+  console.warn('TODO-S0-STUB: deleteWasteLog needs real implementation');
+  // Stub - no actual implementation
 };

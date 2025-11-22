@@ -20,6 +20,9 @@ import { useConfirm } from '@/components/common/ConfirmDialog';
 import './CustomerList.css';
 
 export const CustomerList = () => {
+  // TODO-S0-STUB: Replace with proper useAuth hook
+  const isAuthenticated = true;
+
   const { showToast } = useToast();
   const { showConfirm } = useConfirm();
   const [customers, setCustomers] = useState<Customer[]>([]);

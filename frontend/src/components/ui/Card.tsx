@@ -3,7 +3,7 @@
  * Used for displaying content in a bordered, elevated container
  */
 
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import './Card.css';
 
 interface CardProps {
