@@ -70,3 +70,32 @@ export const updateItemStatus = async (
     throw error;
   }
 };
+
+/**
+ * Drink item for bar KDS queue
+ */
+export interface DrinkItem {
+  id: number;
+  orderNumber: number;
+  itemName: string;
+  quantity: number;
+  status: string;
+  urgent: boolean;
+  createdAt: string;
+  minutesWaiting: number;
+  notes?: string;
+}
+
+/**
+ * Get all drink items for the bar KDS queue
+ * @returns List of drink items with queue metadata
+ */
+export const getDrinkItems = async (): Promise<DrinkItem[]> => {
+  try {
+    const response = await apiClient.get<DrinkItem[]>('/api/orders/kds/drinks');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching drink items:', error);
+    throw error;
+  }
+};

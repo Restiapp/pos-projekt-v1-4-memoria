@@ -207,6 +207,84 @@ def update_item_status(
 
 
 @router.get(
+    "/drinks",
+    response_model=List[Dict[str, Any]],
+    summary="Get drink items for bar KDS queue",
+    description="""
+    Retrieve all drink items for the bar/drink queue display.
+
+    Returns items from BAR/PULT station with additional metadata:
+    - Order number
+    - Item name
+    - Urgent flag (if waiting > 5 minutes)
+    - Time in queue (created_at timestamp)
+
+    **Returns:**
+    - 200: List of drink items with queue metadata
+    """
+)
+def get_drink_items(
+    db: Session = Depends(get_db),
+    service: KDSService = Depends(get_kds_service)
+):
+    """
+    Get all drink items for the bar KDS queue.
+
+    Args:
+        db: Database session (injected)
+        service: KDSService instance (injected)
+
+    Returns:
+        List[Dict]: Drink items with queue metadata
+    """
+    from datetime import datetime, timezone
+    from backend.service_orders.models.order_item import OrderItem
+    from backend.service_orders.models.order import Order
+
+    try:
+        # Query items from BAR/PULT station
+        # Join with Order to get created_at and order number
+        items = db.query(OrderItem, Order).join(
+            Order, OrderItem.order_id == Order.id
+        ).filter(
+            OrderItem.kds_station.in_(['BAR', 'PULT'])
+        ).filter(
+            OrderItem.kds_status != 'SERVED'
+        ).all()
+
+        result = []
+        now = datetime.now(timezone.utc)
+
+        for item, order in items:
+            # Calculate time in queue (minutes)
+            time_diff = now - order.created_at.replace(tzinfo=timezone.utc)
+            minutes_waiting = int(time_diff.total_seconds() / 60)
+
+            # Mark as urgent if waiting > 5 minutes
+            is_urgent = minutes_waiting > 5
+
+            result.append({
+                "id": item.id,
+                "orderNumber": order.id,
+                "itemName": f"Product {item.product_id}",  # TODO: Join with product table for actual name
+                "quantity": item.quantity,
+                "status": item.kds_status.value if hasattr(item.kds_status, 'value') else item.kds_status,
+                "urgent": is_urgent,
+                "createdAt": order.created_at.isoformat(),
+                "minutesWaiting": minutes_waiting,
+                "notes": item.notes
+            })
+
+        return result
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while retrieving drink items: {str(e)}"
+        )
+
+
+@router.get(
     "/stations/{station}/items",
     response_model=List[OrderItemResponse],
     summary="Get items by KDS station",
