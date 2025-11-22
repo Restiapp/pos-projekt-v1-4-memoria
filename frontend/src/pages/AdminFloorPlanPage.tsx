@@ -112,6 +112,14 @@ const getCustomColor = (table: Table): { bg: string; text: string; border: strin
   return null;
 };
 
+/**
+ * Asztal név lekérése a metadata-ból
+ */
+const getTableName = (table: Table): string => {
+  const meta = table.metadata_json as Record<string, unknown> | null | undefined;
+  return typeof meta?.table_name === 'string' ? meta.table_name : '';
+};
+
 const defaultRoomSize = { width: 1200, height: 720 };
 
 export const AdminFloorPlanPage = () => {
@@ -642,7 +650,9 @@ export const AdminFloorPlanPage = () => {
                       onPointerDown={(event) => startDrag(table, event)}
                     >
                       <div className="floorplan-table__header">
-                        <span className="floorplan-table__number">{table.table_number}</span>
+                        <span className="floorplan-table__number">
+                          {getTableName(table) ? `${getTableName(table)} (${table.table_number})` : table.table_number}
+                        </span>
                         <Badge variant="light" size="xs">
                           {statusOptions.find((option) => option.value === status)?.label}
                         </Badge>
@@ -670,7 +680,22 @@ export const AdminFloorPlanPage = () => {
             {selectedTable ? (
               <Stack gap="sm">
                 <TextInput
+                  label="Asztal név"
+                  placeholder="pl. VIP asztal, Panoráma"
+                  value={getTableName(selectedTable)}
+                  onChange={(event) =>
+                    updateTableState(selectedTable.id, (table) => ({
+                      ...table,
+                      metadata_json: {
+                        ...(table.metadata_json ?? {}),
+                        table_name: event.target.value,
+                      },
+                    }))
+                  }
+                />
+                <TextInput
                   label="Asztalszám"
+                  placeholder="pl. 1, A1, T01"
                   value={selectedTable.table_number}
                   onChange={(event) =>
                     updateTableState(selectedTable.id, (table) => ({
@@ -678,6 +703,7 @@ export const AdminFloorPlanPage = () => {
                       table_number: event.target.value,
                     }))
                   }
+                  required
                 />
                 <NumberInput
                   label="Kapacitás"
