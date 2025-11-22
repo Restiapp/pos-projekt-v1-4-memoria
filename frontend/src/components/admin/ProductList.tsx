@@ -8,11 +8,13 @@
  *   - Termék törlése (megerősítéssel)
  *   - Frissítés gomb
  *   - Szűrés (aktív/inaktív termékek)
+ *   - Keresés (név, SKU) - 300ms debounce-szal
  */
 
 import { useState, useEffect } from 'react';
 import { getProducts, deleteProduct, getCategories } from '@/services/menuService';
 import { ProductEditor } from './ProductEditor';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { Product, Category } from '@/types/menu';
 import './ProductList.css';
 
@@ -30,6 +32,8 @@ export const ProductList = () => {
 
   // Szűrő állapot
   const [showOnlyActive, setShowOnlyActive] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Termékek betöltése
   const fetchProducts = async () => {
@@ -38,7 +42,8 @@ export const ProductList = () => {
       const response = await getProducts(
         page,
         pageSize,
-        showOnlyActive ? true : undefined
+        showOnlyActive ? true : undefined,
+        debouncedSearchQuery || undefined
       );
       setProducts(response.items);
       setTotal(response.total);
@@ -63,8 +68,11 @@ export const ProductList = () => {
   // Első betöltés
   useEffect(() => {
     fetchProducts();
+  }, [page, showOnlyActive, debouncedSearchQuery]);
+
+  useEffect(() => {
     fetchCategories();
-  }, [page, showOnlyActive]);
+  }, []);
 
   // Új termék létrehozása (modal nyitás)
   const handleCreate = () => {
@@ -127,11 +135,26 @@ export const ProductList = () => {
       <header className="list-header">
         <h1>📦 Termékek</h1>
         <div className="header-controls">
+          {/* Keresés */}
+          <input
+            type="text"
+            placeholder="Keresés (név, SKU)..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
+            className="search-input"
+          />
+
           <label className="filter-checkbox">
             <input
               type="checkbox"
               checked={showOnlyActive}
-              onChange={(e) => setShowOnlyActive(e.target.checked)}
+              onChange={(e) => {
+                setShowOnlyActive(e.target.checked);
+                setPage(1);
+              }}
             />
             Csak aktív termékek
           </label>

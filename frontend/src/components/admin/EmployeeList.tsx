@@ -14,6 +14,7 @@
 import { useState, useEffect } from 'react';
 import { getEmployees, deleteEmployee, getRoles } from '@/services/employeeService';
 import { EmployeeEditor } from './EmployeeEditor';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { Employee, Role } from '@/types/employee';
 import './EmployeeList.css';
 
@@ -32,6 +33,7 @@ export const EmployeeList = () => {
   // Szűrő állapot
   const [showOnlyActive, setShowOnlyActive] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Munkatársak betöltése
   const fetchEmployees = async () => {
@@ -41,7 +43,7 @@ export const EmployeeList = () => {
         page,
         pageSize,
         showOnlyActive ? true : undefined,
-        searchQuery || undefined
+        debouncedSearchQuery || undefined
       );
       setEmployees(response.items);
       setTotal(response.total);
@@ -66,7 +68,7 @@ export const EmployeeList = () => {
   // Első betöltés
   useEffect(() => {
     fetchEmployees();
-  }, [page, showOnlyActive, searchQuery]);
+  }, [page, showOnlyActive, debouncedSearchQuery]);
 
   useEffect(() => {
     fetchRoles();
@@ -130,7 +132,7 @@ export const EmployeeList = () => {
     }).format(date);
   };
 
-  // Keresés kezelés (debounce nélkül egyelőre)
+  // Keresés kezelés (300ms debounce-szal)
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
     setPage(1); // Visszaállítjuk az első oldalra keresés esetén

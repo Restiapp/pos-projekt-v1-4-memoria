@@ -14,6 +14,7 @@
 import { useState, useEffect } from 'react';
 import { getCustomers, deleteCustomer } from '@/services/crmService';
 import { CustomerEditor } from './CustomerEditor';
+import { useDebounce } from '@/hooks/useDebounce';
 import type { Customer } from '@/types/customer';
 import './CustomerList.css';
 
@@ -31,6 +32,7 @@ export const CustomerList = () => {
   // Szűrő állapot
   const [showOnlyActive, setShowOnlyActive] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   // Vendégek betöltése
   const fetchCustomers = async () => {
@@ -40,7 +42,7 @@ export const CustomerList = () => {
         page,
         pageSize,
         showOnlyActive ? true : undefined,
-        searchTerm || undefined
+        debouncedSearchTerm || undefined
       );
       setCustomers(response.items);
       setTotal(response.total);
@@ -52,10 +54,10 @@ export const CustomerList = () => {
     }
   };
 
-  // Első betöltés és frissítés szűrő/keresés változásakor
+  // Első betöltés és frissítés szűrő/keresés változásakor (debounced)
   useEffect(() => {
     fetchCustomers();
-  }, [page, showOnlyActive, searchTerm]);
+  }, [page, showOnlyActive, debouncedSearchTerm]);
 
   // Új vendég létrehozása (modal nyitás)
   const handleCreate = () => {
