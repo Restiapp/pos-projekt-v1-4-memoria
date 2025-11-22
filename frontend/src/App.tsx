@@ -7,7 +7,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginPage } from '@/pages/LoginPage';
 import { TableMapPage } from '@/pages/TableMapPage';
-import FloorPlanPage from '@/pages/FloorPlanPage';
 import { KdsPage } from '@/pages/KdsPage';
 import { PaymentPage } from '@/pages/PaymentPage';
 import { AdminPage } from '@/pages/AdminPage';
@@ -109,7 +108,7 @@ function App() {
           path="/floor-plan"
           element={
             <ProtectedRoute>
-              <FloorPlanPage />
+              <TableMapPage />
             </ProtectedRoute>
           }
         />
@@ -139,7 +138,7 @@ function App() {
             path="tables"
             element={
               <ProtectedRoute requiredPermission="orders:manage">
-                <FloorPlanPage />
+                <TableMapPage />
               </ProtectedRoute>
             }
           />
