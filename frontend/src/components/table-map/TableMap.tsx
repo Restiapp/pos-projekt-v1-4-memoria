@@ -24,6 +24,8 @@ import './TableMap.css';
 interface TableMapProps {
   activeRoomId: number | null;
   rooms: Room[];
+  onTableSelect?: (tableId: number) => void;
+  selectedTableId?: number;
 }
 
 const statusColors: Record<TableStatus, { bg: string; text: string; border: string }> = {
@@ -57,7 +59,7 @@ const deriveStatus = (table: Table): TableStatus => {
   return table.status ?? metaStatus ?? 'FREE';
 };
 
-export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
+export const TableMap = ({ activeRoomId, rooms, onTableSelect, selectedTableId }: TableMapProps) => {
   const navigate = useNavigate();
   const [tables, setTables] = useState<Table[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -92,7 +94,11 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
   }, [tables, activeRoomId]);
 
   const handleTableClick = (table: Table) => {
-    navigate(`/orders/new?table_id=${table.id}`);
+    if (onTableSelect) {
+      onTableSelect(table.id);
+    } else {
+      navigate(`/orders/new?table_id=${table.id}`);
+    }
   };
 
   const renderContent = () => {
@@ -160,10 +166,12 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
               const variant = shapeVariant(table.shape);
               const computedHeight = variant === 'square' ? tableWidth : tableHeight ?? 96;
 
+              const isSelected = selectedTableId === table.id;
+
               return (
                 <button
                   key={table.id}
-                  className={`table-map-node table-shape-${variant}`}
+                  className={`table-map-node table-shape-${variant} ${isSelected ? 'table-selected' : ''}`}
                   style={{
                     left: table.position_x ?? 0,
                     top: table.position_y ?? 0,
