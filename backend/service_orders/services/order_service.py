@@ -28,7 +28,12 @@ from backend.service_orders.schemas.order import (
     OrderResponse,
     OrderStatusEnum
 )
+# TODO: Sprint 1 - Use shared domain enums
+from backend.core_domain.enums import OrderStatus, OrderType
+
 from backend.service_orders.config import settings
+# Phase D1
+from backend.service_orders.models.order_item import OrderItem
 
 logger = logging.getLogger(__name__)
 
@@ -98,6 +103,183 @@ class OrderService:
             )
 
     @staticmethod
+    def open_order_for_table(db: Session, table_id: int) -> Dict[str, Any]:
+        """
+        Phase D1+D3: Open or retrieve existing OPEN order for a table.
+        Returns dictionary matching OrderWithMetricsResponse.
+        """
+        # Check for existing OPEN order
+        existing_order = db.query(Order).filter(
+            Order.table_id == table_id,
+            Order.status == OrderStatus.OPEN.value
+        ).first()
+
+        order = existing_order
+        if not order:
+            # Create new order
+            order = Order(
+                table_id=table_id,
+                order_type=OrderType.DINE_IN.value,
+                status=OrderStatus.OPEN.value,
+                total_amount=Decimal("0.00")
+            )
+            db.add(order)
+            db.commit()
+            db.refresh(order)
+
+        # Calculate Metrics (reuse get_table_metrics logic or duplicate simplistic version)
+        start_ts = order.created_at.isoformat() if order.created_at else None
+        elapsed = 0
+        if order.created_at:
+            delta = datetime.now(order.created_at.tzinfo) - order.created_at
+            elapsed = int(delta.total_seconds() / 60)
+
+        # Convert to dict for response model
+        response = OrderResponse.model_validate(order).model_dump()
+        response.update({
+            "start_timestamp": start_ts,
+            "elapsed_minutes": elapsed,
+            "last_round_time": None # TODO: derive from latest order item creation time if needed
+        })
+        return response
+
+    @staticmethod
+    def add_items_with_round(
+        db: Session,
+        order_id: int,
+        round_number: int,
+        items_data: List[Any] # Expecting List[OrderItemRequest] from Pydantic
+    ) -> List[OrderItem]:
+        """
+        Phase D1+D3: Add items to order with specific round number and flags.
+        """
+        order = OrderService.get_order(db, order_id)
+        if order.status != OrderStatus.OPEN.value:
+             raise HTTPException(status_code=400, detail="Order is not OPEN")
+
+        created_items = []
+        for item_req in items_data:
+            # item_req is a Pydantic model (OrderItemRequest) in the router, but might be dict if passed from test
+            # Normalize to dict
+            data = item_req.model_dump() if hasattr(item_req, 'model_dump') else item_req
+
+            # Extract flags for metadata
+            metadata = {}
+            if data.get("is_urgent"): metadata["is_urgent"] = True
+            if data.get("course_tag"): metadata["course_tag"] = data["course_tag"]
+            if data.get("notes"): metadata["notes"] = data["notes"]
+
+            new_item = OrderItem(
+                order_id=order_id,
+                product_id=data["product_id"],
+                quantity=data["quantity"],
+                # TODO: Fetch real price from Service Menu (Module 0)
+                unit_price=Decimal("0.00"),
+                round_number=round_number,
+                metadata_json=metadata,
+                course=data.get("course_tag"), # Sync generic course col
+                notes=data.get("notes")
+            )
+            db.add(new_item)
+            created_items.append(new_item)
+
+        db.commit()
+        for item in created_items:
+            db.refresh(item)
+
+        return created_items
+
+    @staticmethod
+    def get_table_metrics(db: Session, table_id: int) -> Dict[str, Any]:
+        """
+        Phase D2+D4: Get time metrics for table.
+        """
+        order = db.query(Order).filter(
+            Order.table_id == table_id,
+            Order.status == OrderStatus.OPEN.value
+        ).first()
+
+        if not order:
+            return {"table_id": table_id, "active": False}
+
+        start_time = order.created_at
+        elapsed_minutes = 0
+        if start_time:
+            delta = datetime.now(start_time.tzinfo) - start_time
+            elapsed_minutes = int(delta.total_seconds() / 60)
+
+        # Determine color
+        color = "green"
+        if elapsed_minutes > 45:
+            color = "red"
+        elif elapsed_minutes > 20:
+            color = "yellow"
+
+        return {
+            "table_id": table_id,
+            "active_order_id": order.id,
+            "order_start_time": start_time.isoformat() if start_time else None,
+            "active": True,
+            "minutes_since_start": elapsed_minutes,
+            "last_round_minutes": 0, # TODO: calculate from max(order_items.created_at)
+            "color": color
+        }
+
+    @staticmethod
+    def move_order_to_table(db: Session, order_id: int, target_table_id: int) -> Order:
+        """
+        Phase D4: Move order to another table.
+        """
+        order = OrderService.get_order(db, order_id)
+        if order.status != OrderStatus.OPEN.value:
+            raise HTTPException(status_code=400, detail="Only OPEN orders can be moved")
+
+        # Check if target table is occupied
+        target_occupied = db.query(Order).filter(
+            Order.table_id == target_table_id,
+            Order.status == OrderStatus.OPEN.value
+        ).first()
+
+        if target_occupied:
+            raise HTTPException(status_code=400, detail=f"Target table {target_table_id} is already occupied")
+
+        order.table_id = target_table_id
+        db.commit()
+        db.refresh(order)
+        return order
+
+    @staticmethod
+    def send_round_to_kds(db: Session, order_id: int, round_number: int) -> Dict[str, Any]:
+        """
+        Phase D1: Send items in a specific round to KDS.
+        """
+        from backend.service_orders.models.order_item import OrderItem
+
+        items = db.query(OrderItem).filter(
+            OrderItem.order_id == order_id,
+            OrderItem.round_number == round_number
+        ).all()
+
+        if not items:
+            raise HTTPException(status_code=404, detail=f"No items found for round {round_number}")
+
+        # MOCK KDS Integration
+        # In a real implementation, this would create KDS Tickets via KdsService
+        sent_count = 0
+        for item in items:
+            if item.kds_status == "VÁRAKOZIK":
+                 item.kds_status = "KÉSZÜL" # Mark as sent
+                 sent_count += 1
+
+        db.commit()
+
+        return {
+            "message": f"Sent round {round_number} to KDS",
+            "items_sent": sent_count,
+            "round": round_number
+        }
+
+    @staticmethod
     def get_order(db: Session, order_id: int) -> Order:
         """
         Egy rendelés lekérdezése ID alapján.
@@ -162,6 +344,7 @@ class OrderService:
         if order_type:
             query = query.filter(Order.order_type == order_type)
         if status:
+            # TODO: Use OrderStatus(status).value if passing enum directly
             query = query.filter(Order.status == status)
         if table_id:
             query = query.filter(Order.table_id == table_id)
