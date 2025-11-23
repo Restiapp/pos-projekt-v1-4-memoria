@@ -54,6 +54,30 @@ class OrderItem(Base):
     round_number = Column(Integer, nullable=True, default=1)
     metadata_json = Column(JSONB, nullable=True)  # Stores is_urgent, course_tag, etc.
 
+    # Phase D1/D2: Guest Floor Extensions
+    round_number = Column(Integer, nullable=True, default=1)
+    metadata_json = Column(JSONB, nullable=True)  # Stores is_urgent, course_tag, etc.
+
+    # Property Proxies for Pydantic Serialization
+    @property
+    def is_urgent(self):
+        if self.metadata_json and 'is_urgent' in self.metadata_json:
+            return self.metadata_json['is_urgent']
+        return False
+
+    @property
+    def course_tag(self):
+        if self.metadata_json and 'course_tag' in self.metadata_json:
+            return self.metadata_json['course_tag']
+        # Fallback to legacy column if populated
+        return self.course
+
+    @property
+    def sync_with_course(self):
+        if self.metadata_json and 'sync_with_course' in self.metadata_json:
+            return self.metadata_json['sync_with_course']
+        return None
+
     # Relationships
     order = relationship('Order', back_populates='order_items')
     seat = relationship('Seat', back_populates='order_items')
