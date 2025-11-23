@@ -41,6 +41,9 @@ import { InventoryPage } from '@/pages/InventoryPage';
 // ÚJ IMPORT - Sprint 1 (Bar)
 import { BarPage } from '@/pages/BarPage';
 
+// ÚJ IMPORT - Sprint D1 (Guest Floor / Waiter Page)
+import { GuestFloorPage } from '@/pages/GuestFloorPage';
+
 // Toast and ConfirmDialog Providers
 import { ToastProvider } from '@/components/common/Toast';
 import { ConfirmProvider } from '@/components/common/ConfirmDialog';
@@ -101,6 +104,16 @@ function App() {
           element={
             <ProtectedRoute>
               <BarPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ÚJ ROUTE: Vendégtér / Pincér Felület (Guest Floor) */}
+        <Route
+          path="/front"
+          element={
+            <ProtectedRoute>
+              <GuestFloorPage />
             </ProtectedRoute>
           }
         />
