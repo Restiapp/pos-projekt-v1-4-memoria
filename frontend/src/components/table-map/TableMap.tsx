@@ -17,17 +17,15 @@ import {
 import { IconAlertTriangle, IconRefresh } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { getTables } from '@/services/tableService';
-import { getActiveOrdersForTables } from '@/services/orderService';
-import type { Order } from '@/types/order';
 import type { Room } from '@/types/room';
 import type { Table, TableShape, TableStatus } from '@/types/table';
-import { getTableTimeMetrics, getTimeBasedColors } from '@/utils/tableTimeUtils';
-import { ElapsedTime } from '@/components/common/ElapsedTime';
 import './TableMap.css';
 
 interface TableMapProps {
   activeRoomId: number | null;
   rooms: Room[];
+  onTableSelect?: (tableId: number) => void;
+  selectedTableId?: number;
 }
 
 const statusColors: Record<TableStatus, { bg: string; text: string; border: string }> = {
@@ -61,10 +59,9 @@ const deriveStatus = (table: Table): TableStatus => {
   return table.status ?? metaStatus ?? 'FREE';
 };
 
-export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
+export const TableMap = ({ activeRoomId, rooms, onTableSelect, selectedTableId }: TableMapProps) => {
   const navigate = useNavigate();
   const [tables, setTables] = useState<Table[]>([]);
-  const [activeOrders, setActiveOrders] = useState<Map<number, Order>>(new Map());
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,30 +84,8 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
     }
   };
 
-  const fetchActiveOrders = async () => {
-    try {
-      const ordersMap = await getActiveOrdersForTables();
-      setActiveOrders(ordersMap);
-    } catch (err) {
-      console.error('Failed to load active orders', err);
-      // Don't show error to user - just log it
-      // Tables will still render without time-based coloring
-    }
-  };
-
-  const fetchData = async () => {
-    await Promise.all([fetchTables(), fetchActiveOrders()]);
-  };
-
   useEffect(() => {
-    fetchData();
-
-    // Periodic refresh every 60 seconds for order data
-    const refreshInterval = setInterval(() => {
-      fetchActiveOrders();
-    }, 60000); // 60 seconds
-
-    return () => clearInterval(refreshInterval);
+    fetchTables();
   }, []);
 
   const filteredTables = useMemo(() => {
@@ -119,7 +94,11 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
   }, [tables, activeRoomId]);
 
   const handleTableClick = (table: Table) => {
-    navigate(`/orders/new?table_id=${table.id}`);
+    if (onTableSelect) {
+      onTableSelect(table.id);
+    } else {
+      navigate(`/orders/new?table_id=${table.id}`);
+    }
   };
 
   const renderContent = () => {
@@ -181,33 +160,18 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
           >
             {filteredTables.map((table) => {
               const status = deriveStatus(table);
+              const palette = statusColors[status] ?? statusColors.FREE;
               const tableWidth = table.width ?? 96;
               const tableHeight = table.height ?? 96;
               const variant = shapeVariant(table.shape);
               const computedHeight = variant === 'square' ? tableWidth : tableHeight ?? 96;
 
-              // Check if table has an active order
-              const activeOrder = activeOrders.get(table.id);
-              const timeMetrics = getTableTimeMetrics(activeOrder?.created_at);
-
-              // Determine color palette:
-              // - If table is FREE (no order), use green
-              // - If table has active order, use time-based colors
-              // - Otherwise, use status-based colors
-              let palette = statusColors[status] ?? statusColors.FREE;
-
-              if (status === 'FREE' && !timeMetrics.hasActiveOrder) {
-                // Explicitly use FREE colors (green)
-                palette = statusColors.FREE;
-              } else if (timeMetrics.hasActiveOrder) {
-                // Use time-based colors for tables with active orders
-                palette = getTimeBasedColors(timeMetrics.elapsedMinutes);
-              }
+              const isSelected = selectedTableId === table.id;
 
               return (
                 <button
                   key={table.id}
-                  className={`table-map-node table-shape-${variant}`}
+                  className={`table-map-node table-shape-${variant} ${isSelected ? 'table-selected' : ''}`}
                   style={{
                     left: table.position_x ?? 0,
                     top: table.position_y ?? 0,
@@ -230,28 +194,15 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
                       color="dark"
                       className="table-status-badge"
                     >
-                      {timeMetrics.hasActiveOrder
-                        ? `${timeMetrics.elapsedMinutes} perc`
-                        : statusLabels[status]}
+                      {statusLabels[status]}
                     </Badge>
                   </div>
                   <Text size="sm" fw={600}>
                     {table.capacity ?? '-'} fő
                   </Text>
-                  {timeMetrics.hasActiveOrder && timeMetrics.orderCreatedAt && (
-                    <div className="table-elapsed-time">
-                      <ElapsedTime timestamp={timeMetrics.orderCreatedAt} />
-                    </div>
-                  )}
-                  {!timeMetrics.hasActiveOrder && (
-                    <Text size="xs" className="table-meta">
-                      {table.shape === 'ROUND'
-                        ? 'Kör'
-                        : table.shape === 'SQUARE'
-                        ? 'Négyzet'
-                        : 'Téglalap'}
-                    </Text>
-                  )}
+                  <Text size="xs" className="table-meta">
+                    {table.shape === 'ROUND' ? 'Kör' : table.shape === 'SQUARE' ? 'Négyzet' : 'Téglalap'}
+                  </Text>
                 </button>
               );
             })}
@@ -293,7 +244,7 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
           <ActionIcon
             variant="light"
             color="blue"
-            onClick={fetchData}
+            onClick={fetchTables}
             loading={isLoading}
             aria-label="Asztalok frissítése"
           >
