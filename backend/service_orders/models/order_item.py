@@ -50,6 +50,10 @@ class OrderItem(Base):
     kds_status = Column(SQLEnum(KDSStatus, native_enum=False), nullable=False, default=KDSStatus.WAITING, index=True)  # Kitchen Display System status
     is_urgent = Column(Boolean, nullable=False, default=False, index=True)  # Urgent flag for KDS priority items
 
+    # Phase D1/D2: Guest Floor Extensions
+    round_number = Column(Integer, nullable=True, default=1)
+    metadata_json = Column(JSONB, nullable=True)  # Stores is_urgent, course_tag, etc.
+
     # Relationships
     order = relationship('Order', back_populates='order_items')
     seat = relationship('Seat', back_populates='order_items')
