@@ -96,3 +96,10 @@
   min-height: 320px;
   padding: 24px;
 }
+
+.table-elapsed-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 2px;
+  opacity: 0.95;
+}

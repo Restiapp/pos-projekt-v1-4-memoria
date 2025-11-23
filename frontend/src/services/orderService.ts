@@ -146,3 +146,46 @@ export const updateVAT = async (orderId: number, newVat: number): Promise<Order>
   });
   return response.data;
 };
+
+// =====================================================
+// TABLE TIME TRACKING
+// =====================================================
+
+/**
+ * Get active orders for tables (time-based color coding)
+ *
+ * Fetches all open "Helyben" (dine-in) orders and returns a map
+ * of table_id -> oldest order for that table.
+ *
+ * This is used for time-based color coding in the TableMap component.
+ *
+ * @returns Map of table_id to oldest active order
+ */
+export const getActiveOrdersForTables = async (): Promise<Map<number, Order>> => {
+  // Fetch all open dine-in orders
+  const response = await getOrders(1, 100, 'Helyben', 'NYITOTT');
+
+  const tableOrderMap = new Map<number, Order>();
+
+  // Group orders by table_id and keep the oldest order per table
+  response.items.forEach((order: Order) => {
+    if (!order.table_id) return; // Skip orders without table assignment
+
+    const existingOrder = tableOrderMap.get(order.table_id);
+
+    if (!existingOrder) {
+      // First order for this table
+      tableOrderMap.set(order.table_id, order);
+    } else {
+      // Keep the older order (earlier created_at timestamp)
+      const existingTime = new Date(existingOrder.created_at).getTime();
+      const currentTime = new Date(order.created_at).getTime();
+
+      if (currentTime < existingTime) {
+        tableOrderMap.set(order.table_id, order);
+      }
+    }
+  });
+
+  return tableOrderMap;
+};
