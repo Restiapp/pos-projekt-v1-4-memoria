@@ -294,6 +294,85 @@ The following workflow needs manual QA testing:
 
 ---
 
+## Fix 6: Database Column Size Limit - Room Background Image URL
+
+**Date**: 2025-11-23 06:20 UTC
+**Commit**: `a4fbf83`
+**File**: `backend/service_orders/models/room.py`
+**Error Type**: `sqlalchemy.exc.DataError: StringDataRightTruncation`
+
+### Problem
+User reported inability to create new rooms with the error:
+```
+sqlalchemy.exc.DataError: (psycopg2.errors.StringDataRightTruncation)
+value too long for type character varying(255)
+```
+
+### Root Cause Analysis
+The `rooms.background_image_url` column was limited to 255 characters, but the frontend was sending long CSS gradient patterns like:
+```
+pattern:radial-gradient(ellipse at 20% 80%, rgba(159, 0, 255, 0.6) 0%, transparent 50%),
+radial-gradient(ellipse at 60% 20%, rgba(0, 255, 255, 0.6) 0%, transparent 50%),
+radial-gradient(ellipse at 80% 70%, rgba(255, 110, 199, 0.6) 0%, transparent 50%),
+#000000
+```
+This pattern string was approximately 280+ characters, exceeding the database column limit.
+
+### Fix Applied
+
+**1. Updated Room Model**
+```python
+# Before:
+background_image_url = Column(String(255), nullable=True)
+
+# After:
+background_image_url = Column(String(1000), nullable=True)  # Increased for gradient patterns
+```
+
+**2. Created Alembic Migration**
+Created `backend/service_orders/alembic/versions/manual_002_increase_room_bg_url_length.py`:
+```python
+def upgrade() -> None:
+    op.alter_column('rooms', 'background_image_url',
+                    existing_type=sa.String(255),
+                    type_=sa.String(1000),
+                    existing_nullable=True)
+
+def downgrade() -> None:
+    op.alter_column('rooms', 'background_image_url',
+                    existing_type=sa.String(1000),
+                    type_=sa.String(255),
+                    existing_nullable=True)
+```
+
+**3. Applied Database Migration**
+```bash
+docker-compose exec postgres psql -U pos_user -d pos_db \
+  -c "ALTER TABLE rooms ALTER COLUMN background_image_url TYPE VARCHAR(1000);"
+```
+
+### Verification
+```sql
+\d rooms
+
+Table "public.rooms"
+        Column        |          Type           | Nullable
+----------------------+-------------------------+----------
+ background_image_url | character varying(1000) |          ✅
+```
+
+### Impact
+- ✅ Room creation now supports complex CSS gradient patterns
+- ✅ Frontend can use longer URLs for custom backgrounds
+- ✅ No data loss (migration preserves existing data)
+- ✅ Backward compatible (nullable column)
+
+### Files Modified
+1. `backend/service_orders/models/room.py` - Updated column size
+2. `backend/service_orders/alembic/versions/manual_002_increase_room_bg_url_length.py` - New migration
+
+---
+
 ## Next Steps
 
 1. ✅ Push `integration/sprint-d3d4-waiter-final` to remote
