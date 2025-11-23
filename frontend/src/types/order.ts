@@ -69,3 +69,34 @@ export interface CourierAssignmentResponse {
   courier_id: number;
   message: string;
 }
+
+// =====================================================
+// ORDER ITEM TYPES
+// =====================================================
+
+export interface OrderItem {
+  id: number;
+  order_id: number;
+  menu_item_id?: number;
+  name: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  round_number?: number;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrderWithItems extends Order {
+  items: OrderItem[];
+}
+
+export interface OrderItemCreate {
+  menu_item_id?: number;
+  name: string;
+  quantity: number;
+  unit_price: number;
+  round_number?: number;
+  notes?: string;
+}
