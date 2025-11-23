@@ -48,6 +48,9 @@ import { ConfirmProvider } from '@/components/common/ConfirmDialog';
 // DEBUG
 import { DebugAuthPage } from '@/pages/DebugAuthPage';
 
+// ÚJ IMPORT - Sprint D3/D4 (Guest Floor)
+import { TableOrderPage } from '@/features/guest/TableOrderPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -129,6 +132,16 @@ function App() {
           element={
             <ProtectedRoute>
               <TableMapPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ÚJ ROUTE: Guest/Waiter Table View (Sprint D3/D4) */}
+        <Route
+          path="/guest/table/:tableId"
+          element={
+            <ProtectedRoute>
+              <TableOrderPage />
             </ProtectedRoute>
           }
         />

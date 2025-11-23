@@ -16,6 +16,7 @@ export interface RoomCreate {
     type?: string;
     width?: number;
     height?: number;
+    background_image_url?: string;
 }
 
 export interface RoomUpdate {
@@ -23,4 +24,5 @@ export interface RoomUpdate {
     type?: string;
     width?: number;
     height?: number;
+    background_image_url?: string;
 }

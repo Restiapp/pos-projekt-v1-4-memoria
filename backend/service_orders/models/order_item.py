@@ -50,6 +50,23 @@ class OrderItem(Base):
     kds_status = Column(SQLEnum(KDSStatus, native_enum=False), nullable=False, default=KDSStatus.WAITING, index=True)  # Kitchen Display System status
     is_urgent = Column(Boolean, nullable=False, default=False, index=True)  # Urgent flag for KDS priority items
 
+    # Phase D1/D2: Guest Floor Extensions
+    round_number = Column(Integer, nullable=True, default=1)
+    metadata_json = Column(CompatibleJSON, nullable=True)  # Stores course_tag, sync_with_course, etc.
+
+    @property
+    def course_tag(self):
+        if self.metadata_json and 'course_tag' in self.metadata_json:
+            return self.metadata_json['course_tag']
+        # Fallback to legacy column if populated
+        return self.course
+
+    @property
+    def sync_with_course(self):
+        if self.metadata_json and 'sync_with_course' in self.metadata_json:
+            return self.metadata_json['sync_with_course']
+        return None
+
     # Relationships
     order = relationship('Order', back_populates='order_items')
     seat = relationship('Seat', back_populates='order_items')

@@ -14,8 +14,8 @@ from backend.service_orders.config import settings
 # Import database initialization
 from backend.service_orders.models.database import init_db
 
-# Import RBAC dependencies
-from backend.service_admin.dependencies import require_permission
+# Import RBAC dependencies (local implementation via HTTP to service_admin)
+from backend.service_orders.dependencies import require_permission
 
 from backend.service_orders.routers import (
     tables_router,
