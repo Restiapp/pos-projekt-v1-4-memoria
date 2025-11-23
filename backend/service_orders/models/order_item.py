@@ -52,18 +52,7 @@ class OrderItem(Base):
 
     # Phase D1/D2: Guest Floor Extensions
     round_number = Column(Integer, nullable=True, default=1)
-    metadata_json = Column(JSONB, nullable=True)  # Stores is_urgent, course_tag, etc.
-
-    # Phase D1/D2: Guest Floor Extensions
-    round_number = Column(Integer, nullable=True, default=1)
-    metadata_json = Column(JSONB, nullable=True)  # Stores is_urgent, course_tag, etc.
-
-    # Property Proxies for Pydantic Serialization
-    @property
-    def is_urgent(self):
-        if self.metadata_json and 'is_urgent' in self.metadata_json:
-            return self.metadata_json['is_urgent']
-        return False
+    metadata_json = Column(CompatibleJSON, nullable=True)  # Stores course_tag, sync_with_course, etc.
 
     @property
     def course_tag(self):
