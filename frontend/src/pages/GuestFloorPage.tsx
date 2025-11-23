@@ -13,7 +13,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Container, Stack, Text, Button, Group, Alert } from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons-react';
 import { MobileAppShell } from '@/components/layout/MobileAppShell';
-import { TableOrderPanel } from '@/components/orders';
+import { TableOrderPanel } from '@/components/waiter/TableOrderPanel';
 import './GuestFloorPage.css';
 
 export const GuestFloorPage = () => {
@@ -68,7 +68,7 @@ export const GuestFloorPage = () => {
             </Button>
           </Group>
 
-          <TableOrderPanel orderId={orderId} />
+          <TableOrderPanel table={null} />
         </Stack>
       </Container>
     </MobileAppShell>

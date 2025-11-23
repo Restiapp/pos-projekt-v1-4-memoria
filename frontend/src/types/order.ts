@@ -79,7 +79,8 @@ export interface OrderItem {
   notes?: string;
   kds_station?: string;
   kds_status: string;
-  is_urgent: boolean; // Priority flag for urgent items ✓ Backend supported
+  is_urgent?: boolean; // Priority flag for urgent items ✓ Backend supported
+  round_number?: number; // NEW: for grouping items into rounds
   metadata?: {
     // TODO: Backend support needed - add metadata_json Column(CompatibleJSON) to OrderItem model
     course_tag?: string;
@@ -149,29 +150,6 @@ export interface CourierAssignmentResponse {
 
 export type KDSStatus = 'WAITING' | 'PREPARING' | 'READY' | 'SERVED' | 'CANCELLED';
 
-export interface OrderItem {
-  id: number;
-  order_id: number;
-  product_id: number;
-  product_name?: string; // populated from product service
-  seat_id?: number;
-  quantity: number;
-  unit_price: number;
-  selected_modifiers?: Array<{
-    group_name: string;
-    modifier_name: string;
-    price: number;
-  }>;
-  course?: string; // 'Előétel', 'Főétel', 'Desszert'
-  notes?: string;
-  kds_station?: string; // 'GRILL', 'COLD', 'BAR', 'PULT'
-  kds_status: KDSStatus;
-  is_urgent?: boolean;
-  round_number?: number; // NEW: for grouping items into rounds
-  created_at?: string;
-  updated_at?: string;
-}
-
 export interface OrderWithItems extends Order {
   items: OrderItem[];
 }
@@ -187,11 +165,7 @@ export interface AddItemsToRoundRequest {
     product_id: number;
     quantity: number;
     unit_price: number;
-    selected_modifiers?: Array<{
-      group_name: string;
-      modifier_name: string;
-      price: number;
-    }>;
+    selected_modifiers?: SelectedModifier[];
     course?: string;
     notes?: string;
     kds_station?: string;
