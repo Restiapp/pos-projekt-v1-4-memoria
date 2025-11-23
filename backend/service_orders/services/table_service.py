@@ -45,13 +45,14 @@ class TableService:
         db_table = Table(
             table_number=table_data.table_number,
             room_id=table_data.room_id,
-            x=table_data.x,
-            y=table_data.y,
+            position_x=table_data.position_x,
+            position_y=table_data.position_y,
             width=table_data.width,
             height=table_data.height,
             rotation=table_data.rotation,
             shape=table_data.shape,
-            capacity=table_data.capacity
+            capacity=table_data.capacity,
+            metadata_json=table_data.metadata_json
         )
 
         db.add(db_table)
