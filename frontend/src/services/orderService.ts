@@ -128,6 +128,31 @@ export const addItemToOrder = async (orderId: number, itemData: any): Promise<an
   return response.data;
 };
 
+/**
+ * PUT /api/orders/items/{item_id} - Tétel frissítése
+ * Proxy Target: http://localhost:8002/api/v1/orders/items/{item_id}
+ *
+ * Supports updating: quantity, unit_price, is_urgent, metadata, etc.
+ */
+export const updateOrderItem = async (itemId: number, itemData: any): Promise<any> => {
+  const response = await apiClient.put(`/api/orders/items/${itemId}`, itemData);
+  return response.data;
+};
+
+/**
+ * PATCH /api/orders/items/{item_id}/urgent - Sürgős jelző beállítása
+ * Proxy Target: http://localhost:8002/api/v1/orders/kds/items/{item_id}/urgent
+ *
+ * Toggle urgent flag for an existing order item
+ * TODO: Verify backend endpoint - may need to use updateOrderItem instead
+ */
+export const toggleItemUrgent = async (itemId: number, isUrgent: boolean): Promise<any> => {
+  const response = await apiClient.patch(`/api/orders/items/${itemId}/urgent`, {
+    is_urgent: isUrgent,
+  });
+  return response.data;
+};
+
 // =====================================================
 // VAT MANAGEMENT
 // =====================================================

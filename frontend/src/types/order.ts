@@ -57,6 +57,79 @@ export interface OrderListResponse {
 }
 
 // =====================================================
+// ORDER ITEM TYPES
+// =====================================================
+
+export interface SelectedModifier {
+  modifier_id: number;
+  modifier_name?: string;
+  price_adjustment: number;
+}
+
+export interface OrderItem {
+  id: number;
+  order_id: number;
+  product_id: number;
+  product_name?: string;
+  seat_id?: number;
+  quantity: number;
+  unit_price: number;
+  selected_modifiers?: SelectedModifier[];
+  course?: string; // e.g., 'Előétel', 'Főétel', 'Desszert'
+  notes?: string;
+  kds_station?: string;
+  kds_status: string;
+  is_urgent: boolean; // Priority flag for urgent items ✓ Backend supported
+  metadata?: {
+    // TODO: Backend support needed - add metadata_json Column(CompatibleJSON) to OrderItem model
+    course_tag?: string;
+    sync_with_course?: string; // e.g., 'starter', 'main', 'dessert'
+    [key: string]: any;
+  };
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CartItem {
+  product_id: number;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  is_urgent?: boolean;
+  metadata?: {
+    course_tag?: string;
+    sync_with_course?: string;
+    [key: string]: any;
+  };
+}
+
+export interface OrderItemCreate {
+  order_id: number;
+  product_id: number;
+  seat_id?: number;
+  quantity: number;
+  unit_price: number;
+  selected_modifiers?: SelectedModifier[];
+  course?: string;
+  notes?: string;
+  kds_status?: string;
+  is_urgent?: boolean;
+  metadata?: Record<string, any>;
+}
+
+export interface OrderItemUpdate {
+  quantity?: number;
+  unit_price?: number;
+  selected_modifiers?: SelectedModifier[];
+  course?: string;
+  notes?: string;
+  kds_status?: string;
+  is_urgent?: boolean;
+  metadata?: Record<string, any>;
+}
+
+// =====================================================
 // COURIER ASSIGNMENT TYPES (V3.0 / LOGISTICS-FIX)
 // =====================================================
 

@@ -14,6 +14,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { GlobalHeader } from '@/components/layout/GlobalHeader';
 import { getProducts, getCategories } from '@/services/menuService';
 import { createOrder, addItemToOrder } from '@/services/orderService';
+import { ItemFlags } from '@/components/order/ItemFlags';
 import type { Product, Category } from '@/types/menu';
 import type { CartItem, OrderTypeEnum, OrderStatusEnum } from '@/types/order';
 import './OrderPage.css';
@@ -91,9 +92,39 @@ export const OrderPage = () => {
           quantity: 1,
           unit_price: product.base_price,
           total_price: product.base_price,
+          is_urgent: false,
+          metadata: {},
         },
       ]);
     }
+  };
+
+  // Update urgent flag for cart item
+  const updateUrgent = (productId: number, isUrgent: boolean) => {
+    setCart(
+      cart.map((item) =>
+        item.product_id === productId
+          ? { ...item, is_urgent: isUrgent }
+          : item
+      )
+    );
+  };
+
+  // Update sync flag for cart item
+  const updateSync = (productId: number, syncWith: string | undefined) => {
+    setCart(
+      cart.map((item) =>
+        item.product_id === productId
+          ? {
+              ...item,
+              metadata: {
+                ...item.metadata,
+                sync_with_course: syncWith,
+              },
+            }
+          : item
+      )
+    );
   };
 
   // Remove product from cart
@@ -157,6 +188,9 @@ export const OrderPage = () => {
           quantity: cartItem.quantity,
           unit_price: cartItem.unit_price,
           kds_status: 'VÁRAKOZIK',
+          is_urgent: cartItem.is_urgent || false,
+          // TODO: metadata not sent yet - backend needs metadata_json field support
+          // metadata: cartItem.metadata || {},
         };
 
         console.log('Adding item to order:', itemData);
@@ -292,14 +326,42 @@ export const OrderPage = () => {
                 </div>
               ) : (
                 cart.map((item) => (
-                  <div key={item.product_id} className="cart-item">
+                  <div
+                    key={item.product_id}
+                    className={`cart-item ${item.is_urgent ? 'urgent' : ''} ${
+                      item.metadata?.sync_with_course ? 'synced' : ''
+                    }`}
+                  >
                     <div className="cart-item-info">
                       <div className="cart-item-name">{item.product_name}</div>
                       <div className="cart-item-price">
                         {formatPrice(item.unit_price)} × {item.quantity} = {formatPrice(item.total_price)}
                       </div>
+                      {/* Visual indicator badges */}
+                      {(item.is_urgent || item.metadata?.sync_with_course) && (
+                        <div className="item-indicators">
+                          {item.is_urgent && (
+                            <span className="indicator-badge urgent">⚡ Sürgős</span>
+                          )}
+                          {item.metadata?.sync_with_course && (
+                            <span className="indicator-badge synced">
+                              {item.metadata.sync_with_course === 'starter' && '🥗 Előételhez'}
+                              {item.metadata.sync_with_course === 'main' && '🍽️ Főételhez'}
+                              {item.metadata.sync_with_course === 'dessert' && '🍰 Desszerthez'}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="cart-item-controls">
+                      {/* Item flags (urgent + sync) */}
+                      <ItemFlags
+                        isUrgent={item.is_urgent || false}
+                        syncWith={item.metadata?.sync_with_course}
+                        onUrgentChange={(value) => updateUrgent(item.product_id, value)}
+                        onSyncChange={(value) => updateSync(item.product_id, value)}
+                      />
+                      {/* Quantity controls */}
                       <button
                         onClick={() => updateQuantity(item.product_id, item.quantity - 1)}
                         className="qty-btn"
