@@ -1,0 +1,204 @@
+/**
+ * ItemFlags.css - Tétel jelzők stílusa
+ */
+
+/* =====================================================
+   ITEM FLAGS CONTAINER
+   ===================================================== */
+
+.item-flags {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* =====================================================
+   URGENT TOGGLE - Sürgős jelző
+   ===================================================== */
+
+.urgent-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.urgent-toggle:hover {
+  border-color: #ff6b6b;
+  background: #fff5f5;
+  transform: scale(1.1);
+}
+
+.urgent-toggle.active {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+}
+
+.urgent-toggle.active:hover {
+  background: #ff5252;
+  border-color: #ff5252;
+}
+
+.urgent-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   SYNC DROPDOWN - Szinkronizálás beállító
+   ===================================================== */
+
+.sync-dropdown {
+  position: relative;
+}
+
+.sync-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.sync-toggle:hover {
+  border-color: #4dabf7;
+  background: #f0f9ff;
+  transform: scale(1.1);
+}
+
+.sync-toggle.active {
+  background: #4dabf7;
+  border-color: #4dabf7;
+  box-shadow: 0 2px 4px rgba(77, 171, 247, 0.3);
+}
+
+.sync-toggle.active .sync-icon {
+  filter: brightness(1.2);
+}
+
+.sync-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Overlay to close dropdown when clicking outside */
+.sync-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+/* Dropdown menu */
+.sync-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 200px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 101;
+  overflow: hidden;
+}
+
+.sync-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: left;
+  font-size: 14px;
+}
+
+.sync-option:hover {
+  background: #f8f9fa;
+}
+
+.sync-option.selected {
+  background: #e7f5ff;
+  color: #1971c2;
+  font-weight: 500;
+}
+
+.sync-option .option-icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.sync-option .option-label {
+  flex: 1;
+}
+
+/* =====================================================
+   VISUAL INDICATORS IN CART ITEMS
+   ===================================================== */
+
+.cart-item.urgent {
+  border-left: 3px solid #ff6b6b;
+  background: #fff5f5;
+}
+
+.cart-item.synced {
+  border-right: 3px solid #4dabf7;
+}
+
+.cart-item.urgent.synced {
+  border-left: 3px solid #ff6b6b;
+  border-right: 3px solid #4dabf7;
+  background: linear-gradient(to right, #fff5f5 0%, white 50%, #f0f9ff 100%);
+}
+
+/* Small indicator badges */
+.item-indicators {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.indicator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.indicator-badge.urgent {
+  background: #ffe3e3;
+  color: #c92a2a;
+}
+
+.indicator-badge.synced {
+  background: #d0ebff;
+  color: #1971c2;
+}
