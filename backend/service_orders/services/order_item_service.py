@@ -7,9 +7,10 @@ Támogatja a CRUD műveleteket, a selected_modifiers JSONB mező
 helyes kezelését, valamint a KDS (Kitchen Display System) integrációt.
 """
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from fastapi import HTTPException
 
 from backend.service_orders.models.order_item import OrderItem
 from backend.service_orders.schemas.order_item import (
@@ -86,6 +87,45 @@ class OrderItemService:
         except SQLAlchemyError as e:
             db.rollback()
             raise e
+
+    @staticmethod
+    def update_item_flags(
+        db: Session,
+        item_id: int,
+        flags: Dict[str, Any]
+    ) -> OrderItem:
+        """
+        Update item-level flags (is_urgent, course_tag, sync_with_course).
+        Stores them in metadata_json.
+        """
+        item = db.query(OrderItem).filter(OrderItem.id == item_id).first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Order item not found")
+
+        # Initialize metadata if None
+        if item.metadata_json is None:
+            item.metadata_json = {}
+
+        # Update flags in metadata
+        # We explicitly handle the allowed flags to prevent pollution
+        allowed_flags = ["is_urgent", "course_tag", "sync_with_course"]
+
+        # Make a copy to ensure SQLAlchemy detects change
+        new_metadata = dict(item.metadata_json)
+
+        for flag in allowed_flags:
+            if flag in flags:
+                new_metadata[flag] = flags[flag]
+
+        item.metadata_json = new_metadata
+
+        # Also update `course` column if course_tag is present (for backward compat/indexing)
+        if "course_tag" in flags:
+            item.course = flags["course_tag"]
+
+        db.commit()
+        db.refresh(item)
+        return item
 
     @staticmethod
     def get_items_by_order(
