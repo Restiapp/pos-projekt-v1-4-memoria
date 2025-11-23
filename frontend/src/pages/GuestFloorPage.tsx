@@ -1,112 +1,76 @@
-import { useEffect, useState } from 'react';
-import { Container, Paper, Stack, Text } from '@mantine/core';
+/**
+ * GuestFloorPage - Guest-facing order management page
+ *
+ * This page demonstrates the TableOrderPanel component usage.
+ * In production, this would be integrated with the table selection flow.
+ *
+ * Usage:
+ *   /guest-floor?order_id=123
+ */
+
+import { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { Container, Stack, Text, Button, Group, Alert } from '@mantine/core';
+import { IconArrowLeft } from '@tabler/icons-react';
 import { MobileAppShell } from '@/components/layout/MobileAppShell';
-import { RoomNavigation } from '@/components/rooms/RoomNavigation';
-import { TableMap } from '@/components/table-map/TableMap';
-import { getRooms } from '@/services/roomService';
-import type { Room } from '@/types/room';
-import type { Table } from '@/types/table';
-import { useToast } from '@/components/common/Toast';
+import { TableOrderPanel } from '@/components/orders';
 import './GuestFloorPage.css';
 
 export const GuestFloorPage = () => {
-  const { showToast } = useToast();
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [activeRoomId, setActiveRoomId] = useState<number | null>(null);
-  const [selectedTable, setSelectedTable] = useState<Table | null>(null);
-  const [loadingRooms, setLoadingRooms] = useState<boolean>(false);
-  const [roomsError, setRoomsError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const orderIdParam = searchParams.get('order_id');
+  const orderId = orderIdParam ? parseInt(orderIdParam) : null;
 
-  const loadRooms = async () => {
-    setLoadingRooms(true);
-    setRoomsError(null);
-    try {
-      const data = await getRooms();
-      setRooms(data);
-      if (!activeRoomId && data.length > 0) {
-        setActiveRoomId(data[0].id);
-      }
-    } catch (err) {
-      console.error('Failed to load rooms', err);
-      setRoomsError('Nem sikerült betölteni a termeket.');
-      showToast('Nem sikerült betölteni a termeket', 'error');
-    } finally {
-      setLoadingRooms(false);
-    }
-  };
-
-  useEffect(() => {
-    loadRooms();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleTableSelect = (table: Table) => {
-    setSelectedTable(table);
-  };
+  if (!orderId) {
+    return (
+      <MobileAppShell>
+        <Container size="lg" py="xl">
+          <Alert color="red" title="Hiányzó rendelés azonosító">
+            <Stack gap="sm">
+              <Text>Nem található order_id paraméter az URL-ben.</Text>
+              <Text size="sm">
+                Példa: /guest-floor?order_id=123
+              </Text>
+              <Button
+                variant="light"
+                onClick={() => navigate('/tables')}
+                leftSection={<IconArrowLeft size={16} />}
+              >
+                Vissza az asztaltérképre
+              </Button>
+            </Stack>
+          </Alert>
+        </Container>
+      </MobileAppShell>
+    );
+  }
 
   return (
     <MobileAppShell>
-      <div className="guest-floor-page">
-        <Container size="xl" className="guest-floor-container">
-          <Stack gap="md">
-            <div className="guest-floor-header">
+      <Container size="lg" className="guest-floor-page">
+        <Stack gap="md">
+          <Group justify="space-between" align="center">
+            <div>
               <Text fw={700} size="xl">
-                Vendégtér - Pincér Felület
+                Rendelés kezelése
               </Text>
               <Text size="sm" c="dimmed">
-                Válaszd ki a termet, majd koppints egy asztalra a rendelés kezeléséhez.
+                Köröket kezelhetsz és tételeket adhatsz hozzá a rendeléshez
               </Text>
             </div>
+            <Button
+              variant="light"
+              onClick={() => navigate('/tables')}
+              leftSection={<IconArrowLeft size={16} />}
+            >
+              Vissza
+            </Button>
+          </Group>
 
-            <RoomNavigation
-              rooms={rooms}
-              selectedRoomId={activeRoomId}
-              onRoomChange={setActiveRoomId}
-              loading={loadingRooms}
-              error={roomsError}
-              onRefresh={loadRooms}
-            />
-          </Stack>
-        </Container>
-
-        <div className="guest-floor-workspace">
-          <div className="guest-floor-map-area">
-            <Container size="xl">
-              <TableMap
-                activeRoomId={activeRoomId}
-                rooms={rooms}
-                onTableSelect={handleTableSelect}
-              />
-            </Container>
-          </div>
-
-          <aside className="guest-floor-panel">
-            <Paper withBorder radius="lg" p="lg" className="order-panel">
-              {selectedTable ? (
-                <Stack gap="md">
-                  <div>
-                    <Text fw={700} size="lg">
-                      {selectedTable.table_number}
-                    </Text>
-                    <Text size="sm" c="dimmed">
-                      Kapacitás: {selectedTable.capacity ?? '-'} fő
-                    </Text>
-                  </div>
-                  <Text size="sm" c="dimmed">
-                    A rendelési panel a következő lépésekben kerül implementálásra (FE-2, FE-3, FE-4).
-                  </Text>
-                </Stack>
-              ) : (
-                <Stack gap="md" align="center" justify="center" style={{ minHeight: '200px' }}>
-                  <Text size="sm" c="dimmed" ta="center">
-                    Válassz egy asztalt a részletek megtekintéséhez.
-                  </Text>
-                </Stack>
-              )}
-            </Paper>
-          </aside>
-        </div>
-      </div>
+          <TableOrderPanel orderId={orderId} />
+        </Stack>
+      </Container>
     </MobileAppShell>
   );
 };

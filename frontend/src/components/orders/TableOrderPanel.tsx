@@ -1,205 +1,296 @@
 /**
- * TableOrderPanel - Order panel for guest floor page
- * Displays and manages orders for selected tables
+ * TableOrderPanel - Rounds-based order management for table orders
+ *
+ * Features:
+ * - Display rounds grouped by round_number
+ * - Add new rounds
+ * - Add items to specific rounds
+ * - Send rounds to kitchen (KDS)
+ * - Status tracking for each round
  */
 
-import { useEffect, useState, useMemo } from 'react';
-import type { Table } from '@/types/table';
-import type { Order, OrderWithItems, OrderItem } from '@/types/order';
-import { openOrGetActiveOrder, getOrderWithItems } from '@/services/orderService';
-import { useToast } from '@/hooks/useToast';
-import { Spinner } from '@/components/ui/Spinner';
+import { useState, useEffect, useMemo } from 'react';
+import { Button, Paper, Stack, Text, Group, Badge, Divider } from '@mantine/core';
+import { IconPlus, IconChefHat } from '@tabler/icons-react';
+import { getOrderWithItems, sendRoundToKds } from '@/services/orderService';
+import { useToast } from '@/components/common/Toast';
+import type { OrderWithItems, Round, OrderItem } from '@/types/order';
+import { AddItemModal } from './AddItemModal';
 import './TableOrderPanel.css';
 
 interface TableOrderPanelProps {
-  table: Table | null;
-  onOrderUpdated?: (order: Order) => void;
+  orderId: number;
+  onOrderUpdated?: () => void;
 }
 
-interface RoundGroup {
-  roundNumber: number;
-  items: OrderItem[];
-}
-
-export const TableOrderPanel = ({ table, onOrderUpdated }: TableOrderPanelProps) => {
-  const toast = useToast();
+export const TableOrderPanel = ({ orderId, onOrderUpdated }: TableOrderPanelProps) => {
+  const { showToast } = useToast();
   const [order, setOrder] = useState<OrderWithItems | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [addItemModalOpen, setAddItemModalOpen] = useState<boolean>(false);
+  const [selectedRound, setSelectedRound] = useState<number | null>(null);
+  const [sendingRounds, setSendingRounds] = useState<Set<number>>(new Set());
 
-  // Group items by round_number
-  const roundGroups = useMemo<RoundGroup[]>(() => {
+  // Derive rounds from order items
+  const rounds = useMemo<Round[]>(() => {
     if (!order?.items) return [];
 
-    const groups = new Map<number, OrderItem[]>();
+    // Group items by round_number
+    const roundsMap = new Map<number, OrderItem[]>();
 
     order.items.forEach((item) => {
-      const roundNum = item.round_number ?? 1; // Default to round 1 if not specified
-      if (!groups.has(roundNum)) {
-        groups.set(roundNum, []);
+      // Default to round 1 if no round_number is set
+      const roundNum = item.round_number ?? 1;
+      if (!roundsMap.has(roundNum)) {
+        roundsMap.set(roundNum, []);
       }
-      groups.get(roundNum)!.push(item);
+      roundsMap.get(roundNum)!.push(item);
     });
 
-    // Convert to array and sort by round number
-    return Array.from(groups.entries())
-      .map(([roundNumber, items]) => ({ roundNumber, items }))
-      .sort((a, b) => a.roundNumber - b.roundNumber);
+    // Convert to Round objects and sort by round_number
+    const roundsArray: Round[] = Array.from(roundsMap.entries())
+      .map(([roundNumber, items]) => ({
+        round_number: roundNumber,
+        items,
+        status: 'OPEN' as const, // TODO: derive from backend when available
+      }))
+      .sort((a, b) => a.round_number - b.round_number);
+
+    return roundsArray;
   }, [order]);
 
-  // Load or create order when table changes
-  useEffect(() => {
-    if (!table) {
-      setOrder(null);
-      setError(null);
-      return;
+  const loadOrder = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const orderData = await getOrderWithItems(orderId);
+      setOrder(orderData);
+    } catch (err) {
+      console.error('Failed to load order', err);
+      setError('Nem sikerült betölteni a rendelést.');
+      showToast('Nem sikerült betölteni a rendelést', 'error');
+    } finally {
+      setIsLoading(false);
     }
-
-    const loadOrder = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        // Open or get active order for this table
-        const activeOrder = await openOrGetActiveOrder(table.id);
-
-        // Try to fetch full order details with items
-        try {
-          const orderWithItems = await getOrderWithItems(activeOrder.id);
-          setOrder(orderWithItems);
-          onOrderUpdated?.(orderWithItems);
-        } catch (err: any) {
-          // If items endpoint fails, use the basic order
-          console.warn('Failed to fetch order items, using basic order:', err);
-          setOrder({ ...activeOrder, items: [] });
-          onOrderUpdated?.(activeOrder);
-        }
-      } catch (err: any) {
-        console.error('Failed to load order:', err);
-        const errorMessage =
-          err.response?.status === 404
-            ? 'A rendelés nem található. A backend végpont még nem elérhető.'
-            : 'Nem sikerült betölteni a rendelést.';
-
-        setError(errorMessage);
-        toast.error(errorMessage);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadOrder();
-  }, [table]);
-
-  // Render content based on state
-  const renderContent = () => {
-    if (!table) {
-      return (
-        <div className="order-panel-empty">
-          <p className="order-panel-empty-text">Válassz egy asztalt a rendelés megkezdéséhez.</p>
-        </div>
-      );
-    }
-
-    if (isLoading) {
-      return (
-        <div className="order-panel-loading">
-          <Spinner size="medium" />
-          <p>Rendelés betöltése...</p>
-        </div>
-      );
-    }
-
-    if (error) {
-      return (
-        <div className="order-panel-error">
-          <p className="order-panel-error-text">{error}</p>
-          <p className="order-panel-error-hint">
-            A backend API még fejlesztés alatt állhat. Ellenőrizd a konzolt további
-            részletekért.
-          </p>
-        </div>
-      );
-    }
-
-    if (!order) {
-      return (
-        <div className="order-panel-empty">
-          <p className="order-panel-empty-text">Nincs aktív rendelés ehhez az asztalhoz.</p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="order-panel-content">
-        {/* Order Header */}
-        <div className="order-panel-header">
-          <h3 className="order-panel-title">Rendelés #{order.id}</h3>
-          <div className="order-panel-meta">
-            <span className="order-panel-meta-item">
-              <strong>Asztal:</strong> {table.table_number}
-            </span>
-            <span className="order-panel-meta-item">
-              <strong>Státusz:</strong> {order.status}
-            </span>
-            <span className="order-panel-meta-item">
-              <strong>Létrehozva:</strong> {new Date(order.created_at).toLocaleString('hu-HU')}
-            </span>
-          </div>
-        </div>
-
-        {/* Order Items by Round */}
-        <div className="order-panel-rounds">
-          {roundGroups.length === 0 ? (
-            <div className="order-panel-no-items">
-              <p>Még nincsenek tételek ehhez a rendeléshez.</p>
-              <p className="order-panel-hint">
-                A tételek hozzáadása a későbbi FE feladatokban kerül implementálásra.
-              </p>
-            </div>
-          ) : (
-            roundGroups.map((group) => (
-              <div key={group.roundNumber} className="order-panel-round">
-                <h4 className="order-panel-round-title">Forduló {group.roundNumber}</h4>
-                <div className="order-panel-items">
-                  {group.items.map((item) => (
-                    <div key={item.id} className="order-panel-item">
-                      <div className="order-panel-item-main">
-                        <span className="order-panel-item-name">{item.name}</span>
-                        <span className="order-panel-item-quantity">x{item.quantity}</span>
-                      </div>
-                      <div className="order-panel-item-footer">
-                        <span className="order-panel-item-price">
-                          {item.total_price.toLocaleString('hu-HU')} Ft
-                        </span>
-                        {item.notes && (
-                          <span className="order-panel-item-notes">{item.notes}</span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Order Total */}
-        {order.total_amount !== undefined && order.total_amount > 0 && (
-          <div className="order-panel-total">
-            <span className="order-panel-total-label">Összesen:</span>
-            <span className="order-panel-total-value">
-              {order.total_amount.toLocaleString('hu-HU')} Ft
-            </span>
-          </div>
-        )}
-      </div>
-    );
   };
 
+  useEffect(() => {
+    loadOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
+
+  const handleAddNewRound = () => {
+    // Find the highest round number and add 1
+    const maxRound = rounds.length > 0
+      ? Math.max(...rounds.map((r) => r.round_number))
+      : 0;
+    const newRoundNumber = maxRound + 1;
+
+    // Open modal to add items to the new round
+    setSelectedRound(newRoundNumber);
+    setAddItemModalOpen(true);
+  };
+
+  const handleAddItemsToRound = (roundNumber: number) => {
+    setSelectedRound(roundNumber);
+    setAddItemModalOpen(true);
+  };
+
+  const handleSendRoundToKds = async (roundNumber: number) => {
+    setSendingRounds((prev) => new Set(prev).add(roundNumber));
+    try {
+      const result = await sendRoundToKds(orderId, roundNumber);
+      if (result.success) {
+        showToast(result.message || `Kör ${roundNumber} elküldve a konyhának`, 'success');
+        await loadOrder();
+        onOrderUpdated?.();
+      } else {
+        showToast('Nem sikerült elküldeni a kört', 'error');
+      }
+    } catch (err) {
+      console.error('Failed to send round to KDS', err);
+      showToast('Hiba történt a kör küldésekor', 'error');
+    } finally {
+      setSendingRounds((prev) => {
+        const next = new Set(prev);
+        next.delete(roundNumber);
+        return next;
+      });
+    }
+  };
+
+  const handleItemsAdded = async () => {
+    setAddItemModalOpen(false);
+    setSelectedRound(null);
+    await loadOrder();
+    onOrderUpdated?.();
+    showToast('Tételek hozzáadva', 'success');
+  };
+
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('hu-HU', {
+      style: 'currency',
+      currency: 'HUF',
+      minimumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const getStatusBadgeColor = (status?: string): string => {
+    switch (status) {
+      case 'SENT_TO_KDS':
+        return 'blue';
+      case 'READY':
+        return 'green';
+      default:
+        return 'gray';
+    }
+  };
+
+  const getStatusLabel = (status?: string): string => {
+    switch (status) {
+      case 'SENT_TO_KDS':
+        return 'KONYHÁNAK KÜLDVE';
+      case 'READY':
+        return 'KÉSZ';
+      default:
+        return 'NYITOTT';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Paper withBorder radius="md" p="md" className="table-order-panel">
+        <Text>Betöltés...</Text>
+      </Paper>
+    );
+  }
+
+  if (error || !order) {
+    return (
+      <Paper withBorder radius="md" p="md" className="table-order-panel">
+        <Text c="red">{error || 'Nem sikerült betölteni a rendelést'}</Text>
+        <Button onClick={loadOrder} mt="sm">
+          Újrapróbálás
+        </Button>
+      </Paper>
+    );
+  }
+
   return (
-    <div className="order-panel">
-      <div className="order-panel-wrapper">{renderContent()}</div>
-    </div>
+    <>
+      <Paper withBorder radius="md" p="md" className="table-order-panel">
+        <Stack gap="md">
+          {/* Header */}
+          <Group justify="space-between" align="center">
+            <div>
+              <Text fw={700} size="lg">
+                Rendelés #{order.id}
+              </Text>
+              <Text size="sm" c="dimmed">
+                Asztal #{order.table_id} · {order.order_type}
+              </Text>
+            </div>
+            <Badge color={order.status === 'NYITOTT' ? 'green' : 'gray'}>
+              {order.status}
+            </Badge>
+          </Group>
+
+          <Divider />
+
+          {/* Rounds */}
+          {rounds.length === 0 ? (
+            <Text c="dimmed" ta="center" py="xl">
+              Nincs még tétel ebben a rendelésben
+            </Text>
+          ) : (
+            <Stack gap="lg">
+              {rounds.map((round) => (
+                <Paper key={round.round_number} withBorder p="sm" className="round-section">
+                  <Stack gap="sm">
+                    {/* Round Header */}
+                    <Group justify="space-between" align="center">
+                      <Group gap="xs">
+                        <Text fw={600} size="md">
+                          {round.round_number}. kör
+                        </Text>
+                        <Badge size="sm" color={getStatusBadgeColor(round.status)}>
+                          {getStatusLabel(round.status)}
+                        </Badge>
+                      </Group>
+                      <Group gap="xs">
+                        <Button
+                          size="xs"
+                          variant="light"
+                          leftSection={<IconPlus size={14} />}
+                          onClick={() => handleAddItemsToRound(round.round_number)}
+                        >
+                          Tétel hozzáadása
+                        </Button>
+                        <Button
+                          size="xs"
+                          variant="filled"
+                          color="orange"
+                          leftSection={<IconChefHat size={14} />}
+                          onClick={() => handleSendRoundToKds(round.round_number)}
+                          loading={sendingRounds.has(round.round_number)}
+                        >
+                          Kör küldése konyhának
+                        </Button>
+                      </Group>
+                    </Group>
+
+                    {/* Round Items */}
+                    <Stack gap="xs">
+                      {round.items.map((item) => (
+                        <Group key={item.id} justify="space-between" className="round-item">
+                          <Group gap="sm">
+                            <Text fw={500}>{item.quantity}x</Text>
+                            <Text>{item.product_name || `Termék #${item.product_id}`}</Text>
+                          </Group>
+                          <Group gap="sm">
+                            {item.kds_status && (
+                              <Badge size="xs" variant="dot">
+                                {item.kds_status}
+                              </Badge>
+                            )}
+                            <Text size="sm" c="dimmed">
+                              {formatPrice(item.unit_price * item.quantity)}
+                            </Text>
+                          </Group>
+                        </Group>
+                      ))}
+                    </Stack>
+                  </Stack>
+                </Paper>
+              ))}
+            </Stack>
+          )}
+
+          {/* Add New Round Button */}
+          <Button
+            variant="outline"
+            leftSection={<IconPlus size={16} />}
+            onClick={handleAddNewRound}
+          >
+            Új kör
+          </Button>
+        </Stack>
+      </Paper>
+
+      {/* Add Item Modal */}
+      {addItemModalOpen && selectedRound !== null && (
+        <AddItemModal
+          isOpen={addItemModalOpen}
+          onClose={() => {
+            setAddItemModalOpen(false);
+            setSelectedRound(null);
+          }}
+          orderId={orderId}
+          roundNumber={selectedRound}
+          onItemsAdded={handleItemsAdded}
+        />
+      )}
+    </>
   );
 };

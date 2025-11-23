@@ -71,32 +71,57 @@ export interface CourierAssignmentResponse {
 }
 
 // =====================================================
-// ORDER ITEM TYPES
+// ORDER ITEMS & ROUNDS
 // =====================================================
+
+export type KDSStatus = 'WAITING' | 'PREPARING' | 'READY' | 'SERVED' | 'CANCELLED';
 
 export interface OrderItem {
   id: number;
   order_id: number;
-  menu_item_id?: number;
-  name: string;
+  product_id: number;
+  product_name?: string; // populated from product service
+  seat_id?: number;
   quantity: number;
   unit_price: number;
-  total_price: number;
-  round_number?: number;
+  selected_modifiers?: Array<{
+    group_name: string;
+    modifier_name: string;
+    price: number;
+  }>;
+  course?: string; // 'Előétel', 'Főétel', 'Desszert'
   notes?: string;
-  created_at: string;
-  updated_at: string;
+  kds_station?: string; // 'GRILL', 'COLD', 'BAR', 'PULT'
+  kds_status: KDSStatus;
+  is_urgent?: boolean;
+  round_number?: number; // NEW: for grouping items into rounds
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface OrderWithItems extends Order {
   items: OrderItem[];
 }
 
-export interface OrderItemCreate {
-  menu_item_id?: number;
-  name: string;
-  quantity: number;
-  unit_price: number;
-  round_number?: number;
-  notes?: string;
+export interface Round {
+  round_number: number;
+  items: OrderItem[];
+  status?: 'OPEN' | 'SENT_TO_KDS' | 'READY'; // frontend-only status tracking
+}
+
+export interface AddItemsToRoundRequest {
+  items: {
+    product_id: number;
+    quantity: number;
+    unit_price: number;
+    selected_modifiers?: Array<{
+      group_name: string;
+      modifier_name: string;
+      price: number;
+    }>;
+    course?: string;
+    notes?: string;
+    kds_station?: string;
+  }[];
+  round_number: number;
 }

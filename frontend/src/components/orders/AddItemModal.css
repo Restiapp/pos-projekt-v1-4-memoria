@@ -1,0 +1,8 @@
+.selected-product-item {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}
+
+.selected-product-item:hover {
+  background-color: #e9ecef;
+}
