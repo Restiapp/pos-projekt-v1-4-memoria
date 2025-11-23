@@ -41,6 +41,10 @@ class OrderItem(Base):
     kds_station = Column(String(50), nullable=True)  # 'Konyha', 'Pizza', 'Pult'
     kds_status = Column(String(50), nullable=False, default='VÁRAKOZIK')  # 'VÁRAKOZIK', 'KÉSZÜL', 'KÉSZ'
 
+    # Phase D1/D2: Guest Floor Extensions
+    round_number = Column(Integer, nullable=True, default=1)
+    metadata_json = Column(JSONB, nullable=True)  # Stores is_urgent, course_tag, etc.
+
     # Relationships
     order = relationship('Order', back_populates='order_items')
     seat = relationship('Seat', back_populates='order_items')

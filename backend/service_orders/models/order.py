@@ -11,6 +11,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
+from backend.core_domain.enums import OrderStatus
 from backend.service_orders.models.database import Base
 
 
@@ -30,7 +31,7 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     order_type = Column(String(50), nullable=False)  # 'Helyben', 'Elvitel', 'Kiszállítás'
-    status = Column(String(50), nullable=False, default='NYITOTT')  # 'NYITOTT', 'FELDOLGOZVA', 'LEZART', 'SZTORNÓ'
+    status = Column(String(50), nullable=False, default=OrderStatus.OPEN.value)
     table_id = Column(Integer, ForeignKey('tables.id'), nullable=True)
     customer_id = Column(Integer, index=True, nullable=True)  # V3.0: Ügyfél hivatkozás
     total_amount = Column(Numeric(10, 2), nullable=True)
