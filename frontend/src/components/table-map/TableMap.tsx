@@ -24,6 +24,7 @@ import './TableMap.css';
 interface TableMapProps {
   activeRoomId: number | null;
   rooms: Room[];
+  onTableSelect?: (table: Table) => void;
 }
 
 const statusColors: Record<TableStatus, { bg: string; text: string; border: string }> = {
@@ -79,7 +80,8 @@ const getTableName = (table: Table): string => {
   return typeof meta?.table_name === 'string' ? meta.table_name : '';
 };
 
-export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
+// Sprint D1+D2: onTableSelect prop added for GuestFloorPage integration
+export const TableMap = ({ activeRoomId, rooms, onTableSelect }: TableMapProps) => {
   const navigate = useNavigate();
   const [tables, setTables] = useState<Table[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -114,7 +116,11 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
   }, [tables, activeRoomId]);
 
   const handleTableClick = (table: Table) => {
-    navigate(`/orders/new?table_id=${table.id}`);
+    if (onTableSelect) {
+      onTableSelect(table);
+    } else {
+      navigate(`/orders/new?table_id=${table.id}`);
+    }
   };
 
   const renderContent = () => {

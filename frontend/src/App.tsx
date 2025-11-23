@@ -41,7 +41,7 @@ import { InventoryPage } from '@/pages/InventoryPage';
 // ÚJ IMPORT - Sprint 1 (Bar)
 import { BarPage } from '@/pages/BarPage';
 
-// ÚJ IMPORT - FE-2 (Guest Floor with Order Panel)
+// ÚJ IMPORT - Sprint D1+D2 (Guest Floor / Waiter Page with Order Panel)
 import { GuestFloorPage } from '@/pages/GuestFloorPage';
 
 // Toast and ConfirmDialog Providers
@@ -108,9 +108,9 @@ function App() {
           }
         />
 
-        {/* ÚJ ROUTE: Vendég Terem Alaprajz + Rendelés Panel (FE-2) */}
+        {/* ÚJ ROUTE: Vendégtér / Pincér Felület + Rendelés Panel (Sprint D1+D2) */}
         <Route
-          path="/guest-floor"
+          path="/front"
           element={
             <ProtectedRoute>
               <GuestFloorPage />
