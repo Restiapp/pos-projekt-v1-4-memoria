@@ -24,6 +24,8 @@ import type {
   OrderStatus,
   CourierAssignmentRequest,
   CourierAssignmentResponse,
+  OrderWithItems,
+  OrderItemCreate,
 } from '@/types/order';
 
 // =====================================================
@@ -144,5 +146,96 @@ export const updateVAT = async (orderId: number, newVat: number): Promise<Order>
   const response = await apiClient.put<Order>(`/api/orders/${orderId}`, {
     final_vat_rate: newVat,
   });
+  return response.data;
+};
+
+// =====================================================
+// TABLE ORDER WORKFLOW (FE-2: Guest Floor)
+// =====================================================
+
+/**
+ * TODO: Backend endpoint to be implemented by Jules
+ * POST /api/orders/{table_id}/open - Open or get active order for table
+ *
+ * Opens a new order for the specified table, or returns the existing active order.
+ * Proxy Target: http://localhost:8002/api/v1/orders/{table_id}/open
+ *
+ * @param tableId - Table ID
+ * @returns Order (newly created or existing active order)
+ */
+export const openOrGetActiveOrder = async (tableId: number): Promise<Order> => {
+  try {
+    const response = await apiClient.post<Order>(`/api/orders/${tableId}/open`);
+    return response.data;
+  } catch (error: any) {
+    // If endpoint doesn't exist yet (404), create order manually as fallback
+    if (error.response?.status === 404 || error.response?.status === 500) {
+      // Fallback: Use standard createOrder with table_id
+      const orderData: OrderCreate = {
+        order_type: 'Helyben',
+        status: 'NYITOTT',
+        table_id: tableId,
+        final_vat_rate: 27,
+      };
+      return await createOrder(orderData);
+    }
+    throw error;
+  }
+};
+
+/**
+ * TODO: Backend endpoint to be implemented by Jules
+ * GET /api/orders/{table_id}/active - Get active order for table
+ *
+ * Returns the active order for the specified table, or null if none exists.
+ * Proxy Target: http://localhost:8002/api/v1/orders/{table_id}/active
+ *
+ * @param tableId - Table ID
+ * @returns Order or null
+ */
+export const getActiveOrderForTable = async (tableId: number): Promise<Order | null> => {
+  try {
+    const response = await apiClient.get<Order>(`/api/orders/${tableId}/active`);
+    return response.data;
+  } catch (error: any) {
+    // If endpoint doesn't exist yet (404), use fallback to search orders
+    if (error.response?.status === 404) {
+      const ordersResponse = await getOrders(1, 20, 'Helyben', 'NYITOTT', tableId);
+      return ordersResponse.items[0] ?? null;
+    }
+    throw error;
+  }
+};
+
+/**
+ * Get order details with items
+ * Uses GET /api/orders/{id} and assumes backend returns items
+ *
+ * @param orderId - Order ID
+ * @returns Order with items
+ */
+export const getOrderWithItems = async (orderId: number): Promise<OrderWithItems> => {
+  const response = await apiClient.get<OrderWithItems>(`/api/orders/${orderId}`);
+  return response.data;
+};
+
+/**
+ * TODO: Backend endpoint to be implemented by Jules
+ * POST /api/orders/{order_id}/rounds/{round_number}/send-to-kds
+ *
+ * Sends a specific round of items to the KDS.
+ * Proxy Target: http://localhost:8002/api/v1/orders/{order_id}/rounds/{round_number}/send-to-kds
+ *
+ * @param orderId - Order ID
+ * @param roundNumber - Round number to send
+ * @returns Response message
+ */
+export const sendRoundToKds = async (
+  orderId: number,
+  roundNumber: number
+): Promise<{ message: string }> => {
+  const response = await apiClient.post<{ message: string }>(
+    `/api/orders/${orderId}/rounds/${roundNumber}/send-to-kds`
+  );
   return response.data;
 };

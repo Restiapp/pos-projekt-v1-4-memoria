@@ -1,0 +1,237 @@
+/**
+ * GuestFloorPage Styles
+ * Two-column layout: floor plan on left, order panel on right
+ */
+
+.guest-floor-page {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Left Panel: Floor Plan */
+.guest-floor-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+}
+
+/* Right Panel: Order Panel */
+.guest-floor-right {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-left: 2px solid #dee2e6;
+  overflow: hidden;
+}
+
+/* Header */
+.guest-floor-header {
+  margin-bottom: 1.5rem;
+}
+
+.guest-floor-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #212529;
+}
+
+.guest-floor-subtitle {
+  font-size: 0.95rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+/* Map Container */
+.guest-floor-map-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.guest-floor-map-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.guest-floor-map-title {
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin: 0;
+  color: #495057;
+}
+
+/* Canvas Wrapper */
+.guest-floor-canvas-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Canvas */
+.guest-floor-canvas {
+  position: relative;
+  background-color: #f1f3f5;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: auto;
+  flex-shrink: 0;
+  margin-bottom: 1rem;
+}
+
+/* Table Nodes */
+.guest-floor-table {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 2px solid;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  padding: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.guest-floor-table:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+  z-index: 10;
+}
+
+.guest-floor-table-selected {
+  border-width: 3px !important;
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3) !important;
+  z-index: 5;
+}
+
+/* Table Shapes */
+.guest-floor-table-round {
+  border-radius: 50%;
+}
+
+.guest-floor-table-square {
+  border-radius: 4px;
+}
+
+.guest-floor-table-rect {
+  border-radius: 4px;
+}
+
+/* Table Content */
+.guest-floor-table-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  transform: rotate(0deg); /* Reset rotation for content */
+}
+
+.guest-floor-table-number {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.guest-floor-table-status {
+  font-size: 0.7rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.guest-floor-table-capacity {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+/* Legend */
+.guest-floor-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.guest-floor-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.guest-floor-legend-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid;
+  flex-shrink: 0;
+}
+
+.guest-floor-legend-label {
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+/* Empty States */
+.guest-floor-empty,
+.guest-floor-loading,
+.guest-floor-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #6c757d;
+}
+
+.guest-floor-empty-hint {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  opacity: 0.8;
+}
+
+.guest-floor-loading {
+  gap: 1rem;
+}
+
+.guest-floor-error {
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 8px;
+  margin: 1rem;
+}
+
+.guest-floor-error-text {
+  color: #856404;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .guest-floor-page {
+    flex-direction: column;
+  }
+
+  .guest-floor-right {
+    width: 100%;
+    max-height: 50vh;
+    border-left: none;
+    border-top: 2px solid #dee2e6;
+  }
+}
