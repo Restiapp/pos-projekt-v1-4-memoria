@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge, Group, Tooltip } from '@mantine/core';
-import { TableMetrics } from '@/api/guestOrderApi';
+import type { TableMetrics } from '@/api/guestOrderApi';
 
 interface MetricsDisplayProps {
   metrics?: TableMetrics;

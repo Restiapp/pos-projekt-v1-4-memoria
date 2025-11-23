@@ -1,7 +1,7 @@
 import React from 'react';
 import { Paper, Text, Badge, Group, ActionIcon, Stack, ThemeIcon } from '@mantine/core';
 import { IconFlame, IconChefHat } from '@tabler/icons-react'; // Assuming tabler icons are available or need verify
-import { OrderItem } from '@/api/guestOrderApi';
+import type { OrderItem } from '@/api/guestOrderApi';
 
 interface OrderItemRowProps {
   item: OrderItem;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Accordion, Button, Group, Text, Box } from '@mantine/core';
-import { OrderItem } from '@/api/guestOrderApi';
+import type { OrderItem } from '@/api/guestOrderApi';
 import { OrderItemRow } from './OrderItemRow';
 
 interface RoundListProps {

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Title, Group, Button, LoadingOverlay, Stack, Card } from '@mantine/core';
-import { guestOrderApi, OrderWithMetrics, TableMetrics, OrderItem } from '@/api/guestOrderApi';
+import { guestOrderApi } from '@/api/guestOrderApi';
+import type { OrderWithMetrics, TableMetrics, OrderItem } from '@/api/guestOrderApi';
 import { RoundList } from './components/RoundList';
 import { AddItemModal } from './components/AddItemModal';
 import { MetricsDisplay } from './components/MetricsDisplay';
