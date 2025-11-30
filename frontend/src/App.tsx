@@ -32,6 +32,9 @@ import { AssetsPage } from '@/pages/AssetsPage';
 // ÚJ IMPORT - Fázis 3.5 (Vehicles)
 import { VehiclesPage } from '@/pages/VehiclesPage';
 
+// ÚJ IMPORT - Sprint D3/D4 (Guest Floor)
+import { TableOrderPage } from '@/features/guest/TableOrderPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -82,6 +85,16 @@ function App() {
           element={
             <ProtectedRoute>
               <PaymentPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ÚJ ROUTE: Guest/Waiter Table View (Sprint D3/D4) */}
+        <Route
+          path="/guest/table/:tableId"
+          element={
+            <ProtectedRoute>
+              <TableOrderPage />
             </ProtectedRoute>
           }
         />
