@@ -31,6 +31,10 @@ from backend.service_orders.schemas.payment import (
     PaymentResponse,
     SplitCheckResponse
 )
+# Phase D1 imports
+from pydantic import BaseModel, Field
+from backend.service_orders.services.order_item_service import OrderItemService
+from backend.service_orders.schemas.order_item import OrderItemResponse
 
 # Router létrehozása
 orders_router = APIRouter(
@@ -38,6 +42,38 @@ orders_router = APIRouter(
     tags=["Orders"],
     responses={404: {"description": "Order not found"}}
 )
+
+# Phase D1/D3: Helper Schemas
+class OrderItemRequest(BaseModel):
+    product_id: int
+    quantity: int = Field(default=1, ge=1)
+    is_urgent: Optional[bool] = False
+    course_tag: Optional[str] = None
+    notes: Optional[str] = None
+
+class AddItemsRequest(BaseModel):
+    round_number: int = Field(default=1, ge=1)
+    items: List[OrderItemRequest]
+
+class UpdateFlagsRequest(BaseModel):
+    is_urgent: Optional[bool] = None
+    course_tag: Optional[str] = None
+    sync_with_course: Optional[str] = None
+    round_number: Optional[int] = Field(None, ge=1, le=3, description="1=Red, 2=Yellow, 3=Unmarked")
+
+class TableMetricsResponse(BaseModel):
+    table_id: int
+    active: bool
+    active_order_id: Optional[int] = None
+    order_start_time: Optional[str] = None
+    minutes_since_start: Optional[int] = 0
+    last_round_minutes: Optional[int] = 0
+    color: Optional[str] = "green" # green, yellow, red
+
+class OrderWithMetricsResponse(OrderResponse):
+    start_timestamp: Optional[str] = None
+    elapsed_minutes: Optional[int] = 0
+    last_round_time: Optional[str] = None
 
 
 @orders_router.post(
@@ -75,6 +111,95 @@ def create_order(
     """
     order = OrderService.create_order(db, order_data)
     return OrderResponse.model_validate(order)
+
+
+# ============================================================================
+# PHASE D1: GUEST FLOOR ENDPOINTS
+# ============================================================================
+
+@orders_router.post(
+    "/{table_id}/open",
+    response_model=OrderWithMetricsResponse,
+    summary="Open/Get active order for table",
+    description="Returns existing OPEN order for table, or creates new one. Includes time metrics."
+)
+def open_order_for_table(
+    table_id: int,
+    db: Session = Depends(get_db)
+) -> OrderWithMetricsResponse:
+    return OrderService.open_order_for_table(db, table_id)
+
+@orders_router.post(
+    "/{order_id}/items",
+    response_model=List[OrderItemResponse],
+    summary="Add items with round",
+    description="Add items to order specifying serving round."
+)
+def add_items_to_order(
+    order_id: int,
+    request: AddItemsRequest,
+    db: Session = Depends(get_db)
+) -> List[OrderItemResponse]:
+    items = OrderService.add_items_with_round(
+        db,
+        order_id,
+        request.round_number,
+        request.items
+    )
+    return [OrderItemResponse.model_validate(i) for i in items]
+
+@orders_router.patch(
+    "/items/{item_id}/flags",
+    response_model=OrderItemResponse,
+    summary="Update item flags",
+    description="Update urgent flag, course tag, round_number (waves), etc."
+)
+def update_item_flags(
+    item_id: int,
+    request: UpdateFlagsRequest,
+    db: Session = Depends(get_db)
+) -> OrderItemResponse:
+    flags = request.model_dump(exclude_unset=True)
+    item = OrderItemService.update_item_flags(db, item_id, flags)
+    return OrderItemResponse.model_validate(item)
+
+@orders_router.get(
+    "/{table_id}/metrics",
+    response_model=TableMetricsResponse,
+    summary="Get table time metrics"
+)
+def get_table_metrics(
+    table_id: int,
+    db: Session = Depends(get_db)
+) -> TableMetricsResponse:
+    metrics = OrderService.get_table_metrics(db, table_id)
+    return TableMetricsResponse(**metrics)
+
+@orders_router.post(
+    "/{order_id}/move-to-table/{target_table_id}",
+    response_model=OrderResponse,
+    summary="Move order to another table",
+    description="Reassigns an order to a different table."
+)
+def move_order_to_table(
+    order_id: int,
+    target_table_id: int,
+    db: Session = Depends(get_db)
+) -> OrderResponse:
+    order = OrderService.move_order_to_table(db, order_id, target_table_id)
+    return OrderResponse.model_validate(order)
+
+@orders_router.post(
+    "/{order_id}/rounds/{round_number}/send-to-kds",
+    summary="Send round to KDS",
+    description="Trigger KDS tickets for all items in round."
+)
+def send_round_to_kds(
+    order_id: int,
+    round_number: int,
+    db: Session = Depends(get_db)
+) -> dict:
+    return OrderService.send_round_to_kds(db, order_id, round_number)
 
 
 @orders_router.get(
