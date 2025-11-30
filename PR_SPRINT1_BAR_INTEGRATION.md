@@ -1,4 +1,9 @@
-# Sprint 1 – Bar Module Integration
+> **ARCHIVED / HISTORY LOG**
+> Ez a dokumentum torteneti celokat szolgal (Sprint 1 PR log).
+> A fejleszteshez **NE** ezt hasznald specifikaciokent.
+> Aktualis fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+
+# Sprint 1 – Bar Module Integration (ARCHIVED)
 
 ## 🎯 Overview
 

@@ -1,4 +1,8 @@
-# Claude Skill: Modul 0 - Terméktörzs és Menü Konfigurátor
+> **ARCHIVED SKILL**
+> Az aktualis Skill & Guideline fajlokat a `docs/skills/` mappaban talalod.
+> Fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+
+# Claude Skill: Modul 0 - Terméktörzs és Menü Konfigurátor (ARCHIVED)
 
 **Cél:** A rendszer központi termék- és menü adatbázisának kezelése, beleértve a komplex módosítókat, többnyelvűséget, értékesítési csatornákat és képkezelést.
 

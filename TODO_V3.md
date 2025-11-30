@@ -1,8 +1,13 @@
-# TODO_V3 - V3.0 Master Plan Technical Debt & Future Tasks
+> **ARCHIVED / ELAVULT DOKUMENTUM**
+> Ez a dokumentum torteneti celokat szolgal (V3.0 regi TODO lista).
+> A fejleszteshez **NE** ezt hasznald specifikaciokent.
+> Aktualis fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+
+# TODO_V3 - V3.0 Master Plan Technical Debt & Future Tasks (ARCHIVED)
 
 **Verzió:** 3.0
 **Utolsó Frissítés:** 2025-01-18
-**Státusz:** ACTIVE
+**Státusz:** ARCHIVED
 
 ---
 

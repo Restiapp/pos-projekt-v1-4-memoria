@@ -1,3 +1,7 @@
+> **ARCHIVED SKILL**
+> Az aktualis Skill & Guideline fajlokat a `docs/skills/` mappaban talalod.
+> Fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+
 # Claude Skill: Modul 4 - Számlázás és Fizetés
 
 **Cél:** Dinamikus fizetési módok kezelése (SZÉP kártyák) és számla felosztása.

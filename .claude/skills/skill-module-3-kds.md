@@ -1,3 +1,7 @@
+> **ARCHIVED SKILL**
+> Az aktualis Skill & Guideline fajlokat a `docs/skills/` mappaban talalod.
+> Fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+
 # Claude Skill: Modul 3 - Konyhai Kijelző Rendszer (KDS)
 
 **Cél:** Valós időben jeleníti meg a rendelési tételeket a megfelelő konyhai állomásokon.
