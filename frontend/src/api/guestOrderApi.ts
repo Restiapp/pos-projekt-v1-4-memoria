@@ -16,6 +16,9 @@ export interface OrderItem {
     notes?: string;
     sync_with_course?: string;
   };
+  // Pydantic flat fields proxy
+  is_urgent?: boolean;
+  course_tag?: string;
   kds_status?: string;
 }
 
@@ -67,6 +70,14 @@ export const guestOrderApi = {
   // Update item flags
   updateItemFlags: async (itemId: number, flags: { is_urgent?: boolean; course_tag?: string }) => {
     const response = await axios.patch(`${API_BASE_URL}/orders/items/${itemId}/flags`, flags);
+    return response.data;
+  },
+
+  // Update item round number (New for D5)
+  updateItemRound: async (itemId: number, roundNumber: number) => {
+    const response = await axios.put(`${API_BASE_URL}/orders/items/${itemId}`, {
+      round_number: roundNumber
+    });
     return response.data;
   },
 

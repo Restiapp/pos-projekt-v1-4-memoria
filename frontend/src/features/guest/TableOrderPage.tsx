@@ -1,12 +1,13 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Container, Title, Group, Button, LoadingOverlay, Stack, Card } from '@mantine/core';
+import { Container, Title, Group, Button, LoadingOverlay, Stack, Card, Text } from '@mantine/core';
 import { guestOrderApi } from '@/api/guestOrderApi';
 import type { OrderWithMetrics, TableMetrics, OrderItem } from '@/api/guestOrderApi';
 import { RoundList } from './components/RoundList';
 import { AddItemModal } from './components/AddItemModal';
 import { MetricsDisplay } from './components/MetricsDisplay';
 import { TableActions } from './components/TableActions';
+import { WaveSelectionModal } from './components/WaveSelectionModal';
 
 export const TableOrderPage: React.FC = () => {
   const { tableId } = useParams<{ tableId: string }>();
@@ -15,6 +16,7 @@ export const TableOrderPage: React.FC = () => {
   const [metrics, setMetrics] = useState<TableMetrics | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [addItemModalOpen, setAddItemModalOpen] = useState(false);
+  const [waveModalOpen, setWaveModalOpen] = useState(false);
 
   // Load initial data
   const loadOrder = async () => {
@@ -41,7 +43,6 @@ export const TableOrderPage: React.FC = () => {
         // Silent update
         const m = await guestOrderApi.getMetrics(parseInt(tableId));
         setMetrics(m);
-        // Could also poll order data here if needed, but keeping lightweight for now
     }, 5000);
     return () => clearInterval(interval);
   }, [tableId]);
@@ -58,20 +59,18 @@ export const TableOrderPage: React.FC = () => {
     return grouped;
   }, [order]);
 
+  // Determine items that are "unsent" (Status VÁRAKOZIK or null)
+  const unsentItems = useMemo(() => {
+    if (!order) return [];
+    return order.items.filter(i => !i.kds_status || i.kds_status === 'VÁRAKOZIK');
+  }, [order]);
+
   const handleAddItem = async (itemData: { productId: number; quantity: number; courseTag: string; isUrgent: boolean; notes: string }) => {
     if (!order) return;
-    // Determine next round number based on existing rounds or default to 1
-    const currentRounds = Object.keys(rounds).map(Number);
-    const maxRound = currentRounds.length > 0 ? Math.max(...currentRounds) : 1;
-    // For D3 demo, we add to the "current" max round if items in it aren't sent, or create new round?
-    // Let's assume we always add to the *active* round or create new if explicitly requested.
-    // Simplified: Just add to maxRound for now. "New Round" button logic would increment this.
-
-    // Actually, task says "New Round button -> next round_number".
-    // So "Add Item" should probably add to the *latest* round available.
-
+    // D5: Add items with default round 1 (or current unsent round).
+    // The Wave Selector will re-assign rounds before sending.
     try {
-        await guestOrderApi.addItems(order.id, maxRound, [{
+        await guestOrderApi.addItems(order.id, 1, [{
             product_id: itemData.productId,
             quantity: itemData.quantity,
             course_tag: itemData.courseTag,
@@ -82,39 +81,6 @@ export const TableOrderPage: React.FC = () => {
     } catch (e) {
         console.error(e);
     }
-  };
-
-  const handleNewRound = () => {
-     // This logic is tricky without backend support for "empty rounds".
-     // Usually, a new round starts when you add items with round_number + 1.
-     // So we'll handle this in the AddItemModal context or a state "targetRound".
-     // For this UI, let's just make the "Add Item" button default to maxRound.
-     // And a "Start New Round" button could set a state `nextRound = maxRound + 1` and open the modal.
-     const currentRounds = Object.keys(rounds).map(Number);
-     const nextRound = currentRounds.length > 0 ? Math.max(...currentRounds) + 1 : 1;
-
-     // We define a wrapper for addItems that forces this round
-     // But strictly speaking, the backend API `addItems` takes `roundNumber`.
-     // So we can just rely on the modal adding to `nextRound` if we passed it.
-     // For simplicity in this D3 deliverables, let's just assume Add Item adds to current round,
-     // unless we explicitly want a mechanism to increment.
-     // Let's implement: "New Round" button simply adds items to `maxRound + 1`.
-  };
-
-  // Custom wrapper to add to NEXT round
-  const handleAddItemToNextRound = async (itemData: any) => {
-      if (!order) return;
-      const currentRounds = Object.keys(rounds).map(Number);
-      const nextRound = currentRounds.length > 0 ? Math.max(...currentRounds) + 1 : 1;
-
-      await guestOrderApi.addItems(order.id, nextRound, [{
-          product_id: itemData.productId,
-          quantity: itemData.quantity,
-          course_tag: itemData.courseTag,
-          is_urgent: itemData.isUrgent,
-          notes: itemData.notes
-      }]);
-      loadOrder();
   };
 
   const handleToggleUrgent = async (itemId: number, currentStatus: boolean) => {
@@ -136,6 +102,39 @@ export const TableOrderPage: React.FC = () => {
     }
   };
 
+  // D5: Logic for Wave Confirmation
+  const handleWaveConfirm = async (waves: Record<number, number>) => {
+    if (!order) return;
+    setLoading(true);
+    try {
+      // 1. Update round_number for all items
+      // In a real app, we'd want a bulk update endpoint. For now, loop parallel.
+      const updatePromises = Object.entries(waves).map(([itemIdStr, roundNum]) =>
+        guestOrderApi.updateItemRound(parseInt(itemIdStr), roundNum)
+      );
+      await Promise.all(updatePromises);
+
+      // 2. Trigger Send for Round 1 (Red)
+      // The prompt implies: "First send: Red goes out".
+      // We check if there are any Round 1 items in the selection.
+      const hasRound1 = Object.values(waves).includes(1);
+
+      if (hasRound1) {
+        await guestOrderApi.sendRoundToKds(order.id, 1);
+      } else {
+        console.log("No Round 1 items to send immediately.");
+      }
+
+      // Refresh
+      await loadOrder();
+    } catch (e) {
+      console.error("Wave processing failed", e);
+      alert("Hiba a rendelés küldésekor!");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleMoveTable = async (targetTableId: number) => {
     if (!order) return;
     try {
@@ -145,6 +144,9 @@ export const TableOrderPage: React.FC = () => {
         alert("Hiba az asztal átmozgatásakor (pl. foglalt a cél asztal).");
     }
   };
+
+  // Only show "Send to Kitchen" if there are unsent items
+  const showSendButton = unsentItems.length > 0;
 
   if (loading && !order) return <LoadingOverlay visible />;
 
@@ -160,11 +162,17 @@ export const TableOrderPage: React.FC = () => {
         </Group>
 
         <Group mb="xl">
-          <Button size="lg" onClick={() => setAddItemModalOpen(true)}>+ Tétel Hozzáadása (Jelenlegi Kör)</Button>
-          {/* A "New Round" feature implies adding items to a NEW round bucket.
-              We'll use a specific modal prop or distinct handler if needed.
-              For now, let's just use the main Add Item button for current round.
-          */}
+          <Button size="lg" onClick={() => setAddItemModalOpen(true)}>+ Tétel Hozzáadása</Button>
+
+          {showSendButton && (
+            <Button
+              size="lg"
+              color="orange"
+              onClick={() => setWaveModalOpen(true)}
+            >
+              Rendelés Küldése (Hullámok)
+            </Button>
+          )}
         </Group>
       </Card>
 
@@ -177,8 +185,17 @@ export const TableOrderPage: React.FC = () => {
       <AddItemModal
         opened={addItemModalOpen}
         onClose={() => setAddItemModalOpen(false)}
-        onAdd={handleAddItem} // Adds to MAX round by default logic inside handler
+        onAdd={handleAddItem}
       />
+
+      {order && (
+        <WaveSelectionModal
+          opened={waveModalOpen}
+          onClose={() => setWaveModalOpen(false)}
+          items={unsentItems}
+          onConfirm={handleWaveConfirm}
+        />
+      )}
     </Container>
   );
 };

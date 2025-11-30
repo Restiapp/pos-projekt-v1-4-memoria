@@ -62,6 +62,7 @@ class UpdateFlagsRequest(BaseModel):
     is_urgent: Optional[bool] = None
     course_tag: Optional[str] = None
     sync_with_course: Optional[str] = None
+    round_number: Optional[int] = Field(None, ge=1, le=3, description="1=Red, 2=Yellow, 3=Unmarked")
 
 class TableMetricsResponse(BaseModel):
     table_id: int
@@ -154,7 +155,7 @@ def add_items_to_order(
     "/items/{item_id}/flags",
     response_model=OrderItemResponse,
     summary="Update item flags",
-    description="Update urgent flag, course tag, etc."
+    description="Update urgent flag, course tag, round_number (waves), etc."
 )
 def update_item_flags(
     item_id: int,

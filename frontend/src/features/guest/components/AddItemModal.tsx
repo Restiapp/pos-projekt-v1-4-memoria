@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, NumberInput, Select, Switch, TextInput, Button, Group, Stack } from '@mantine/core';
+import { Modal, NumberInput, Select, Switch, TextInput, Button, Group, Stack, Text } from '@mantine/core';
 
 interface AddItemModalProps {
   opened: boolean;
@@ -19,7 +19,7 @@ const MOCK_PRODUCTS = [
 export const AddItemModal: React.FC<AddItemModalProps> = ({ opened, onClose, onAdd }) => {
   const [productId, setProductId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
-  const [courseTag, setCourseTag] = useState<string>('főétel');
+  // D5: "Nem használunk többé course_tag alapú logikát" - hidden from UI, default empty
   const [isUrgent, setIsUrgent] = useState(false);
   const [notes, setNotes] = useState('');
 
@@ -28,7 +28,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ opened, onClose, onA
       onAdd({
         productId: parseInt(productId),
         quantity,
-        courseTag,
+        courseTag: '', // D5: Deprecated for waiter flow
         isUrgent,
         notes
       });
@@ -59,18 +59,7 @@ export const AddItemModal: React.FC<AddItemModalProps> = ({ opened, onClose, onA
           min={1}
         />
 
-        <Select
-          label="Fogás (Course)"
-          data={[
-            { value: 'ital', label: 'Ital' },
-            { value: 'előétel', label: 'Előétel' },
-            { value: 'leves', label: 'Leves' },
-            { value: 'főétel', label: 'Főétel' },
-            { value: 'desszert', label: 'Desszert' },
-          ]}
-          value={courseTag}
-          onChange={(val) => val && setCourseTag(val)}
-        />
+        {/* D5: Course Tag Removed from UI - Waves replace course-based logic */}
 
         <Switch
           label="Sürgős (Urgent)"
