@@ -1,4 +1,8 @@
-# Claude Skill: Modul 1 - Központi Rendeléskezelés
+> **ARCHIVED SKILL**
+> Az aktualis Skill & Guideline fajlokat a `docs/skills/` mappaban talalod.
+> Fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+
+# Claude Skill: Modul 1 - Központi Rendeléskezelés (ARCHIVED)
 
 **Cél:** A bejövő rendelések fogadása, státuszkezelése és a speciális üzleti szabályok (pl. NTAK ÁFA váltás) alkalmazása.
 

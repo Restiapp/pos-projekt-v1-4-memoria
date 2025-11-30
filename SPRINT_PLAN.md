@@ -1,7 +1,13 @@
-# 🚀 V3.0 Master Plan - Resti Bistro POS Rendszer
+> **ARCHIVED / ELAVULT DOKUMENTUM**
+> Ez a dokumentum torteneti celokat szolgal.
+> A fejleszteshez **NE** ezt hasznald specifikaciokent.
+> Aktualis fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+> Aktualis roadmap: `docs/roadmap/MASTER_ROADMAP.md`
+
+# V3.0 Master Plan - Resti Bistro POS Rendszer (ARCHIVED)
 
 **Verzió:** 3.0
-**Állapot:** ACTIVE DEVELOPMENT
+**Állapot:** ARCHIVED (regi terv)
 **Utolsó Frissítés:** 2025-01-18
 **Követési Branch:** main
 

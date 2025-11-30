@@ -1,4 +1,9 @@
-# Sprint 0 Frontend Conflict Cleanup - Status Report
+> **ARCHIVED / HISTORY LOG**
+> Ez a dokumentum torteneti celokat szolgal (Sprint 0 cleanup log).
+> A fejleszteshez **NE** ezt hasznald specifikaciokent.
+> Aktualis fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+
+# Sprint 0 Frontend Conflict Cleanup - Status Report (ARCHIVED)
 
 ## 🎯 Goal
 Clean up ALL leftover merge conflict markers from Sprint 0 frontend merge (PR #8) and restore buildable state.

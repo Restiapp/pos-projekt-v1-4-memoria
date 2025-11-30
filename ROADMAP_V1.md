@@ -1,3 +1,9 @@
+> **ARCHIVED / ELAVULT DOKUMENTUM**
+> Ez a dokumentum torteneti celokat szolgal.
+> A fejleszteshez **NE** ezt hasznald specifikaciokent.
+> Aktualis fo specifikacio: `docs/spec/SYSTEM_MASTER_SPEC_V1.md`
+> Aktualis roadmap: `docs/roadmap/MASTER_ROADMAP.md`
+
 # RESTI POS – FEJLESZTÉSI ROADMAP (v1)
 
 ## 🔵 FÁZIS 1 – ALAPRENDSZER + FUNKCIONÁLIS GERINC

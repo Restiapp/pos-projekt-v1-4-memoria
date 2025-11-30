@@ -57,6 +57,28 @@ const deriveStatus = (table: Table): TableStatus => {
   return table.status ?? metaStatus ?? 'FREE';
 };
 
+/**
+ * Egyedi szín lekérése a metadata-ból, ha van
+ */
+const getCustomColor = (table: Table): { bg: string; text: string; border: string } | null => {
+  const meta = table.metadata_json as Record<string, unknown> | null | undefined;
+  if (meta?.customColor && typeof meta.customColor === 'object') {
+    const color = meta.customColor as { bg?: string; text?: string; border?: string };
+    if (color.bg && color.text && color.border) {
+      return { bg: color.bg, text: color.text, border: color.border };
+    }
+  }
+  return null;
+};
+
+/**
+ * Asztal név lekérése a metadata-ból
+ */
+const getTableName = (table: Table): string => {
+  const meta = table.metadata_json as Record<string, unknown> | null | undefined;
+  return typeof meta?.table_name === 'string' ? meta.table_name : '';
+};
+
 export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
   const navigate = useNavigate();
   const [tables, setTables] = useState<Table[]>([]);
@@ -150,11 +172,18 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
             style={{
               width,
               height,
+              ...(activeRoom?.background_image_url?.startsWith('color:') ?
+                { backgroundColor: activeRoom.background_image_url.substring(6) } :
+                activeRoom?.background_image_url?.startsWith('pattern:') ?
+                { background: activeRoom.background_image_url.substring(8) } :
+                { backgroundColor: '#f8fafc' }
+              ),
             }}
           >
             {filteredTables.map((table) => {
               const status = deriveStatus(table);
-              const palette = statusColors[status] ?? statusColors.FREE;
+              const customColor = getCustomColor(table);
+              const palette = customColor ?? statusColors[status] ?? statusColors.FREE;
               const tableWidth = table.width ?? 96;
               const tableHeight = table.height ?? 96;
               const variant = shapeVariant(table.shape);
@@ -178,7 +207,7 @@ export const TableMap = ({ activeRoomId, rooms }: TableMapProps) => {
                 >
                   <div className="table-node-header">
                     <Text fw={700} size="lg">
-                      {table.table_number}
+                      {getTableName(table) ? `${getTableName(table)} (${table.table_number})` : table.table_number}
                     </Text>
                     <Badge
                       size="xs"

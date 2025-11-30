@@ -3,12 +3,17 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  height: calc(100vh - 80px);
+  overflow: hidden;
 }
 
 .floorplan-layout {
   display: grid;
-  grid-template-columns: 260px 1fr 320px;
+  grid-template-columns: 260px 1fr 340px;
   gap: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 1100px) {
@@ -25,12 +30,19 @@
   box-shadow:
     0 8px 24px rgba(15, 23, 42, 0.06),
     0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .rooms-panel .room-list {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .room-item {
@@ -76,7 +88,9 @@
 }
 
 .canvas-panel {
-  min-height: 640px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .floorplan-canvas {
@@ -88,8 +102,9 @@
     linear-gradient(90deg, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
   background-size: 24px 24px;
   background-color: #f8fafc;
-  min-height: 560px;
-  overflow: hidden;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .floorplan-table {
@@ -162,4 +177,33 @@
 
 .inspector-panel {
   min-height: 640px;
+}
+
+.room-resize-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #4dabf7 0%, #228be6 100%);
+  right: -10px;
+  bottom: -10px;
+  border: 3px solid #ffffff;
+  box-shadow:
+    0 8px 16px rgba(34, 139, 230, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+  cursor: se-resize;
+  z-index: 1000;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.room-resize-handle:hover {
+  transform: scale(1.2);
+  box-shadow:
+    0 10px 20px rgba(34, 139, 230, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.9) inset;
+}
+
+.room-resize-handle:active {
+  transform: scale(1.1);
+  background: linear-gradient(135deg, #339af0 0%, #1c7ed6 100%);
 }
