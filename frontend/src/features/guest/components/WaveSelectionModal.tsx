@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Group, Stack, Text, Badge, ScrollArea } from '@mantine/core';
-import { OrderItem } from '@/api/guestOrderApi';
+import type { OrderItem } from '@/api/guestOrderApi';
 
 interface WaveSelectionModalProps {
   opened: boolean;
