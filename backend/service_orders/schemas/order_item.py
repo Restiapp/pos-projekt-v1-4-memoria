@@ -122,6 +122,72 @@ class OrderItemBase(BaseModel):
         examples=[True, False]
     )
 
+    # Phase D1/D2: Guest Floor Extensions
+    round_number: Optional[int] = Field(
+        1,
+        description="Serving round number (kör)",
+        examples=[1, 2, 3]
+    )
+    is_urgent: Optional[bool] = Field(
+        False,
+        description="High priority flag (via metadata)",
+        examples=[True, False]
+    )
+    course_tag: Optional[str] = Field(
+        None,
+        description="Course identifier (e.g., starter, main)",
+        examples=["starter", "main", "dessert"]
+    )
+    sync_with_course: Optional[str] = Field(
+        None,
+        description="Reference to a course tag to sync timing",
+        examples=["starter"]
+    )
+
+    # Phase D1/D2: Guest Floor Extensions
+    round_number: Optional[int] = Field(
+        1,
+        description="Serving round number (kör)",
+        examples=[1, 2, 3]
+    )
+    is_urgent: Optional[bool] = Field(
+        False,
+        description="High priority flag (via metadata)",
+        examples=[True, False]
+    )
+    course_tag: Optional[str] = Field(
+        None,
+        description="Course identifier (e.g., starter, main)",
+        examples=["starter", "main", "dessert"]
+    )
+    sync_with_course: Optional[str] = Field(
+        None,
+        description="Reference to a course tag to sync timing",
+        examples=["starter"]
+    )
+
+    # Phase D1/D2: Guest Floor Extensions
+    round_number: Optional[int] = Field(
+        1,
+        description="Serving round number (kör)",
+        examples=[1, 2, 3]
+    )
+    is_urgent: Optional[bool] = Field(
+        False,
+        description="High priority flag (via metadata)",
+        examples=[True, False]
+    )
+    course_tag: Optional[str] = Field(
+        None,
+        description="Course identifier (e.g., starter, main)",
+        examples=["starter", "main", "dessert"]
+    )
+    sync_with_course: Optional[str] = Field(
+        None,
+        description="Reference to a course tag to sync timing",
+        examples=["starter"]
+    )
+
 
 class OrderItemCreate(OrderItemBase):
     """Schema for creating a new order item."""
@@ -179,6 +245,60 @@ class OrderItemUpdate(BaseModel):
     is_urgent: Optional[bool] = Field(
         None,
         description="Urgent flag for priority handling"
+    )
+
+    # Phase D1/D2
+    round_number: Optional[int] = Field(
+        None,
+        description="Serving round number"
+    )
+    is_urgent: Optional[bool] = Field(
+        None,
+        description="High priority flag"
+    )
+    course_tag: Optional[str] = Field(
+        None,
+        description="Course identifier"
+    )
+    sync_with_course: Optional[str] = Field(
+        None,
+        description="Reference to a course tag to sync timing"
+    )
+
+    # Phase D1/D2
+    round_number: Optional[int] = Field(
+        None,
+        description="Serving round number"
+    )
+    is_urgent: Optional[bool] = Field(
+        None,
+        description="High priority flag"
+    )
+    course_tag: Optional[str] = Field(
+        None,
+        description="Course identifier"
+    )
+    sync_with_course: Optional[str] = Field(
+        None,
+        description="Reference to a course tag to sync timing"
+    )
+
+    # Phase D1/D2
+    round_number: Optional[int] = Field(
+        None,
+        description="Serving round number"
+    )
+    is_urgent: Optional[bool] = Field(
+        None,
+        description="High priority flag"
+    )
+    course_tag: Optional[str] = Field(
+        None,
+        description="Course identifier"
+    )
+    sync_with_course: Optional[str] = Field(
+        None,
+        description="Reference to a course tag to sync timing"
     )
 
 

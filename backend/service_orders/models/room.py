@@ -17,7 +17,7 @@ class Room(Base):
     type = Column(String(50), default='indoor') # indoor, outdoor
     width = Column(Integer, default=800) # Canvas width
     height = Column(Integer, default=600) # Canvas height
-    background_image_url = Column(String(255), nullable=True)
+    background_image_url = Column(String(1000), nullable=True)  # Increased for gradient patterns
 
     # Relationships
     tables = relationship('Table', back_populates='room', cascade='all, delete-orphan')

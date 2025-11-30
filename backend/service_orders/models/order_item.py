@@ -50,6 +50,31 @@ class OrderItem(Base):
     kds_status = Column(SQLEnum(KDSStatus, native_enum=False), nullable=False, default=KDSStatus.WAITING, index=True)  # Kitchen Display System status
     is_urgent = Column(Boolean, nullable=False, default=False, index=True)  # Urgent flag for KDS priority items
 
+    # Phase D1/D2/D5: Guest Floor Extensions + Wave Selection
+    round_number = Column(Integer, nullable=True, default=1)
+    metadata_json = Column(CompatibleJSON, nullable=True)  # Stores is_urgent, course_tag, sync_with_course, etc.
+
+    # Property Proxies for Pydantic Serialization
+    @property
+    def is_urgent_flag(self):
+        """Returns is_urgent from metadata_json, or falls back to column."""
+        if self.metadata_json and 'is_urgent' in self.metadata_json:
+            return self.metadata_json['is_urgent']
+        return self.is_urgent if hasattr(self, '_is_urgent') else False
+
+    @property
+    def course_tag(self):
+        if self.metadata_json and 'course_tag' in self.metadata_json:
+            return self.metadata_json['course_tag']
+        # Fallback to legacy column if populated
+        return self.course
+
+    @property
+    def sync_with_course(self):
+        if self.metadata_json and 'sync_with_course' in self.metadata_json:
+            return self.metadata_json['sync_with_course']
+        return None
+
     # Relationships
     order = relationship('Order', back_populates='order_items')
     seat = relationship('Seat', back_populates='order_items')
