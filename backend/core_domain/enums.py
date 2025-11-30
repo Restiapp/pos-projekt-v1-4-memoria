@@ -64,3 +64,11 @@ class TableShape(str, Enum):
     ROUND = "ROUND"
     SQUARE = "SQUARE"
     RECTANGLE = "RECTANGLE"
+
+class ServiceRound(int, Enum):
+    """
+    Szerviz hullámok (D5).
+    """
+    IMMEDIATE = 1 # Red
+    NEXT = 2      # Yellow
+    LAST = 3      # Unmarked

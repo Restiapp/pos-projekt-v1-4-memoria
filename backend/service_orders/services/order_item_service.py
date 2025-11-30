@@ -95,19 +95,21 @@ class OrderItemService:
         flags: Dict[str, Any]
     ) -> OrderItem:
         """
-        Update item-level flags (is_urgent, course_tag, sync_with_course).
-        Stores them in metadata_json.
+        Update item-level flags (is_urgent, course_tag, sync_with_course) and round_number.
+        Stores flags in metadata_json, round_number in its column.
         """
         item = db.query(OrderItem).filter(OrderItem.id == item_id).first()
         if not item:
             raise HTTPException(status_code=404, detail="Order item not found")
 
-        # Initialize metadata if None
+        # 1. Handle round_number directly on the column
+        if "round_number" in flags:
+            item.round_number = flags["round_number"]
+
+        # 2. Handle metadata flags
         if item.metadata_json is None:
             item.metadata_json = {}
 
-        # Update flags in metadata
-        # We explicitly handle the allowed flags to prevent pollution
         allowed_flags = ["is_urgent", "course_tag", "sync_with_course"]
 
         # Make a copy to ensure SQLAlchemy detects change
