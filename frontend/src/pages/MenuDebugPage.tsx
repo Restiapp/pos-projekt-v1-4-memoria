@@ -5,7 +5,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { menuV1Service } from '@/services/menuV1Service';
-import { MenuCategoryTree, Channel } from '@/types/menuV1';
+import type { MenuCategoryTree, Channel } from '@/types/menuV1';
 import './MenuDebugPage.css';
 
 export const MenuDebugPage: React.FC = () => {

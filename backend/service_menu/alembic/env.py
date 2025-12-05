@@ -19,9 +19,9 @@ from service_menu.models.menu import (
     MenuCategory,
     MenuItem,
     MenuItemVariant,
-    ModifierGroup,
-    ModifierOption,
-    ModifierAssignment,
+    MenuModifierGroup,
+    MenuModifierOption,
+    MenuModifierAssignment,
     SelectionType
 )
 

@@ -94,9 +94,9 @@ def upgrade() -> None:
     op.create_index('ix_menu_item_variants_item_id', 'menu_item_variants', ['item_id'])
     op.create_index('ix_menu_item_variants_is_active', 'menu_item_variants', ['is_active'])
 
-    # 5. Create modifier_groups table
+    # 5. Create menu_v1_modifier_groups table
     op.create_table(
-        'modifier_groups',
+        'menu_v1_modifier_groups',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
         sa.Column('name', sa.String(length=255), nullable=False),
         sa.Column('description', sa.Text(), nullable=True),
@@ -109,11 +109,11 @@ def upgrade() -> None:
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=True),
         sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('ix_modifier_groups_is_active', 'modifier_groups', ['is_active'])
+    op.create_index('ix_menu_v1_modifier_groups_is_active', 'menu_v1_modifier_groups', ['is_active'])
 
-    # 6. Create modifier_options table
+    # 6. Create menu_v1_modifier_options table
     op.create_table(
-        'modifier_options',
+        'menu_v1_modifier_options',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
         sa.Column('group_id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(length=255), nullable=False),
@@ -123,15 +123,15 @@ def upgrade() -> None:
         sa.Column('metadata_json', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=True),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=True),
-        sa.ForeignKeyConstraint(['group_id'], ['modifier_groups.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['group_id'], ['menu_v1_modifier_groups.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )
-    op.create_index('ix_modifier_options_group_id', 'modifier_options', ['group_id'])
-    op.create_index('ix_modifier_options_is_active', 'modifier_options', ['is_active'])
+    op.create_index('ix_menu_v1_modifier_options_group_id', 'menu_v1_modifier_options', ['group_id'])
+    op.create_index('ix_menu_v1_modifier_options_is_active', 'menu_v1_modifier_options', ['is_active'])
 
-    # 7. Create modifier_assignments table
+    # 7. Create menu_v1_modifier_assignments table
     op.create_table(
-        'modifier_assignments',
+        'menu_v1_modifier_assignments',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
         sa.Column('group_id', sa.Integer(), nullable=False),
         sa.Column('item_id', sa.Integer(), nullable=True),
@@ -141,7 +141,7 @@ def upgrade() -> None:
         sa.Column('position', sa.Integer(), nullable=False, server_default='0'),
         sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=True),
         sa.Column('updated_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=True),
-        sa.ForeignKeyConstraint(['group_id'], ['modifier_groups.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(['group_id'], ['menu_v1_modifier_groups.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['item_id'], ['menu_items.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['category_id'], ['menu_categories.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id'),
@@ -150,24 +150,24 @@ def upgrade() -> None:
             name='check_either_item_or_category'
         )
     )
-    op.create_index('ix_modifier_assignments_group_id', 'modifier_assignments', ['group_id'])
-    op.create_index('ix_modifier_assignments_item_id', 'modifier_assignments', ['item_id'])
-    op.create_index('ix_modifier_assignments_category_id', 'modifier_assignments', ['category_id'])
+    op.create_index('ix_menu_v1_modifier_assignments_group_id', 'menu_v1_modifier_assignments', ['group_id'])
+    op.create_index('ix_menu_v1_modifier_assignments_item_id', 'menu_v1_modifier_assignments', ['item_id'])
+    op.create_index('ix_menu_v1_modifier_assignments_category_id', 'menu_v1_modifier_assignments', ['category_id'])
 
 
 def downgrade() -> None:
     """Drop all Menu V1 tables"""
-    op.drop_index('ix_modifier_assignments_category_id', table_name='modifier_assignments')
-    op.drop_index('ix_modifier_assignments_item_id', table_name='modifier_assignments')
-    op.drop_index('ix_modifier_assignments_group_id', table_name='modifier_assignments')
-    op.drop_table('modifier_assignments')
+    op.drop_index('ix_menu_v1_modifier_assignments_category_id', table_name='menu_v1_modifier_assignments')
+    op.drop_index('ix_menu_v1_modifier_assignments_item_id', table_name='menu_v1_modifier_assignments')
+    op.drop_index('ix_menu_v1_modifier_assignments_group_id', table_name='menu_v1_modifier_assignments')
+    op.drop_table('menu_v1_modifier_assignments')
 
-    op.drop_index('ix_modifier_options_is_active', table_name='modifier_options')
-    op.drop_index('ix_modifier_options_group_id', table_name='modifier_options')
-    op.drop_table('modifier_options')
+    op.drop_index('ix_menu_v1_modifier_options_is_active', table_name='menu_v1_modifier_options')
+    op.drop_index('ix_menu_v1_modifier_options_group_id', table_name='menu_v1_modifier_options')
+    op.drop_table('menu_v1_modifier_options')
 
-    op.drop_index('ix_modifier_groups_is_active', table_name='modifier_groups')
-    op.drop_table('modifier_groups')
+    op.drop_index('ix_menu_v1_modifier_groups_is_active', table_name='menu_v1_modifier_groups')
+    op.drop_table('menu_v1_modifier_groups')
 
     op.drop_index('ix_menu_item_variants_is_active', table_name='menu_item_variants')
     op.drop_index('ix_menu_item_variants_item_id', table_name='menu_item_variants')

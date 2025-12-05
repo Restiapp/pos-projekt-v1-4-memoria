@@ -25,9 +25,9 @@ from backend.service_menu.models.menu import (
     MenuCategory,
     MenuItem,
     MenuItemVariant,
-    ModifierGroup,
-    ModifierOption,
-    ModifierAssignment,
+    MenuModifierGroup,
+    MenuModifierOption,
+    MenuModifierAssignment,
     SelectionType,
 )
 
@@ -172,7 +172,7 @@ def import_sample_modifiers(db: Session) -> None:
     print(f"\nCreating sample modifier groups...")
 
     # 1. Bun Type (Required Single)
-    bun_group = ModifierGroup(
+    bun_group = MenuModifierGroup(
         name="Zsemle típus",
         description="Válassz hamburger zsemlét",
         selection_type=SelectionType.REQUIRED_SINGLE,
@@ -191,7 +191,7 @@ def import_sample_modifiers(db: Session) -> None:
         ("Gluténmentes Zsemle", Decimal("500.00"), False),
     ]
     for name, price_delta, is_default in bun_options:
-        option = ModifierOption(
+        option = MenuModifierOption(
             group_id=bun_group.id,
             name=name,
             price_delta_gross=price_delta,
@@ -203,7 +203,7 @@ def import_sample_modifiers(db: Session) -> None:
     print(f"  - Created group: {bun_group.name} with {len(bun_options)} options")
 
     # 2. Extra Toppings (Optional Multiple)
-    extras_group = ModifierGroup(
+    extras_group = MenuModifierGroup(
         name="Extra feltétek",
         description="Válassz extra feltéteket",
         selection_type=SelectionType.OPTIONAL_MULTIPLE,
@@ -223,7 +223,7 @@ def import_sample_modifiers(db: Session) -> None:
         ("Grillezett ananász", Decimal("200.00"), False),
     ]
     for name, price_delta, is_default in extra_options:
-        option = ModifierOption(
+        option = MenuModifierOption(
             group_id=extras_group.id,
             name=name,
             price_delta_gross=price_delta,
@@ -235,7 +235,7 @@ def import_sample_modifiers(db: Session) -> None:
     print(f"  - Created group: {extras_group.name} with {len(extra_options)} options")
 
     # 3. Side Dish (Optional Single)
-    side_group = ModifierGroup(
+    side_group = MenuModifierGroup(
         name="Köret választás",
         description="Válassz köretet",
         selection_type=SelectionType.OPTIONAL_SINGLE,
@@ -254,7 +254,7 @@ def import_sample_modifiers(db: Session) -> None:
         ("Rizs", Decimal("400.00"), False),
     ]
     for name, price_delta, is_default in side_options:
-        option = ModifierOption(
+        option = MenuModifierOption(
             group_id=side_group.id,
             name=name,
             price_delta_gross=price_delta,

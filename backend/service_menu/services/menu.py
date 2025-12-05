@@ -16,9 +16,9 @@ from backend.service_menu.models.menu import (
     MenuCategory,
     MenuItem,
     MenuItemVariant,
-    ModifierGroup,
-    ModifierOption,
-    ModifierAssignment,
+    MenuModifierGroup,
+    MenuModifierOption,
+    MenuModifierAssignment,
 )
 from backend.service_menu.schemas.menu import (
     MenuCategoryCreate,
@@ -98,7 +98,7 @@ def get_item(db: Session, item_id: int) -> Optional[MenuItem]:
         db.query(MenuItem)
         .options(
             selectinload(MenuItem.variants),
-            selectinload(MenuItem.modifier_assignments).selectinload(ModifierAssignment.group)
+            selectinload(MenuItem.modifier_assignments).selectinload(MenuModifierAssignment.group)
         )
         .filter(MenuItem.id == item_id)
         .first()
@@ -201,34 +201,34 @@ def delete_variant(db: Session, variant_id: int) -> bool:
 # ModifierGroup Service
 # ===========================
 
-def get_modifier_group(db: Session, group_id: int) -> Optional[ModifierGroup]:
+def get_modifier_group(db: Session, group_id: int) -> Optional[MenuModifierGroup]:
     """Get modifier group by ID with options"""
     return (
-        db.query(ModifierGroup)
-        .options(selectinload(ModifierGroup.options))
-        .filter(ModifierGroup.id == group_id)
+        db.query(MenuModifierGroup)
+        .options(selectinload(MenuModifierGroup.options))
+        .filter(MenuModifierGroup.id == group_id)
         .first()
     )
 
 
-def get_modifier_groups(db: Session, skip: int = 0, limit: int = 100, active_only: bool = False) -> List[ModifierGroup]:
+def get_modifier_groups(db: Session, skip: int = 0, limit: int = 100, active_only: bool = False) -> List[MenuModifierGroup]:
     """Get all modifier groups with pagination"""
-    query = db.query(ModifierGroup)
+    query = db.query(MenuModifierGroup)
     if active_only:
-        query = query.filter(ModifierGroup.is_active == True)
-    return query.order_by(ModifierGroup.position).offset(skip).limit(limit).all()
+        query = query.filter(MenuModifierGroup.is_active == True)
+    return query.order_by(MenuModifierGroup.position).offset(skip).limit(limit).all()
 
 
-def create_modifier_group(db: Session, group: ModifierGroupCreate) -> ModifierGroup:
+def create_modifier_group(db: Session, group: ModifierGroupCreate) -> MenuModifierGroup:
     """Create a new modifier group"""
-    db_group = ModifierGroup(**group.model_dump())
+    db_group = MenuModifierGroup(**group.model_dump())
     db.add(db_group)
     db.commit()
     db.refresh(db_group)
     return db_group
 
 
-def update_modifier_group(db: Session, group_id: int, group: ModifierGroupUpdate) -> Optional[ModifierGroup]:
+def update_modifier_group(db: Session, group_id: int, group: ModifierGroupUpdate) -> Optional[MenuModifierGroup]:
     """Update an existing modifier group"""
     db_group = get_modifier_group(db, group_id)
     if not db_group:
@@ -257,26 +257,26 @@ def delete_modifier_group(db: Session, group_id: int) -> bool:
 # ModifierOption Service
 # ===========================
 
-def get_modifier_option(db: Session, option_id: int) -> Optional[ModifierOption]:
+def get_modifier_option(db: Session, option_id: int) -> Optional[MenuModifierOption]:
     """Get modifier option by ID"""
-    return db.query(ModifierOption).filter(ModifierOption.id == option_id).first()
+    return db.query(MenuModifierOption).filter(MenuModifierOption.id == option_id).first()
 
 
-def get_modifier_options_by_group(db: Session, group_id: int) -> List[ModifierOption]:
+def get_modifier_options_by_group(db: Session, group_id: int) -> List[MenuModifierOption]:
     """Get all options for a modifier group"""
-    return db.query(ModifierOption).filter(ModifierOption.group_id == group_id).all()
+    return db.query(MenuModifierOption).filter(MenuModifierOption.group_id == group_id).all()
 
 
-def create_modifier_option(db: Session, option: ModifierOptionCreate) -> ModifierOption:
+def create_modifier_option(db: Session, option: ModifierOptionCreate) -> MenuModifierOption:
     """Create a new modifier option"""
-    db_option = ModifierOption(**option.model_dump())
+    db_option = MenuModifierOption(**option.model_dump())
     db.add(db_option)
     db.commit()
     db.refresh(db_option)
     return db_option
 
 
-def update_modifier_option(db: Session, option_id: int, option: ModifierOptionUpdate) -> Optional[ModifierOption]:
+def update_modifier_option(db: Session, option_id: int, option: ModifierOptionUpdate) -> Optional[MenuModifierOption]:
     """Update an existing modifier option"""
     db_option = get_modifier_option(db, option_id)
     if not db_option:
@@ -305,47 +305,47 @@ def delete_modifier_option(db: Session, option_id: int) -> bool:
 # ModifierAssignment Service
 # ===========================
 
-def get_modifier_assignment(db: Session, assignment_id: int) -> Optional[ModifierAssignment]:
+def get_modifier_assignment(db: Session, assignment_id: int) -> Optional[MenuModifierAssignment]:
     """Get modifier assignment by ID"""
-    return db.query(ModifierAssignment).filter(ModifierAssignment.id == assignment_id).first()
+    return db.query(MenuModifierAssignment).filter(MenuModifierAssignment.id == assignment_id).first()
 
 
-def get_modifier_assignments_by_item(db: Session, item_id: int) -> List[ModifierAssignment]:
+def get_modifier_assignments_by_item(db: Session, item_id: int) -> List[MenuModifierAssignment]:
     """Get all modifier assignments for a menu item"""
     return (
-        db.query(ModifierAssignment)
+        db.query(MenuModifierAssignment)
         .options(
-            selectinload(ModifierAssignment.group).selectinload(ModifierGroup.options)
+            selectinload(MenuModifierAssignment.group).selectinload(MenuModifierGroup.options)
         )
-        .filter(ModifierAssignment.item_id == item_id)
-        .order_by(ModifierAssignment.position)
+        .filter(MenuModifierAssignment.item_id == item_id)
+        .order_by(MenuModifierAssignment.position)
         .all()
     )
 
 
-def get_modifier_assignments_by_category(db: Session, category_id: int) -> List[ModifierAssignment]:
+def get_modifier_assignments_by_category(db: Session, category_id: int) -> List[MenuModifierAssignment]:
     """Get all modifier assignments for a category"""
     return (
-        db.query(ModifierAssignment)
+        db.query(MenuModifierAssignment)
         .options(
-            selectinload(ModifierAssignment.group).selectinload(ModifierGroup.options)
+            selectinload(MenuModifierAssignment.group).selectinload(MenuModifierGroup.options)
         )
-        .filter(ModifierAssignment.category_id == category_id)
-        .order_by(ModifierAssignment.position)
+        .filter(MenuModifierAssignment.category_id == category_id)
+        .order_by(MenuModifierAssignment.position)
         .all()
     )
 
 
-def create_modifier_assignment(db: Session, assignment: ModifierAssignmentCreate) -> ModifierAssignment:
+def create_modifier_assignment(db: Session, assignment: ModifierAssignmentCreate) -> MenuModifierAssignment:
     """Create a new modifier assignment"""
-    db_assignment = ModifierAssignment(**assignment.model_dump())
+    db_assignment = MenuModifierAssignment(**assignment.model_dump())
     db.add(db_assignment)
     db.commit()
     db.refresh(db_assignment)
     return db_assignment
 
 
-def update_modifier_assignment(db: Session, assignment_id: int, assignment: ModifierAssignmentUpdate) -> Optional[ModifierAssignment]:
+def update_modifier_assignment(db: Session, assignment_id: int, assignment: ModifierAssignmentUpdate) -> Optional[MenuModifierAssignment]:
     """Update an existing modifier assignment"""
     db_assignment = get_modifier_assignment(db, assignment_id)
     if not db_assignment:
@@ -411,7 +411,7 @@ def _build_category_tree(db: Session, category: MenuCategory, channel: str) -> D
         db.query(MenuItem)
         .options(
             selectinload(MenuItem.variants),
-            selectinload(MenuItem.modifier_assignments).selectinload(ModifierAssignment.group).selectinload(ModifierGroup.options)
+            selectinload(MenuItem.modifier_assignments).selectinload(MenuModifierAssignment.group).selectinload(MenuModifierGroup.options)
         )
         .filter(MenuItem.category_id == category.id, MenuItem.is_active == True)
     )

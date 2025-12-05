@@ -55,7 +55,7 @@ class MenuCategory(Base):
     # Relationships
     parent = relationship('MenuCategory', remote_side=[id], backref='subcategories')
     items = relationship('MenuItem', back_populates='category')
-    modifier_assignments = relationship('ModifierAssignment', back_populates='category')
+    modifier_assignments = relationship('MenuModifierAssignment', back_populates='category')
 
     def __repr__(self):
         return f"<MenuCategory(id={self.id}, name='{self.name}', parent_id={self.parent_id})>"
@@ -91,7 +91,7 @@ class MenuItem(Base):
     # Relationships
     category = relationship('MenuCategory', back_populates='items')
     variants = relationship('MenuItemVariant', back_populates='item', cascade='all, delete-orphan')
-    modifier_assignments = relationship('ModifierAssignment', back_populates='item')
+    modifier_assignments = relationship('MenuModifierAssignment', back_populates='item')
 
     def __repr__(self):
         return f"<MenuItem(id={self.id}, name='{self.name}', price={self.base_price_gross})>"
@@ -122,14 +122,16 @@ class MenuItemVariant(Base):
         return f"<MenuItemVariant(id={self.id}, name='{self.name}', delta={self.price_delta})>"
 
 
-class ModifierGroup(Base):
+class MenuModifierGroup(Base):
     """
-    Modifier Group Model
+    Menu V1 Modifier Group Model
 
     Groups of modifiers/extras (e.g. "Bun type", "Extra toppings").
     Defines selection rules (required single, optional multiple, etc.).
+
+    Note: Named MenuModifierGroup to avoid conflict with legacy ModifierGroup.
     """
-    __tablename__ = 'modifier_groups'
+    __tablename__ = 'menu_v1_modifier_groups'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)  # e.g. "Zsemle típus"
@@ -143,24 +145,26 @@ class ModifierGroup(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    options = relationship('ModifierOption', back_populates='group', cascade='all, delete-orphan')
-    assignments = relationship('ModifierAssignment', back_populates='group')
+    options = relationship('MenuModifierOption', back_populates='group', cascade='all, delete-orphan')
+    assignments = relationship('MenuModifierAssignment', back_populates='group')
 
     def __repr__(self):
-        return f"<ModifierGroup(id={self.id}, name='{self.name}', type={self.selection_type.value})>"
+        return f"<MenuModifierGroup(id={self.id}, name='{self.name}', type={self.selection_type.value})>"
 
 
-class ModifierOption(Base):
+class MenuModifierOption(Base):
     """
-    Modifier Option Model
+    Menu V1 Modifier Option Model
 
     Individual options within a modifier group (e.g. "Sesame bun", "Extra bacon").
     Each option has a price delta relative to base price.
+
+    Note: Named MenuModifierOption to avoid conflict with legacy Modifier.
     """
-    __tablename__ = 'modifier_options'
+    __tablename__ = 'menu_v1_modifier_options'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    group_id = Column(Integer, ForeignKey('modifier_groups.id', ondelete='CASCADE'), nullable=False)
+    group_id = Column(Integer, ForeignKey('menu_v1_modifier_groups.id', ondelete='CASCADE'), nullable=False)
     name = Column(String(255), nullable=False)  # e.g. "Szezámmagos zsemle"
     price_delta_gross = Column(Numeric(10, 2), default=0.00, nullable=False)  # +/- price
     is_default = Column(Boolean, default=False, nullable=False)
@@ -173,25 +177,27 @@ class ModifierOption(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    group = relationship('ModifierGroup', back_populates='options')
+    group = relationship('MenuModifierGroup', back_populates='options')
 
     def __repr__(self):
-        return f"<ModifierOption(id={self.id}, name='{self.name}', delta={self.price_delta_gross})>"
+        return f"<MenuModifierOption(id={self.id}, name='{self.name}', delta={self.price_delta_gross})>"
 
 
-class ModifierAssignment(Base):
+class MenuModifierAssignment(Base):
     """
-    Modifier Assignment Model
+    Menu V1 Modifier Assignment Model
 
     Links modifier groups to menu items or categories.
     Allows group-level or item-level modifier assignments.
     E.g. "Bun type" applies to all burgers in category,
     or "Extra toppings" applies to specific item.
+
+    Note: Named MenuModifierAssignment to avoid conflict with legacy models.
     """
-    __tablename__ = 'modifier_assignments'
+    __tablename__ = 'menu_v1_modifier_assignments'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    group_id = Column(Integer, ForeignKey('modifier_groups.id', ondelete='CASCADE'), nullable=False)
+    group_id = Column(Integer, ForeignKey('menu_v1_modifier_groups.id', ondelete='CASCADE'), nullable=False)
 
     # Either item_id OR category_id must be set (not both)
     item_id = Column(Integer, ForeignKey('menu_items.id', ondelete='CASCADE'), nullable=True)
@@ -204,10 +210,10 @@ class ModifierAssignment(Base):
     updated_at = Column(TIMESTAMP(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    group = relationship('ModifierGroup', back_populates='assignments')
+    group = relationship('MenuModifierGroup', back_populates='assignments')
     item = relationship('MenuItem', back_populates='modifier_assignments')
     category = relationship('MenuCategory', back_populates='modifier_assignments')
 
     def __repr__(self):
         target = f"item={self.item_id}" if self.item_id else f"category={self.category_id}"
-        return f"<ModifierAssignment(id={self.id}, group={self.group_id}, {target})>"
+        return f"<MenuModifierAssignment(id={self.id}, group={self.group_id}, {target})>"
