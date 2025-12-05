@@ -1,6 +1,9 @@
 """
-ModifierGroup Model - SQLAlchemy ORM
+LEGACY: ModifierGroup Model - SQLAlchemy ORM
 Module 0: Terméktörzs és Menü
+
+LEGACY MODEL - DO NOT USE FOR NEW FEATURES
+Use backend/service_menu/models/menu.py for Menu Model V1
 
 Módosító csoportok kezelése, például "Zsemle típus", "Extra feltétek".
 Definiálja a választási szabályokat (min/max selection).

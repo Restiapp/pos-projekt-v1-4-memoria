@@ -1,6 +1,9 @@
 """
-Product Model - SQLAlchemy ORM
+LEGACY: Product Model - SQLAlchemy ORM
 Module 0: Terméktörzs és Menü
+
+LEGACY MODEL - DO NOT USE FOR NEW FEATURES
+Use backend/service_menu/models/menu.py for Menu Model V1
 
 A termékek táblázata, amely tartalmazza az alap termék információkat,
 AI fordítást (translations JSONB), és kapcsolatokat a kategóriákhoz és képekhez.

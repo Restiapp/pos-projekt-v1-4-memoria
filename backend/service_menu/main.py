@@ -24,6 +24,8 @@ from backend.service_menu.routers import (
     channels_router,
     allergens_router,
 )
+# Import Menu V1 router
+from backend.service_menu.routers.menu import router as menu_v1_router
 
 # Create FastAPI application
 app = FastAPI(
@@ -112,6 +114,14 @@ app.include_router(
     allergens_router,
     prefix="/api/v1",
     tags=["Allergens"],
+    dependencies=[Depends(require_permission("menu:view"))]
+)
+
+# Register Menu V1 Router (Sprint D6)
+app.include_router(
+    menu_v1_router,
+    prefix="/api/v1",
+    tags=["Menu V1"],
     dependencies=[Depends(require_permission("menu:view"))]
 )
 
