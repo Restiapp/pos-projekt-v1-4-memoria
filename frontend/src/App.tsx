@@ -48,6 +48,9 @@ import { ConfirmProvider } from '@/components/common/ConfirmDialog';
 // DEBUG
 import { DebugAuthPage } from '@/pages/DebugAuthPage';
 
+// Sprint D6: Menu V1 Debug
+import { MenuDebugPage } from '@/pages/MenuDebugPage';
+
 function App() {
   const { loadUserFromStorage } = useAuth();
 
@@ -217,6 +220,16 @@ function App() {
             element={
               <ProtectedRoute requiredPermission="vehicles:manage">
                 <VehiclesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Sprint D6: Menu V1 Debug Route */}
+          <Route
+            path="menu-debug"
+            element={
+              <ProtectedRoute requiredPermission="menu:view">
+                <MenuDebugPage />
               </ProtectedRoute>
             }
           />

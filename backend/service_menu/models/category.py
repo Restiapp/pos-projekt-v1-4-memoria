@@ -1,6 +1,9 @@
 """
-Category Model - SQLAlchemy ORM
+LEGACY: Category Model - SQLAlchemy ORM
 Module 0: Terméktörzs és Menü
+
+LEGACY MODEL - DO NOT USE FOR NEW FEATURES
+Use backend/service_menu/models/menu.py for Menu Model V1
 
 A kategóriák hierarchikus struktúrát támogatnak (parent_id).
 """

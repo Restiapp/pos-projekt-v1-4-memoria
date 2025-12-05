@@ -1,6 +1,9 @@
 """
-Modifier Model - SQLAlchemy ORM
+LEGACY: Modifier Model - SQLAlchemy ORM
 Module 0: Terméktörzs és Menü
+
+LEGACY MODEL - DO NOT USE FOR NEW FEATURES
+Use backend/service_menu/models/menu.py for Menu Model V1
 
 Egyedi módosítók kezelése egy csoporton belül.
 Például "Szezámos zsemle", "Extra sajt".
