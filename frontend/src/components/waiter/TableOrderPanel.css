@@ -1,0 +1,528 @@
+/**
+ * TableOrderPanel Styles
+ * Following UI_UX_FOUNDATION.md design system
+ */
+
+.table-order-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #101821;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* ========================================
+   PANEL HEADER
+   ======================================== */
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #050B10 0%, #101821 100%);
+  border-bottom: 1px solid #1F2A33;
+}
+
+.panel-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.panel-header-info h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0;
+}
+
+.table-capacity {
+  font-size: 14px;
+  color: #A0ACB8;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.order-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: #16A085;
+  padding: 4px 10px;
+  background: rgba(22, 160, 133, 0.15);
+  border: 1px solid #16A085;
+  border-radius: 6px;
+}
+
+.panel-close-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #1F2A33;
+  border-radius: 6px;
+  color: #A0ACB8;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.panel-close-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: #F5F7FA;
+  color: #F5F7FA;
+}
+
+/* ========================================
+   PANEL ACTIONS
+   ======================================== */
+
+.panel-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #1F2A33;
+}
+
+/* ========================================
+   PANEL CONTENT
+   ======================================== */
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.panel-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+  background: #050B10;
+  border-radius: 4px;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+  background: #1F2A33;
+  border-radius: 4px;
+}
+
+.panel-content::-webkit-scrollbar-thumb:hover {
+  background: #2A3745;
+}
+
+/* ========================================
+   ROUNDS CONTAINER
+   ======================================== */
+
+.rounds-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.round-card {
+  background: #0A1117;
+  border: 1px solid #1F2A33;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.round-header {
+  padding: 12px 16px;
+  background: rgba(22, 160, 133, 0.08);
+  border-bottom: 1px solid #1F2A33;
+}
+
+.round-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.round-label h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #16A085;
+  margin: 0;
+  flex: 1;
+}
+
+.round-label-edit {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.round-label-input {
+  flex: 1;
+  padding: 8px 12px;
+  background: #101821;
+  border: 1px solid #16A085;
+  border-radius: 6px;
+  color: #F5F7FA;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.round-label-input:focus {
+  outline: none;
+  border-color: #1ABC9C;
+  box-shadow: 0 0 0 3px rgba(22, 160, 133, 0.2);
+}
+
+.round-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #6C7A89;
+  font-size: 14px;
+}
+
+.round-items {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================================
+   ORDER ITEMS
+   ======================================== */
+
+.order-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #1F2A33;
+  transition: background 0.2s ease;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.order-item.item-urgent {
+  border-left: 3px solid #E74C3C;
+  background: rgba(231, 76, 60, 0.05);
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.item-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #F5F7FA;
+}
+
+.urgent-badge {
+  font-size: 14px;
+}
+
+.item-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.item-quantity {
+  color: #A0ACB8;
+  font-weight: 600;
+}
+
+.item-price {
+  color: #16A085;
+  font-weight: 600;
+}
+
+.kds-status {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.kds-várakozik {
+  background: rgba(52, 152, 219, 0.2);
+  color: #3498DB;
+}
+
+.kds-készül {
+  background: rgba(241, 196, 15, 0.2);
+  color: #F1C40F;
+}
+
+.kds-kész {
+  background: rgba(46, 204, 113, 0.2);
+  color: #2ECC71;
+}
+
+.kds-kiszolgálva {
+  background: rgba(127, 140, 141, 0.2);
+  color: #7F8C8D;
+}
+
+/* ========================================
+   PANEL FOOTER
+   ======================================== */
+
+.panel-footer {
+  padding: 16px 20px;
+  background: #0A1117;
+  border-top: 1px solid #1F2A33;
+}
+
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1F2A33;
+}
+
+.total-label {
+  font-size: 14px;
+  color: #A0ACB8;
+  font-weight: 500;
+}
+
+.total-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #16A085;
+}
+
+/* ========================================
+   EMPTY STATES
+   ======================================== */
+
+.panel-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: 300px;
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  color: #2980B9;
+  opacity: 0.6;
+}
+
+.empty-state-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.panel-empty-state h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0 0 8px 0;
+}
+
+.panel-empty-state p {
+  font-size: 14px;
+  color: #6C7A89;
+  margin: 0 0 24px 0;
+}
+
+.empty-state-small {
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.empty-state-small p {
+  font-size: 14px;
+  color: #6C7A89;
+  margin: 0 0 8px 0;
+}
+
+.empty-state-small .hint {
+  font-size: 13px;
+  color: #556270;
+  margin: 0;
+}
+
+.panel-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  min-height: 200px;
+}
+
+.panel-loading p {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #A0ACB8;
+}
+
+/* ========================================
+   BUTTONS (UI_UX_FOUNDATION compliant)
+   ======================================== */
+
+.btn-primary {
+  min-height: 44px;
+  padding: 0 24px;
+  background: #16A085;
+  color: #F5F7FA;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #1ABC9C;
+  box-shadow: 0 4px 12px rgba(22, 160, 133, 0.3);
+}
+
+.btn-primary:active:not(:disabled) {
+  background: #138D75;
+  transform: translateY(1px);
+}
+
+.btn-primary:disabled {
+  background: #7F8C8D;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-secondary {
+  min-height: 44px;
+  padding: 0 24px;
+  background: transparent;
+  color: #2980B9;
+  border: 1px solid #2980B9;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: rgba(41, 128, 185, 0.1);
+  border-color: #3498DB;
+  color: #3498DB;
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.btn-secondary:disabled {
+  border-color: #7F8C8D;
+  color: #7F8C8D;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-lg {
+  min-height: 52px;
+  font-size: 16px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.btn-icon.btn-ghost {
+  color: #A0ACB8;
+}
+
+.btn-icon.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #F5F7FA;
+}
+
+.btn-icon.btn-success {
+  color: #2ECC71;
+  border-color: #2ECC71;
+}
+
+.btn-icon.btn-success:hover {
+  background: rgba(46, 204, 113, 0.1);
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .panel-header {
+    padding: 12px 16px;
+  }
+
+  .panel-header-info h2 {
+    font-size: 18px;
+  }
+
+  .panel-actions {
+    flex-direction: column;
+  }
+
+  .panel-actions button {
+    width: 100%;
+  }
+
+  .panel-content {
+    padding: 16px;
+  }
+
+  .empty-state-icon {
+    width: 64px;
+    height: 64px;
+  }
+}

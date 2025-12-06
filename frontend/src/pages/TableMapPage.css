@@ -1,9 +1,48 @@
 .table-map-page {
+  height: 100%;
+  display: flex;
+  gap: 16px;
+}
+
+.table-map-page__main {
+  flex: 1;
+  min-width: 0;
   padding-bottom: 2rem;
+}
+
+.table-map-page__container {
+  height: 100%;
 }
 
 .table-map-page__header {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.table-map-page__panel {
+  width: 420px;
+  flex-shrink: 0;
+  background: #101821;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Responsive: Stack panel below on smaller screens */
+@media (max-width: 1024px) {
+  .table-map-page {
+    flex-direction: column;
+  }
+
+  .table-map-page__panel {
+    width: 100%;
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .table-map-page__panel {
+    max-height: 60vh;
+  }
 }

@@ -44,6 +44,20 @@
   transform: scale(0.99);
 }
 
+.table-map-node.table-selected {
+  border-color: #16A085 !important;
+  box-shadow:
+    0 16px 32px rgba(22, 160, 133, 0.25),
+    0 0 0 3px rgba(22, 160, 133, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+  transform: scale(1.05);
+  z-index: 10;
+}
+
+.table-map-node.table-selected:hover {
+  transform: scale(1.05) translateY(-2px);
+}
+
 .table-shape-round {
   border-radius: 999px;
 }
@@ -95,4 +109,11 @@
 .table-map-empty {
   min-height: 320px;
   padding: 24px;
+}
+
+.table-elapsed-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 2px;
+  opacity: 0.95;
 }

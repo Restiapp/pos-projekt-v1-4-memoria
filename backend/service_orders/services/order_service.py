@@ -32,6 +32,8 @@ from backend.service_orders.schemas.order import (
 from backend.core_domain.enums import OrderStatus, OrderType
 
 from backend.service_orders.config import settings
+# Phase D1
+from backend.service_orders.models.order_item import OrderItem
 
 logger = logging.getLogger(__name__)
 
@@ -109,6 +111,127 @@ class OrderService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Hiba a rendelés létrehozása során: {str(e)}"
             )
+
+    @staticmethod
+    def open_order_for_table(db: Session, table_id: int) -> Order:
+        """
+        Phase D1: Open or retrieve existing OPEN order for a table.
+        """
+        # Check for existing OPEN order
+        existing_order = db.query(Order).filter(
+            Order.table_id == table_id,
+            Order.status == OrderStatus.OPEN.value
+        ).first()
+
+        if existing_order:
+            return existing_order
+
+        # Create new order
+        new_order = Order(
+            table_id=table_id,
+            order_type=OrderType.DINE_IN.value,
+            status=OrderStatus.OPEN.value,
+            total_amount=Decimal("0.00")
+        )
+        db.add(new_order)
+        db.commit()
+        db.refresh(new_order)
+        return new_order
+
+    @staticmethod
+    def add_items_with_round(
+        db: Session,
+        order_id: int,
+        round_number: int,
+        items_data: List[Dict[str, Any]]
+    ) -> List[OrderItem]:
+        """
+        Phase D1: Add items to order with specific round number and flags.
+        """
+        order = OrderService.get_order(db, order_id)
+        if order.status != OrderStatus.OPEN.value:
+             raise HTTPException(status_code=400, detail="Order is not OPEN")
+
+        created_items = []
+        for item_data in items_data:
+            # Extract flags for metadata
+            metadata = {}
+            if item_data.get("is_urgent"): metadata["is_urgent"] = True
+            if item_data.get("course_tag"): metadata["course_tag"] = item_data["course_tag"]
+            if item_data.get("sync_with_course"): metadata["sync_with_course"] = item_data["sync_with_course"]
+
+            new_item = OrderItem(
+                order_id=order_id,
+                product_id=item_data["product_id"],
+                quantity=item_data["quantity"],
+                # TODO: Fetch real price from Service Menu (Module 0)
+                unit_price=Decimal("0.00"),
+                round_number=round_number,
+                metadata_json=metadata,
+                course=item_data.get("course_tag") # Sync generic course col
+            )
+            db.add(new_item)
+            created_items.append(new_item)
+
+        db.commit()
+        for item in created_items:
+            db.refresh(item)
+
+        return created_items
+
+    @staticmethod
+    def get_table_metrics(db: Session, table_id: int) -> Dict[str, Any]:
+        """
+        Phase D2: Get time metrics for table.
+        """
+        order = db.query(Order).filter(
+            Order.table_id == table_id,
+            Order.status == OrderStatus.OPEN.value
+        ).first()
+
+        if not order:
+            return {"table_id": table_id, "active": False}
+
+        # Find earliest KDS send time? (Mock for now, or derive from item created_at)
+        # We'll use the order creation time as "order_start_time"
+
+        return {
+            "table_id": table_id,
+            "active_order_id": order.id,
+            "order_start_time": order.created_at.isoformat() if order.created_at else None,
+            "active": True
+        }
+
+    @staticmethod
+    def send_round_to_kds(db: Session, order_id: int, round_number: int) -> Dict[str, Any]:
+        """
+        Phase D1: Send items in a specific round to KDS.
+        """
+        from backend.service_orders.models.order_item import OrderItem
+
+        items = db.query(OrderItem).filter(
+            OrderItem.order_id == order_id,
+            OrderItem.round_number == round_number
+        ).all()
+
+        if not items:
+            raise HTTPException(status_code=404, detail=f"No items found for round {round_number}")
+
+        # MOCK KDS Integration
+        # In a real implementation, this would create KDS Tickets via KdsService
+        sent_count = 0
+        for item in items:
+            if item.kds_status == "VÁRAKOZIK":
+                 item.kds_status = "KÉSZÜL" # Mark as sent
+                 sent_count += 1
+
+        db.commit()
+
+        return {
+            "message": f"Sent round {round_number} to KDS",
+            "items_sent": sent_count,
+            "round": round_number
+        }
 
     @staticmethod
     def get_order(db: Session, order_id: int) -> Order:

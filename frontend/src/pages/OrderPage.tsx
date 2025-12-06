@@ -14,12 +14,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { GlobalHeader } from '@/components/layout/GlobalHeader';
 import { getProducts, getCategories } from '@/services/menuService';
 import { createOrder, addItemToOrder } from '@/services/orderService';
+import { useToast } from '@/components/common/Toast';
+import { Spinner } from '@/components/ui/Spinner';
 import type { Product, Category } from '@/types/menu';
 import type { CartItem, OrderTypeEnum, OrderStatusEnum } from '@/types/order';
 import './OrderPage.css';
 
 export const OrderPage = () => {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [searchParams] = useSearchParams();
   const tableIdParam = searchParams.get('table_id');
 
@@ -48,9 +51,9 @@ export const OrderPage = () => {
         // Load all active products
         const productsResponse = await getProducts(1, 100, true);
         setProducts(productsResponse.items);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Hiba az adatok betöltésekor:', error);
-        alert('Nem sikerült betölteni a termékeket!');
+        showToast('Nem sikerült betölteni a termékeket. Próbáld újra.', 'error');
       } finally {
         setIsLoading(false);
       }
@@ -129,7 +132,7 @@ export const OrderPage = () => {
   // Submit order
   const handleSubmitOrder = async () => {
     if (cart.length === 0) {
-      alert('A kosár üres! Adj hozzá legalább egy terméket.');
+      showToast('A kosár üres! Adj hozzá legalább egy terméket.', 'error');
       return;
     }
 
@@ -163,17 +166,17 @@ export const OrderPage = () => {
         await addItemToOrder(createdOrder.id, itemData);
       }
 
-      alert(`Rendelés sikeresen leadva! Rendelésszám: #${createdOrder.id}`);
+      showToast(`Rendelés sikeresen leadva! Rendelésszám: #${createdOrder.id}`, 'success');
 
       // Clear cart
       setCart([]);
 
-      // Navigate to table map or order details
+      // Navigate to table map
       navigate('/tables');
     } catch (error: any) {
       console.error('Hiba a rendelés leadásakor:', error);
       const errorMessage = error.response?.data?.detail || error.message || 'Ismeretlen hiba';
-      alert(`Nem sikerült leadni a rendelést!\n\n${errorMessage}`);
+      showToast(`Nem sikerült leadni a rendelést: ${errorMessage}`, 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -245,7 +248,10 @@ export const OrderPage = () => {
 
             {/* Product Grid */}
             {isLoading ? (
-              <div className="loading-state">Betöltés...</div>
+              <div className="loading-state">
+                <Spinner />
+                <p>Termékek betöltése...</p>
+              </div>
             ) : (
               <div className="product-grid">
                 {filteredProducts.length === 0 ? (

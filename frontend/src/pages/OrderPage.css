@@ -381,10 +381,67 @@
 /* Loading & Empty States */
 .loading-state,
 .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   padding: 60px 20px;
   color: #999;
   font-size: 16px;
+  gap: 16px;
+}
+
+.loading-state p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Item Flags Integration */
+.cart-item.urgent {
+  border-left: 3px solid #ff6b6b;
+  background: linear-gradient(to right, #fff5f5 0%, #fafafa 100%);
+}
+
+.cart-item.synced {
+  border-right: 3px solid #4dabf7;
+}
+
+.cart-item.urgent.synced {
+  border-left: 3px solid #ff6b6b;
+  border-right: 3px solid #4dabf7;
+  background: linear-gradient(to right, #fff5f5 0%, #fafafa 50%, #f0f9ff 100%);
+}
+
+.item-indicators {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.indicator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.indicator-badge.urgent {
+  background: #ffe3e3;
+  color: #c92a2a;
+  border: 1px solid #ffc9c9;
+}
+
+.indicator-badge.synced {
+  background: #d0ebff;
+  color: #1971c2;
+  border: 1px solid #a5d8ff;
 }
 
 /* Responsive */
